@@ -153,13 +153,7 @@ export const timeline: TimelineEntry[] = [
   { id: 'commercialStart', dot: '#46427e' },
 ]
 
-export type ServiceId =
-  | 'vue'
-  | 'systems'
-  | 'landing'
-  | 'product'
-  | 'integrations'
-  | 'leadership'
+export type ServiceId = 'vue' | 'systems' | 'landing' | 'product' | 'integrations' | 'leadership'
 export const services: ServiceId[] = [
   'vue',
   'systems',
