@@ -19,8 +19,7 @@ export async function sendContactRequest(payload: ContactPayload): Promise<{ ok:
     return { ok: true }
   }
 
-  // Absolute URL -> axios ignores its baseURL and posts straight to the function.
-  await api.post(`${baseUrl.replace(/\/$/, '')}/contact`, payload, {
+  await api.post(baseUrl, payload, {
     toast: { error: i18n.global.t('home.contact.form.sendError') },
   })
   return { ok: true }
