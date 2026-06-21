@@ -170,7 +170,8 @@
       "errorName": "Name — at least 3 characters, letters only",
       "errorContact": "Enter a valid email or Telegram — e.g. {email} or {handle}",
       "errorContactOwn": "Those are my contacts — please leave your own",
-      "errorAbout": "Describe your task"
+      "errorAbout": "Describe your task",
+      "sendError": "Couldn't send your request. Please try again."
     },
     "success": {
       "title": "Request sent",
