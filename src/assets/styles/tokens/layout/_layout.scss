@@ -1,0 +1,6 @@
+:root {
+  --layout-gutter: clamp(20px, 5vw, 64px);
+  --layout-band: clamp(80px, 12vh, 140px);
+  --layout-band-sm: clamp(40px, 8vh, 90px);
+  --layout-max-width: 1320px;
+}

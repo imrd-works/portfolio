@@ -1,0 +1,63 @@
+// All mixins read from the canonical breakpoint map (see breakpoints/_config).
+// Naming:
+//   bp-up($name)              — from this breakpoint and wider  (min-width)
+//   bp-down($name)            — narrower than this breakpoint  (max-width)
+//   bp-between($from, $to)    — both bounds inclusive of $from, exclusive of $to
+//   bp-only($name)            — exactly this breakpoint band
+//
+// Breakpoint keys: xs (0), sm (480), md (768), lg (1024), xl (1280), 2xl (1536).
+// `xs` is implicit — `bp-up(xs)` is a no-op wrapper.
+
+@use '../base/breakpoints' as cfg;
+
+@mixin bp-up($name) {
+  @if cfg.bp-value($name) == 0 {
+    @content;
+  } @else {
+    @media (min-width: cfg.bp-value($name)) {
+      @content;
+    }
+  }
+}
+
+@mixin bp-down($name) {
+  @media (max-width: cfg.bp-max($name)) {
+    @content;
+  }
+}
+
+@mixin bp-between($from, $to) {
+  @media (min-width: cfg.bp-value($from)) and (max-width: cfg.bp-max($to)) {
+    @content;
+  }
+}
+
+@mixin bp-only($name) {
+  @if $name == 'xs' {
+    @include bp-down(sm) {
+      @content;
+    }
+  } @else if $name == 'sm' {
+    @include bp-between(sm, md) {
+      @content;
+    }
+  } @else if $name == 'md' {
+    @include bp-between(md, lg) {
+      @content;
+    }
+  } @else if $name == 'lg' {
+    @include bp-between(lg, xl) {
+      @content;
+    }
+  } @else if $name == 'xl' {
+    @include bp-between(xl, '2xl') {
+      @content;
+    }
+  } @else if $name == '2xl' {
+    @include bp-up('2xl') {
+      @content;
+    }
+  } @else {
+    @error "bp-only supports named breakpoints only. Received '#{$name}'.";
+  }
+}

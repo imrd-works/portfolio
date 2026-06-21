@@ -1,0 +1,22 @@
+// `fluid` produces a value that interpolates linearly between $min and $max
+// as the viewport grows from $min-vw to $max-vw, then clamps at the edges.
+//
+// Use `fluid-between(prop, min, max, $from, $to)` to interpolate between
+// named breakpoints (same map as media query mixins — no rogue secondary
+// breakpoint list).
+
+@use '../base/breakpoints' as cfg;
+
+@mixin fluid($property, $min-val, $max-val, $min-vw: cfg.bp-value(sm), $max-vw: cfg.bp-value(xl)) {
+  #{$property}: clamp(
+    #{$min-val},
+    calc(
+      #{$min-val} + (#{$max-val} - #{$min-val}) * ((100vw - #{$min-vw}) / (#{$max-vw} - #{$min-vw}))
+    ),
+    #{$max-val}
+  );
+}
+
+@mixin fluid-between($property, $min-val, $max-val, $from, $to) {
+  @include fluid($property, $min-val, $max-val, cfg.bp-value($from), cfg.bp-value($to));
+}

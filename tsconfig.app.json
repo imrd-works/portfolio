@@ -1,0 +1,31 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "types": ["vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@/api": ["./src/app/api/index.ts"],
+      "@/api/*": ["./src/app/api/*"],
+      "@/i18n": ["./src/app/i18n/index.ts"],
+      "@/i18n/*": ["./src/app/i18n/*"],
+      "@/router": ["./src/app/router/index.ts"],
+      "@/router/*": ["./src/app/router/*"],
+      "@/stores": ["src/shared/stores/index.ts"],
+      "@/stores/*": ["src/shared/stores/*"],
+      "@/composables/*": ["./src/shared/composables/*"],
+      "@/locales/*": ["./src/shared/locales/*"],
+      "@/*": ["./src/*"]
+    },
+    "resolveJsonModule": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
+}

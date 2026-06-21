@@ -1,0 +1,171 @@
+{
+  "meta": {
+    "title": "Daniel Rassomakhin — Vue / Nuxt Developer and Team Lead",
+    "description": "Portfolio of Daniel Rassomakhin, a frontend developer with 5+ years of commercial experience specializing in Vue 3, Nuxt and complex enterprise systems."
+  },
+  "nav": {
+    "about": "About",
+    "skills": "Skills",
+    "work": "Work",
+    "path": "Path",
+    "contact": "Contact"
+  },
+  "brand": {
+    "mark": "D",
+    "name": "Rassomakhin"
+  },
+  "hero": {
+    "status": "Open to opportunities · Vue / Nuxt · Team Lead",
+    "firstName": "Daniel",
+    "lastName": "Rassomakhin",
+    "lead": "Frontend developer with 5+ years of commercial experience. I architect complex Vue and Nuxt interfaces, lead teams and cover adjacent layers as a {accent} developer when needed.",
+    "cta": {
+      "telegram": "Message on Telegram",
+      "email": "Email",
+      "resume": "Résumé"
+    },
+    "scroll": "Scroll"
+  },
+  "about": {
+    "eyebrow": "About",
+    "title": "I turn complex ideas into {accent}",
+    "titleAccent": "living interfaces",
+    "p1": "I'm Daniel. For 5+ years I have built enterprise and public-sector web systems: interactive dashboards and SVG diagrams, adaptive data tables, multi-step forms, role-based access and digital-signature workflows.",
+    "p2": "I have launched products from scratch, designed DDD and FSD architectures, and led teams as a Team Lead. I configure Docker and CI/CD, collaborate closely with backend teams and cover fullstack tasks when needed.",
+    "stats": {
+      "years": "years building",
+      "projects": "projects",
+      "tech": "technologies"
+    },
+    "badge": "Novorossiysk · hybrid / remote",
+    "photo": "Daniel Rassomakhin"
+  },
+  "skills": {
+    "eyebrow": "Skills",
+    "title": "A stack for complex interfaces and product systems",
+    "coreTitle": "Core",
+    "frontendTitle": "Frontend",
+    "backendTitle": "Data, DX & DevOps"
+  },
+  "work": {
+    "eyebrow": "Selected work",
+    "title": "Things I've built",
+    "open": "Open project",
+    "nda": "Commercial project · details limited by NDA",
+    "items": {
+      "sigma": {
+        "title": "Energy Trading Marketplace",
+        "desc": "An electricity trading marketplace with procurement lots, commercial bids, CryptoPro digital signatures, a market-depth chart and detailed data tables.",
+        "placeholder": "Vue 3 · Digital signature · ECharts",
+        "imageAlt": "Altai Energy Retail marketplace interface"
+      },
+      "education": {
+        "title": "Education Platform",
+        "desc": "An education platform built from scratch: test authoring and delivery, analytics, WYSIWYG editing, events, chat, purchases and role-based access.",
+        "placeholder": "Nuxt · DDD · Highcharts",
+        "imageAlt": "Academy education platform interface"
+      },
+      "bitcoin": {
+        "title": "Bitcoin Financial Services Landing",
+        "desc": "A landing page for an institutional Bitcoin service with advanced animation, managed content, SEO, analytics and an automated delivery workflow.",
+        "placeholder": "Next.js · Sanity · GSAP",
+        "imageAlt": "Bitcoin financial services landing page interface"
+      },
+      "moex": {
+        "title": "Financial Monitoring Portal",
+        "desc": "A financial monitoring portal for a public-sector client featuring interactive SVG diagrams, KPI monitoring, large data tables, reports and GraphQL integrations.",
+        "placeholder": "Vue 3 · GraphQL · SVG",
+        "imageAlt": "Financial monitoring portal interface"
+      },
+      "irlix": {
+        "title": "Document Management System",
+        "desc": "An internal public transport system with a file manager, hierarchical document catalogue, analytics dashboards and a redesigned landing page.",
+        "placeholder": "Vue 3 · Pinia · Highcharts"
+      },
+      "baccasoft": {
+        "title": "Business Process Management System",
+        "desc": "An enterprise system for the mining and metals sector covering business processes, complex forms, filtering, chat and legacy product development.",
+        "placeholder": "Vue 2.7 · Pinia · REST",
+        "imageAlt": "Business process management system interface"
+      }
+    }
+  },
+  "experience": {
+    "eyebrow": "Path",
+    "title": "Timeline",
+    "items": {
+      "fullstack": {
+        "period": "March — June 2026",
+        "role": "Fullstack Developer / Team Lead",
+        "desc": "Within a development team, owned the complete delivery cycle for an institutional Bitcoin landing page: from the interactive Next.js and GSAP frontend to Sanity CMS, SEO, analytics, Docker and CI/CD. Coordinated technical decisions and the product outcome as a whole."
+      },
+      "energyLead": {
+        "period": "December 2025 — February 2026",
+        "role": "Frontend Developer / Team Lead",
+        "desc": "Owned the architecture of core workflows for an energy trading marketplace, including CryptoPro signatures, complex data tables and ECharts visualizations. Maintained team delivery quality through code review, mentoring and release oversight."
+      },
+      "educationLead": {
+        "period": "February 2023 — November 2025",
+        "role": "Frontend Developer / Team Lead",
+        "desc": "Built an education platform from the ground up with DDD architecture, testing, analytics, content editing, purchases and role-based access. Led decomposition, code review and mentoring so the team could make durable technical decisions."
+      },
+      "complexSystems": {
+        "period": "February 2022 — January 2023",
+        "role": "Frontend Developer",
+        "desc": "As part of a development team, independently owned modules across a financial monitoring portal, a public transport document system and an industrial business-process platform. Aligned solutions with other developers and delivered SVG visualizations, GraphQL, dashboards and complex forms."
+      },
+      "commercialStart": {
+        "period": "March 2021 — January 2022",
+        "role": "Frontend Developer",
+        "desc": "Started in a team building commercial interfaces for corporate platforms, e-commerce and advertising services. Worked with other developers to turn designs into responsive products, integrate REST APIs and evolve Vue code while taking ownership of increasingly independent areas."
+      }
+    }
+  },
+  "services": {
+    "eyebrow": "Services",
+    "title": "How I help",
+    "items": {
+      "vue": {
+        "title": "Vue / Nuxt development",
+        "desc": "Vue 3, Nuxt 3/4, TypeScript, Pinia and Vue Query: architecture, performance and long-term product development."
+      },
+      "systems": {
+        "title": "Complex business systems",
+        "desc": "Dashboards, SVG and charts, large data tables, multi-step forms, roles, REST / GraphQL and digital signatures."
+      },
+      "leadership": {
+        "title": "Team Lead & processes",
+        "desc": "Decomposition, planning, code review, mentoring, release workflows, Docker and CI/CD."
+      }
+    }
+  },
+  "contact": {
+    "title": "Let's build{br}something {accent}",
+    "titleAccent": "remarkable",
+    "lead": "Open to frontend and team lead roles, project work and complex product challenges. Telegram and email are the easiest ways to reach me.",
+    "links": {
+      "telegram": "Telegram",
+      "email": "Email",
+      "phone": "Phone"
+    },
+    "form": {
+      "name": "Your name",
+      "contact": "Email or Telegram",
+      "about": "About the project",
+      "submit": "Send request →",
+      "sending": "Sending…",
+      "errorName": "Enter your name",
+      "errorContact": "Tell me how to reach you",
+      "errorAbout": "Describe your task"
+    },
+    "success": {
+      "title": "Request sent",
+      "text": "Thank you! I'll get back to you within a day — usually via Telegram.",
+      "again": "Send another request"
+    }
+  },
+  "footer": {
+    "name": "Daniel Rassomakhin",
+    "note": "© 2026 · Crafted with attention to detail"
+  }
+}

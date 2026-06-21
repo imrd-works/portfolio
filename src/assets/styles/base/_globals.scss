@@ -1,0 +1,38 @@
+@use '../mixins' as t;
+
+body {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-canvas);
+  @include t.text('body-m');
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+a {
+  color: var(--color-text-link);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-text-link-hover);
+    text-decoration: underline;
+  }
+}
+
+::selection {
+  color: var(--color-action-primary-fg);
+  background-color: var(--color-action-primary-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,43 @@
+@use 'sass:map';
+@use 'sass:meta';
+
+$bp-xs: 0 !default; // implicit, smallest screens (mobile)
+$bp-sm: 480px !default; // large mobile
+$bp-md: 768px !default; // tablet
+$bp-lg: 1024px !default; // small desktop / laptop
+$bp-xl: 1280px !default; // desktop
+$bp-2xl: 1536px !default; // wide desktop
+
+$bp-step: 0.02px !default; // safe gap between min-width and max-width queries
+
+$bp: (
+  'xs': $bp-xs,
+  'sm': $bp-sm,
+  'md': $bp-md,
+  'lg': $bp-lg,
+  'xl': $bp-xl,
+  '2xl': $bp-2xl,
+) !default;
+
+@function bp-value($name) {
+  @if meta.type-of($name) == 'number' {
+    @return $name;
+  }
+  @if map.has-key($bp, $name) {
+    @return map.get($bp, $name);
+  }
+  @error "Unknown breakpoint '#{$name}'. Available: #{map.keys($bp)}.";
+}
+
+@function bp-max($name) {
+  @return bp-value($name) - $bp-step;
+}
+
+:root {
+  --bp-xs: 0;
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+  --bp-2xl: 1536px;
+}

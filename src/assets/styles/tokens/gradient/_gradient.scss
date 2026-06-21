@@ -1,0 +1,11 @@
+:root {
+  --gradient-primary: linear-gradient(135deg, var(--color-accent-strong), var(--color-accent));
+  --gradient-accent: linear-gradient(110deg, var(--color-accent), var(--color-accent-alt));
+  --gradient-shimmer: linear-gradient(
+    110deg,
+    var(--color-accent),
+    var(--color-accent-alt),
+    var(--color-accent-soft),
+    var(--color-accent)
+  );
+}

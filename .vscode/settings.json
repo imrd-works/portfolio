@@ -1,0 +1,35 @@
+{
+  // Save = Prettier only, идентично `npm run format`.
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // Никаких eslint/stylelint автофиксов на сохранении — они меняют форматирование
+  // сверх Prettier. "never" жёстко перебивает личные настройки разработчика.
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "never",
+    "source.fixAll.stylelint": "never",
+    "source.organizeImports": "never"
+  },
+
+  // Всегда брать Prettier и его конфиг из проекта (без личного/глобального дрейфа).
+  "prettier.prettierPath": "node_modules/prettier",
+  "prettier.configPath": ".prettierrc",
+  "prettier.requireConfig": true,
+
+  // Принудительно Prettier для каждого языка, чтобы Volar/встроенные форматтеры
+  // не перехватывали сохранение независимо от настроек разработчика.
+  "[vue]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[scss]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[markdown]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+  // ESLint/Stylelint только как подсветка ошибок (без автоправок на save).
+  "eslint.validate": ["javascript", "typescript", "vue"],
+  "stylelint.validate": ["css", "scss", "vue"],
+  "typescript.tsdk": "node_modules/typescript/lib"
+}

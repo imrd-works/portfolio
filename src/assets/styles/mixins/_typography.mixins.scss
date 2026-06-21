@@ -1,0 +1,14 @@
+// `text($style)` expands a semantic text style token group into the matching
+// CSS properties. Style keys mirror the `--text-{style}-*` token names in
+// tokens/typography/_semantic.scss.
+//
+// Example:
+//   .home-page__title { @include text("heading-l"); }
+
+@mixin text($style) {
+  font-family: var(--text-#{$style}-family);
+  font-size: var(--text-#{$style}-size);
+  font-weight: var(--text-#{$style}-weight);
+  line-height: var(--text-#{$style}-line-height);
+  letter-spacing: var(--text-#{$style}-letter-spacing);
+}

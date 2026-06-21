@@ -1,0 +1,54 @@
+:root {
+  // Surfaces
+  --color-bg-canvas: var(--color-ink-950);
+  --color-bg-surface: var(--color-ink-900);
+  --color-bg-surface-sunken: rgb(255 255 255 / 3%);
+  --color-bg-surface-subtle: rgb(255 255 255 / 1.5%);
+  --color-bg-glass: rgb(8 6 20 / 60%);
+
+  // Text
+  --color-text-primary: var(--color-fog-100);
+  --color-text-secondary: var(--color-fog-200);
+  --color-text-tertiary: var(--color-fog-400);
+  --color-text-muted: var(--color-fog-500);
+  --color-text-faint: var(--color-fog-700);
+  --color-text-disabled: var(--color-fog-500);
+  --color-text-inverse: var(--color-ink-950);
+  --color-text-link: var(--color-accent);
+  --color-text-link-hover: var(--color-accent-soft);
+  --color-text-success: var(--color-success);
+  --color-text-warning: var(--color-amber-700);
+  --color-text-danger: var(--color-red-600);
+  --color-text-info: var(--color-accent-alt);
+
+  // Borders / hairlines
+  --color-border-default: rgb(255 255 255 / 12%);
+  --color-border-subtle: rgb(255 255 255 / 7%);
+  --color-border-focus: var(--color-accent);
+
+  // Accents (brand-neutral roles)
+  --color-accent: var(--color-violet-400);
+  --color-accent-strong: var(--color-indigo-500);
+  --color-accent-alt: var(--color-blue-400);
+  --color-accent-soft: var(--color-violet-300);
+  --color-success: var(--color-emerald-400);
+  --color-on-accent: #0a0820;
+
+  // Actions
+  --color-action-primary-bg: var(--color-accent-strong);
+  --color-action-primary-bg-hover: var(--color-accent);
+  --color-action-primary-bg-active: var(--color-accent);
+  --color-action-primary-bg-disabled: var(--color-bg-surface-sunken);
+  --color-action-primary-fg: var(--color-on-accent);
+  --color-action-primary-fg-disabled: var(--color-text-muted);
+  --color-action-secondary-bg: var(--color-bg-surface-sunken);
+  --color-action-secondary-bg-hover: var(--color-border-subtle);
+  --color-action-secondary-bg-active: var(--color-border-default);
+  --color-action-secondary-border: var(--color-border-default);
+  --color-action-secondary-fg: var(--color-text-primary);
+  --color-action-secondary-fg-disabled: var(--color-text-muted);
+
+  // Short aliases used by the 404 page.
+  --color-bg: var(--color-bg-surface);
+  --color-primary: var(--color-action-primary-bg);
+}
