@@ -5,7 +5,19 @@ import { useContactForm } from '../../composables/useContactForm'
 import { contactChannels, socials } from '../../model/portfolio'
 
 const { t } = useI18n()
-const { form, loading, sent, submit, reset } = useContactForm()
+const {
+  name,
+  nameAttrs,
+  contact,
+  contactAttrs,
+  message,
+  messageAttrs,
+  errors,
+  loading,
+  sent,
+  submit,
+  reset,
+} = useContactForm()
 </script>
 
 <template>
@@ -109,6 +121,7 @@ const { form, loading, sent, submit, reset } = useContactForm()
             v-if="!sent"
             key="form"
             class="contact__form"
+            novalidate
             @submit.prevent="submit"
           >
             <label
@@ -125,11 +138,24 @@ const { form, loading, sent, submit, reset } = useContactForm()
               </Text>
               <input
                 id="contact-name"
-                v-model="form.name"
+                v-model="name"
+                v-bind="nameAttrs"
                 class="contact__input"
+                :class="{ 'contact__input--error': errors.name }"
                 type="text"
-                required
+                :aria-invalid="Boolean(errors.name)"
+                :aria-describedby="errors.name ? 'contact-name-error' : undefined"
               />
+              <Text
+                v-if="errors.name"
+                id="contact-name-error"
+                tag="span"
+                variant="caption"
+                class="contact__error"
+                role="alert"
+              >
+                {{ t(errors.name) }}
+              </Text>
             </label>
             <label
               class="contact__field"
@@ -145,11 +171,29 @@ const { form, loading, sent, submit, reset } = useContactForm()
               </Text>
               <input
                 id="contact-handle"
-                v-model="form.contact"
+                v-model="contact"
+                v-bind="contactAttrs"
                 class="contact__input"
+                :class="{ 'contact__input--error': errors.contact }"
                 type="text"
-                required
+                :aria-invalid="Boolean(errors.contact)"
+                :aria-describedby="errors.contact ? 'contact-handle-error' : undefined"
               />
+              <Text
+                v-if="errors.contact"
+                id="contact-handle-error"
+                tag="span"
+                variant="caption"
+                class="contact__error"
+                role="alert"
+              >
+                {{
+                  t(errors.contact, {
+                    email: contactChannels.email,
+                    handle: contactChannels.telegramHandle,
+                  })
+                }}
+              </Text>
             </label>
             <label
               class="contact__field"
@@ -165,11 +209,24 @@ const { form, loading, sent, submit, reset } = useContactForm()
               </Text>
               <textarea
                 id="contact-about"
-                v-model="form.message"
+                v-model="message"
+                v-bind="messageAttrs"
                 class="contact__input contact__input--area"
+                :class="{ 'contact__input--error': errors.message }"
                 rows="4"
-                required
+                :aria-invalid="Boolean(errors.message)"
+                :aria-describedby="errors.message ? 'contact-about-error' : undefined"
               ></textarea>
+              <Text
+                v-if="errors.message"
+                id="contact-about-error"
+                tag="span"
+                variant="caption"
+                class="contact__error"
+                role="alert"
+              >
+                {{ t(errors.message) }}
+              </Text>
             </label>
             <Button
               v-magnetic
@@ -387,6 +444,16 @@ const { form, loading, sent, submit, reset } = useContactForm()
   &--area {
     resize: vertical;
   }
+
+  &--error,
+  &--error:focus {
+    border-color: var(--color-text-danger);
+  }
+}
+
+.contact__error {
+  margin-top: 2px;
+  color: var(--color-text-danger);
 }
 
 .contact__submit {
@@ -398,7 +465,7 @@ const { form, loading, sent, submit, reset } = useContactForm()
   display: flex;
   flex-direction: column;
   gap: 18px;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   min-height: 360px;
   padding: 6px;
@@ -424,6 +491,7 @@ const { form, loading, sent, submit, reset } = useContactForm()
 .contact__done-text {
   max-width: 360px;
   margin: 0;
+  text-align: center;
 }
 
 .contact__again {

@@ -147,6 +147,8 @@ const { targetRef: line, inView: lineVisible } = useInView({ threshold: 0.2 })
 
 <style lang="scss" scoped>
 /** @define exp */
+@use 'assets/styles/mixins' as *;
+
 .exp__head {
   margin-bottom: 40px;
 }
@@ -215,9 +217,13 @@ const { targetRef: line, inView: lineVisible } = useInView({ threshold: 0.2 })
 }
 
 .exp__services {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: 14px;
+
+  @include bp-down(sm) {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .exp__service {

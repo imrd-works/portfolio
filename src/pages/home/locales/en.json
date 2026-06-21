@@ -45,7 +45,8 @@
     "title": "A stack for complex interfaces and product systems",
     "coreTitle": "Core",
     "frontendTitle": "Frontend",
-    "backendTitle": "Data, DX & DevOps"
+    "backendTitle": "Data, DX & DevOps",
+    "toolsTitle": "Tools & Process"
   },
   "work": {
     "eyebrow": "Selected work",
@@ -133,6 +134,18 @@
         "title": "Complex business systems",
         "desc": "Dashboards, SVG and charts, large data tables, multi-step forms, roles, REST / GraphQL and digital signatures."
       },
+      "landing": {
+        "title": "Landing pages, animation & SEO",
+        "desc": "Landing pages that convert: smooth animation (GSAP, Lottie), fast load times and SEO built in. Manage content yourself via headless CMS, with deployment automated."
+      },
+      "product": {
+        "title": "Product launch from scratch",
+        "desc": "I turn an idea into a working product — from analysis to release. I lay down scalable architecture (DDD / FSD) that holds up as you grow."
+      },
+      "integrations": {
+        "title": "Integrations: API, realtime, e-signature",
+        "desc": "I connect your frontend to any backend: REST, GraphQL, type-safe codegen from OpenAPI, real-time chat and legally binding e-signatures (CryptoPro)."
+      },
       "leadership": {
         "title": "Team Lead & processes",
         "desc": "Decomposition, planning, code review, mentoring, release workflows, Docker and CI/CD."
@@ -154,8 +167,9 @@
       "about": "About the project",
       "submit": "Send request →",
       "sending": "Sending…",
-      "errorName": "Enter your name",
-      "errorContact": "Tell me how to reach you",
+      "errorName": "Name — at least 3 characters, letters only",
+      "errorContact": "Enter a valid email or Telegram — e.g. {email} or {handle}",
+      "errorContactOwn": "Those are my contacts — please leave your own",
       "errorAbout": "Describe your task"
     },
     "success": {

@@ -12,6 +12,7 @@ export const coreSkills: SkillBar[] = [
   { label: 'TypeScript', value: 92 },
   { label: 'Complex UI / Data Viz', value: 90 },
   { label: 'DDD / FSD / Team Lead', value: 88 },
+  { label: 'React / Next.js', value: 70 },
 ]
 
 export const frontendChips: string[] = [
@@ -19,23 +20,62 @@ export const frontendChips: string[] = [
   'Vue 2.7',
   'Nuxt 3 / 4',
   'TypeScript',
+  'JavaScript ES6+',
+  'HTML5 / CSS3',
+  'SCSS / SASS',
   'Pinia',
-  'Vue Query',
+  'Vuex',
   'Vue Router',
+  'Vue Query',
+  'VueUse',
+  'Vee-validate / Yup',
+  'Vuelidate',
+  'Vuetify',
   'Tailwind CSS',
+  'Bootstrap',
+  'Material Design',
+  'TipTap',
+  'GSAP',
+  'React / Next.js',
 ]
 
 export const backendChips: string[] = [
   'REST / OpenAPI',
   'GraphQL / Apollo',
-  'Highcharts / ECharts',
+  'Axios / Fetch',
+  'WebSocket / Socket.io',
+  'Postman',
+  'CryptoPro',
+  'i18n',
+  'Highcharts',
+  'ECharts',
+  'Chart.js',
+  'SVG Data Viz',
+  'Vite',
+  'Webpack',
+  'ESLint / Prettier',
+  'PostCSS',
+  'BEM',
   'Vitest',
   'Docker',
   'CI/CD',
-  'GSAP',
+  'GitHub Actions / GitLab CI',
+  'Vercel',
+  'Git',
+  'Node / PHP · Yii2',
+  'Sanity · Shopify · WP',
+]
+
+export const toolsChips: string[] = [
   'Figma',
-  'Next.js / React',
-  'Node / PHP',
+  'Adobe XD',
+  'Photoshop',
+  'Storybook',
+  'Cursor / Copilot',
+  'Jira',
+  'Notion',
+  'ClickUp',
+  'Agile / Scrum',
 ]
 
 export const techMarquee: string[] = [
@@ -113,8 +153,21 @@ export const timeline: TimelineEntry[] = [
   { id: 'commercialStart', dot: '#46427e' },
 ]
 
-export type ServiceId = 'vue' | 'systems' | 'leadership'
-export const services: ServiceId[] = ['vue', 'systems', 'leadership']
+export type ServiceId =
+  | 'vue'
+  | 'systems'
+  | 'landing'
+  | 'product'
+  | 'integrations'
+  | 'leadership'
+export const services: ServiceId[] = [
+  'vue',
+  'systems',
+  'landing',
+  'product',
+  'integrations',
+  'leadership',
+]
 
 export interface SocialLink {
   label: string

@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { PageSection, Grid, Motion, Text } from '@/shared/ui'
 import { useInView } from '@/composables/useInView'
-import { coreSkills, frontendChips, backendChips } from '../../model/portfolio'
+import { coreSkills, frontendChips, backendChips, toolsChips } from '../../model/portfolio'
 import SectionEyebrow from './SectionEyebrow.vue'
 
 const { t } = useI18n()
@@ -44,44 +44,64 @@ const { targetRef: barsCard, inView: barsVisible } = useInView({ threshold: 0.25
         preset="fade-up"
         trigger="visible"
         tag="div"
-        class="skills__card skills__card--core"
+        class="skills__col"
       >
-        <Text
-          tag="h3"
-          variant="heading-m"
-          class="skills__card-title"
-        >
-          <span class="skills__diamond">◆</span> {{ t('home.skills.coreTitle') }}
-        </Text>
-        <div
-          :ref="barsCard"
-          class="skills__bars"
-        >
-          <div
-            v-for="skill in coreSkills"
-            :key="skill.label"
-            class="skills__bar"
+        <div class="skills__card skills__card--core skills__card--order-1">
+          <Text
+            tag="h3"
+            variant="heading-m"
+            class="skills__card-title"
           >
-            <div class="skills__bar-head">
-              <Text
-                tag="span"
-                variant="body-s"
-                tone="secondary"
-                >{{ skill.label }}</Text
-              >
-              <Text
-                tag="span"
-                variant="body-s"
-                tone="tertiary"
-                >{{ skill.value }}%</Text
-              >
+            <span class="skills__diamond">◆</span> {{ t('home.skills.coreTitle') }}
+          </Text>
+          <div
+            :ref="barsCard"
+            class="skills__bars"
+          >
+            <div
+              v-for="skill in coreSkills"
+              :key="skill.label"
+              class="skills__bar"
+            >
+              <div class="skills__bar-head">
+                <Text
+                  tag="span"
+                  variant="body-s"
+                  tone="secondary"
+                  >{{ skill.label }}</Text
+                >
+                <Text
+                  tag="span"
+                  variant="body-s"
+                  tone="tertiary"
+                  >{{ skill.value }}%</Text
+                >
+              </div>
+              <div class="skills__bar-track">
+                <div
+                  class="skills__bar-fill"
+                  :style="{ width: barsVisible ? `${skill.value}%` : '0%' }"
+                ></div>
+              </div>
             </div>
-            <div class="skills__bar-track">
-              <div
-                class="skills__bar-fill"
-                :style="{ width: barsVisible ? `${skill.value}%` : '0%' }"
-              ></div>
-            </div>
+          </div>
+        </div>
+        <div class="skills__card skills__card--order-4">
+          <Text
+            tag="h3"
+            variant="heading-s"
+            tone="secondary"
+            class="skills__group-title"
+          >
+            {{ t('home.skills.toolsTitle') }}
+          </Text>
+          <div class="skills__chips">
+            <span
+              v-for="chip in toolsChips"
+              :key="chip"
+              class="skills__chip"
+              >{{ chip }}</span
+            >
           </div>
         </div>
       </Motion>
@@ -91,9 +111,9 @@ const { targetRef: barsCard, inView: barsVisible } = useInView({ threshold: 0.25
         trigger="visible"
         :delay="100"
         tag="div"
-        class="skills__tags"
+        class="skills__col"
       >
-        <div class="skills__card">
+        <div class="skills__card skills__card--order-2">
           <Text
             tag="h3"
             variant="heading-s"
@@ -111,7 +131,7 @@ const { targetRef: barsCard, inView: barsVisible } = useInView({ threshold: 0.25
             >
           </div>
         </div>
-        <div class="skills__card">
+        <div class="skills__card skills__card--order-3">
           <Text
             tag="h3"
             variant="heading-s"
@@ -136,6 +156,8 @@ const { targetRef: barsCard, inView: barsVisible } = useInView({ threshold: 0.25
 
 <style lang="scss" scoped>
 /** @define skills */
+@use 'assets/styles/mixins' as *;
+
 .skills__head {
   margin-bottom: 48px;
 }
@@ -193,10 +215,34 @@ const { targetRef: barsCard, inView: barsVisible } = useInView({ threshold: 0.25
   transition: width 1.5s cubic-bezier(0.16, 0.8, 0.3, 1) 0.25s;
 }
 
-.skills__tags {
+.skills__col {
   display: flex;
   flex-direction: column;
   gap: 24px;
+
+  // On mobile the two columns collapse: flatten them so all four cards
+  // become direct grid items and read in a logical order via `order`.
+  @include bp-down(md) {
+    display: contents;
+  }
+}
+
+@include bp-down(md) {
+  .skills__card--order-1 {
+    order: 1;
+  }
+
+  .skills__card--order-2 {
+    order: 2;
+  }
+
+  .skills__card--order-3 {
+    order: 3;
+  }
+
+  .skills__card--order-4 {
+    order: 4;
+  }
 }
 
 .skills__group-title {

@@ -47,7 +47,7 @@ const COPIES = [0, 1, 2]
   z-index: 2;
   padding: 20px 0;
   overflow: hidden;
-  background: rgb(6 5 13 / 78%);
+  background: rgb(6 5 13 / 45%);
   backdrop-filter: blur(6px);
   border-top: 1px solid var(--color-border-subtle);
   border-bottom: 1px solid var(--color-border-subtle);
