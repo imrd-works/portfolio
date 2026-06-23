@@ -1,7 +1,12 @@
 name: Mirror main to portfolio-prod
+
 on:
+  pull_request:
   push:
-    branches: [main]
+    branches:
+      - main
+      - master
+
 jobs:
   mirror:
     if: github.repository == 'imrd-works/portfolio'
