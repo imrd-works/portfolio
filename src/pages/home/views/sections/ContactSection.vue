@@ -369,6 +369,7 @@ const {
 
 .contact__channel {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
