@@ -63,6 +63,14 @@ const { t } = useI18n()
         >
           {{ t('home.about.p2') }}
         </Text>
+        <Text
+          tag="p"
+          variant="body-m"
+          tone="tertiary"
+          class="about__text"
+        >
+          {{ t('home.about.p3') }}
+        </Text>
 
         <Motion
           preset="fade-up"
