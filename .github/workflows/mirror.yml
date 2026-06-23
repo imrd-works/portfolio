@@ -1,7 +1,11 @@
 name: Mirror main to portfolio-prod
+
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - master
+
 jobs:
   mirror:
     if: github.repository == 'imrd-works/portfolio'
@@ -13,5 +17,5 @@ jobs:
       - name: Push to portfolio-prod
         run: |
           git push --force \
-            https://x-access-token:${{ secrets.PROD_PUSH_TOKEN }}@github.com/imrd-works/portfolio-prod.git \
-            main:main
+            https://${{ secrets.PROD_PUSH_TOKEN }}@github.com/imrd-works/portfolio-prod.git \
+            HEAD:main
