@@ -15,5 +15,5 @@ jobs:
       - name: Push to portfolio-prod
         run: |
           git push --force \
-            https://${{ secrets.PROD_PUSH_TOKEN }}@github.com/imrd-works/portfolio-prod.git \
+            https://x-access-token:${secrets.PROD_PUSH_TOKEN}@github.com/imrd-works/portfolio-prod.git \
             HEAD:master
