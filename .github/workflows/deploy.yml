@@ -28,3 +28,5 @@ jobs:
           AWS_S3_ENDPOINT: https://storage.yandexcloud.net
           AWS_REGION: ru-central1
           SOURCE_DIR: dist
+          VITE_CONTACT_API_URL: ${{ secrets.VITE_CONTACT_API_URL }}
+          VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
