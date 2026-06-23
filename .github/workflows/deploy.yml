@@ -2,9 +2,7 @@ name: Deploy frontend to Object Storage
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [master]
 
 jobs:
   deploy:
