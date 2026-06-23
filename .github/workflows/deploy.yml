@@ -1,16 +1,28 @@
-name: Mirror main to portfolio-prod
+name: Deploy frontend to Object Storage
 on:
   push:
     branches: [main]
 jobs:
-  mirror:
+  deploy:
+    if: github.repository == 'imrd-works/portfolio-prod'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          fetch-depth: 0
-      - name: Push to portfolio-prod
+          node-version: '20'
+      - name: Install & build
         run: |
-          git push --force \
-            https://x-access-token:${{ secrets.PROD_PUSH_TOKEN }}@github.com/imrd-works/portfolio-prod.git \
-            main:main
+          npm ci
+          npm run build
+      - name: Sync to bucket
+        uses: jakejarvis/s3-sync-action@v0.5.1
+        with:
+          args: --delete --acl public-read
+        env:
+          AWS_S3_BUCKET: ${{ secrets.YC_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          AWS_S3_ENDPOINT: https://storage.yandexcloud.net
+          AWS_REGION: ru-central1
+          SOURCE_DIR: dist
