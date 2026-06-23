@@ -30,8 +30,9 @@
     "eyebrow": "About",
     "title": "I turn complex ideas into {accent}",
     "titleAccent": "living interfaces",
-    "p1": "I'm Daniel. For 5+ years I have built enterprise and public-sector web systems: interactive dashboards and SVG diagrams, adaptive data tables, multi-step forms, role-based access and digital-signature workflows.",
-    "p2": "I have launched products from scratch, designed DDD and FSD architectures, and led teams as a Team Lead. I configure Docker and CI/CD, collaborate closely with backend teams and cover fullstack tasks when needed.",
+    "p1": "For more than 5 years, I have designed and launched enterprise and public-sector platforms from scratch where mistakes are expensive: digital signatures, role-based access, multi-step forms, heavy interactive dashboards and SVG data visualization.",
+    "p2": "I take products from the idea stage to production: I build DDD and FSD architectures that can grow without turning into legacy within a year. As a Team Lead, I am responsible not only for my own code, but also for timelines, reviews and onboarding.",
+    "p3": "I configure Docker and CI/CD, work confidently with backend teams and take on fullstack tasks when that speeds up the result without diluting focus.",
     "stats": {
       "years": "years building",
       "projects": "projects",
