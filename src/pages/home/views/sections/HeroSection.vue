@@ -119,7 +119,8 @@ const { t } = useI18n()
   flex-direction: column;
   justify-content: center;
   max-width: var(--layout-max-width);
-  min-height: 100vh;
+  min-height: 100vh; // fallback for browsers without svh / JS
+  min-height: var(--app-height, 100svh);
   padding: 140px clamp(20px, 5vw, 64px) 80px;
   margin: 0 auto;
 

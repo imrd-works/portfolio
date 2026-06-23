@@ -24,7 +24,8 @@ import { AuroraBackdrop, CustomCursor, ScrollProgress } from '@/shared/ui'
 /** @define portfolio-layout */
 .portfolio-layout {
   position: relative;
-  min-height: 100vh;
+  min-height: 100vh; // fallback for browsers without svh / JS
+  min-height: var(--app-height, 100svh);
   overflow: hidden;
   color: var(--color-text-primary);
   background: var(--color-bg-canvas);
