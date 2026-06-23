@@ -1,7 +1,6 @@
 name: Deploy frontend to Object Storage
 
 on:
-  pull_request:
   push:
     branches:
       - main

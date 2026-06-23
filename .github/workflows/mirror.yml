@@ -1,7 +1,6 @@
 name: Mirror main to portfolio-prod
 
 on:
-  pull_request:
   push:
     branches:
       - main
