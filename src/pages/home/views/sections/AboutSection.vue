@@ -143,6 +143,8 @@ const { t } = useI18n()
 
 <style lang="scss" scoped>
 /** @define about */
+@use 'assets/styles/mixins' as *;
+
 .about__eyebrow {
   margin-bottom: 30px;
 }
@@ -172,6 +174,14 @@ const { t } = useI18n()
   gap: 18px;
   max-width: 560px;
   margin-top: 44px;
+
+  // Three columns on a phone leave ~80px per label, so "года как Team Lead"
+  // breaks onto four lines. One card per row instead, with the number and the
+  // label side by side so the block stays compact.
+  @include bp-down(md) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
 }
 
 .about__stat {
@@ -179,6 +189,13 @@ const { t } = useI18n()
   background: var(--color-bg-surface-sunken);
   border: 1px solid var(--color-border-subtle);
   border-radius: 18px;
+
+  @include bp-down(md) {
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+    padding: 16px 20px;
+  }
 }
 
 .about__stat-value {
@@ -192,6 +209,10 @@ const { t } = useI18n()
 
 .about__stat-label {
   margin-top: 4px;
+
+  @include bp-down(md) {
+    margin-top: 0;
+  }
 }
 
 .about__aside {
