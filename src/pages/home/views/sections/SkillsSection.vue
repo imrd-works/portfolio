@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { PageSection, Grid, Motion, Text } from '@/shared/ui'
-import { useInView } from '@/composables/useInView'
 import { coreSkills, frontendChips, backendChips, toolsChips } from '../../model/portfolio'
 import SectionEyebrow from './SectionEyebrow.vue'
 
 const { t } = useI18n()
-const { targetRef: barsCard, inView: barsVisible } = useInView({ threshold: 0.25 })
 </script>
 
 <template>
@@ -54,37 +52,27 @@ const { targetRef: barsCard, inView: barsVisible } = useInView({ threshold: 0.25
           >
             <span class="skills__diamond">◆</span> {{ t('home.skills.coreTitle') }}
           </Text>
-          <div
-            :ref="barsCard"
-            class="skills__bars"
-          >
+          <dl class="skills__core">
             <div
               v-for="skill in coreSkills"
-              :key="skill.label"
-              class="skills__bar"
+              :key="skill.id"
+              class="skills__core-item"
             >
-              <div class="skills__bar-head">
-                <Text
-                  tag="span"
-                  variant="body-s"
-                  tone="secondary"
-                  >{{ skill.label }}</Text
-                >
-                <Text
-                  tag="span"
-                  variant="body-s"
-                  tone="tertiary"
-                  >{{ skill.value }}%</Text
-                >
-              </div>
-              <div class="skills__bar-track">
-                <div
-                  class="skills__bar-fill"
-                  :style="{ width: barsVisible ? `${skill.value}%` : '0%' }"
-                ></div>
-              </div>
+              <Text
+                tag="dt"
+                variant="body-m"
+                class="skills__core-term"
+                >{{ skill.label }}</Text
+              >
+              <Text
+                tag="dd"
+                variant="body-s"
+                tone="tertiary"
+                class="skills__core-note"
+                >{{ t(`home.skills.core.${skill.id}`) }}</Text
+              >
             </div>
-          </div>
+          </dl>
         </div>
         <div class="skills__card skills__card--order-4">
           <Text
@@ -189,30 +177,30 @@ const { targetRef: barsCard, inView: barsVisible } = useInView({ threshold: 0.25
   color: var(--color-accent);
 }
 
-.skills__bars {
+.skills__core {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 20px;
+  margin: 0;
 }
 
-.skills__bar-head {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 9px;
+.skills__core-item {
+  padding-left: 16px;
+  border-left: 2px solid var(--color-border-default);
+  transition: border-color 0.3s;
+
+  &:hover {
+    border-left-color: var(--color-accent);
+  }
 }
 
-.skills__bar-track {
-  height: 5px;
-  overflow: hidden;
-  background: var(--color-border-subtle);
-  border-radius: 5px;
+.skills__core-term {
+  font-weight: 600;
+  color: var(--color-text-primary);
 }
 
-.skills__bar-fill {
-  height: 100%;
-  background: var(--gradient-primary);
-  border-radius: 5px;
-  transition: width 1.5s cubic-bezier(0.16, 0.8, 0.3, 1) 0.25s;
+.skills__core-note {
+  margin: 4px 0 0;
 }
 
 .skills__col {

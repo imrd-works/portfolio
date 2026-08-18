@@ -7,12 +7,22 @@ import noCyrillicPlugin from 'eslint-plugin-no-cyrillic-string'
 import tsPlugin from 'typescript-eslint'
 import vueParser from 'vue-eslint-parser'
 import eslintConfigPrettier from 'eslint-config-prettier'
+import globals from 'globals'
 
 const noCyrillicEnabled = process.env.ESLINT_NO_CYRILLIC !== '0'
 
 export default [
   { ignores: ['dist', 'node_modules', '*.config.js'] },
   js.configs.recommended,
+  {
+    // Build-time Node scripts: prerendering, font sync, OG image generation.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: globals.node,
+    },
+  },
   ...pluginVue.configs['flat/recommended'],
   ...pluginVue.configs['flat/strongly-recommended'],
   ...pluginVueA11y.configs['flat/recommended'],

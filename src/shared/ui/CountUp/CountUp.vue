@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useInView } from '@/composables/useInView'
+import { shouldSkipEntrance } from '@/shared/lib/hydration'
 
 defineOptions({ name: 'UiCountUp' })
 
@@ -16,8 +17,14 @@ const props = withDefaults(
   }
 )
 
-const { targetRef: target, inView } = useInView({ threshold: 0.3 })
-const display = ref(0)
+const { target, targetRef, inView } = useInView({ threshold: 0.3 })
+
+// Starts at the final value so the prerendered HTML carries a real number
+// (a crawler reading "0 systems in production" would be worse than useless)
+// and so hydration matches. The client rewinds to zero only when it is
+// actually going to animate.
+const display = ref(props.to)
+let done = false
 
 function run() {
   const start = performance.now()
@@ -30,14 +37,24 @@ function run() {
   requestAnimationFrame(step)
 }
 
+onMounted(() => {
+  if (shouldSkipEntrance(target.value)) {
+    done = true
+    return
+  }
+  display.value = 0
+})
+
 watch(inView, (visible) => {
-  if (visible) run()
+  if (!visible || done) return
+  done = true
+  run()
 })
 </script>
 
 <template>
   <span
-    :ref="target"
+    :ref="targetRef"
     class="count-up"
     >{{ display }}{{ suffix }}</span
   >

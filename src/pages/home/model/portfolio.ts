@@ -1,18 +1,23 @@
 // Static, non-translatable portfolio data. Human-readable copy lives in the
 // locale files; here we keep only language-neutral values (latin tech names,
-// percentages, links, accent colours) referenced by id from the views.
+// links, accent colours) referenced by id from the views.
 
-export interface SkillBar {
+export interface CoreSkill {
+  /** i18n key for the localised "how long / on what" line. */
+  id: 'vue' | 'typescript' | 'dataviz' | 'architecture' | 'react'
+  /** Latin stack name — identical in both locales. */
   label: string
-  value: number
 }
 
-export const coreSkills: SkillBar[] = [
-  { label: 'Vue 3 / Nuxt 3–4', value: 95 },
-  { label: 'TypeScript', value: 92 },
-  { label: 'Complex UI / Data Viz', value: 90 },
-  { label: 'DDD / FSD / Team Lead', value: 88 },
-  { label: 'React / Next.js', value: 70 },
+// Deliberately no percentages: "Vue 95%" is a number nobody can verify and
+// everybody has seen on a template. Each entry carries the years and the
+// systems it was used on instead — claims that match the projects below.
+export const coreSkills: CoreSkill[] = [
+  { id: 'vue', label: 'Vue 3 / Nuxt 3–4' },
+  { id: 'typescript', label: 'TypeScript' },
+  { id: 'dataviz', label: 'Complex UI / Data Viz' },
+  { id: 'architecture', label: 'DDD / FSD / Team Lead' },
+  { id: 'react', label: 'React / Next.js' },
 ]
 
 export const frontendChips: string[] = [
@@ -90,15 +95,19 @@ export const techMarquee: string[] = [
 ]
 
 export interface StatItem {
-  id: 'years' | 'projects' | 'tech'
+  id: 'systems' | 'launches' | 'lead'
   value: number
   suffix: string
 }
 
+// Countable facts that map onto the sections below — six systems are listed
+// in Work, the team lead years line up with the timeline in Path. Round
+// "20+ projects / 50+ technologies" badges say nothing and check out against
+// nothing.
 export const stats: StatItem[] = [
-  { id: 'years', value: 5, suffix: '+' },
-  { id: 'projects', value: 20, suffix: '+' },
-  { id: 'tech', value: 50, suffix: '+' },
+  { id: 'systems', value: 6, suffix: '' },
+  { id: 'launches', value: 2, suffix: '' },
+  { id: 'lead', value: 3, suffix: '+' },
 ]
 
 export interface Project {
@@ -163,20 +172,9 @@ export const services: ServiceId[] = [
   'leadership',
 ]
 
-export interface SocialLink {
-  label: string
-  href?: string
-}
-
-export const socials: SocialLink[] = [{ label: 'GitHub', href: 'https://github.com/imrd-works' }]
-
-// Primary contact channels surfaced in the hero and contact section.
-export const contactChannels = {
-  telegramUrl: 'https://t.me/IIMRD',
-  telegramHandle: '@IIMRD',
-  email: 'imld.works@yandex.ru',
-  resumeUrl: '/Rassomakhin_CV.pdf',
-}
+// Contacts live in `shared/config` — the app-level SEO layer reads them too.
+export { contactChannels, socials, sameAs } from '@/shared/config/contacts'
+export type { SocialLink } from '@/shared/config/contacts'
 
 // Anchor targets used by the in-page navigation.
 export const sectionNav = ['about', 'skills', 'work', 'path', 'contact'] as const

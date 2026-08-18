@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { Button } from '@/shared/ui'
 import { useLocale } from '@/composables/useLocale'
 import { sectionNav } from '../../model/portfolio'
 
 const { t } = useI18n()
-const { locale, toggle } = useLocale()
+const { other, pathFor } = useLocale()
 </script>
 
 <template>
-  <nav class="site-nav">
+  <nav
+    class="site-nav"
+    :aria-label="t('home.nav.label')"
+  >
     <a
       v-magnetic
       href="#top"
@@ -29,16 +31,21 @@ const { locale, toggle } = useLocale()
         {{ t(`home.nav.${id}`) }}
       </a>
 
-      <Button
+      <!-- A real link, not a toggle button: the other language is a separate
+           URL, so crawlers follow it and visitors can share it. -->
+      <RouterLink
         v-magnetic
-        variant="ghost"
-        size="s"
         class="site-nav__lang"
-        @click="toggle"
+        :to="pathFor(other)"
+        :hreflang="other"
+        :aria-label="t(`home.nav.switchTo.${other}`)"
       >
-        {{ locale === 'ru' ? 'EN' : 'RU' }}
-        <span class="site-nav__dot"></span>
-      </Button>
+        {{ other.toUpperCase() }}
+        <span
+          class="site-nav__dot"
+          aria-hidden="true"
+        ></span>
+      </RouterLink>
     </div>
   </nav>
 </template>
@@ -109,7 +116,27 @@ const { locale, toggle } = useLocale()
   }
 
   &__lang {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-decoration: none;
     letter-spacing: 1px;
+    background: var(--color-bg-surface-sunken);
+    border: 1px solid var(--color-border-default);
+    border-radius: 30px;
+    transition:
+      color 0.3s,
+      border-color 0.3s;
+
+    &:hover {
+      color: var(--color-text-primary);
+      text-decoration: none;
+      border-color: rgb(167 139 250 / 55%);
+    }
   }
 
   &__dot {

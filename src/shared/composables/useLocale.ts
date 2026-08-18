@@ -1,41 +1,39 @@
-import { watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useLocalStorage } from '@vueuse/core'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { DEFAULT_LOCALE, localeFromPath, localeUrlPath, type AppLocale } from '@/app/config/site'
 
-export type AppLocale = 'ru' | 'en'
+export type { AppLocale }
 
-const STORAGE_KEY = 'app-locale'
-
-function syncDocumentLang(value: AppLocale) {
-  if (typeof document !== 'undefined') {
-    document.documentElement.lang = value
-  }
-}
-
-// Bilingual switch for the portfolio. Wraps vue-i18n's `locale` with
-// localStorage persistence and keeps `<html lang>` in sync for a11y / SEO.
+/**
+ * The URL is the single source of truth for language: `/` is Russian, `/en/`
+ * is English. Switching languages is a navigation, not hidden client state —
+ * so each version is linkable, shareable, crawlable and cacheable, and a
+ * shared link opens in the language it was shared in.
+ */
 export function useLocale() {
-  const { locale } = useI18n()
-  const stored = useLocalStorage<AppLocale>(STORAGE_KEY, 'ru')
+  const route = useRoute()
+  const router = useRouter()
 
-  if (locale.value !== stored.value) {
-    locale.value = stored.value
-  }
-  syncDocumentLang(stored.value)
+  const locale = computed<AppLocale>(() => localeFromPath(route.path))
+  const other = computed<AppLocale>(() => (locale.value === 'ru' ? 'en' : 'ru'))
 
-  watch(locale, (value) => {
-    const next = value as AppLocale
-    stored.value = next
-    syncDocumentLang(next)
-  })
-
-  function toggle() {
-    locale.value = locale.value === 'ru' ? 'en' : 'ru'
+  /**
+   * Same page, other language — the current section anchor is preserved.
+   * Uses the canonical form (`/en/`, with the trailing slash) so the address
+   * bar matches `rel=canonical` and what static hosting actually serves.
+   */
+  function pathFor(target: AppLocale): string {
+    return `${localeUrlPath(target)}${route.hash}`
   }
 
-  function setLocale(value: AppLocale) {
-    locale.value = value
+  function setLocale(target: AppLocale): void {
+    if (target === locale.value) return
+    void router.push(pathFor(target))
   }
 
-  return { locale, toggle, setLocale }
+  function toggle(): void {
+    setLocale(other.value)
+  }
+
+  return { locale, other, defaultLocale: DEFAULT_LOCALE, pathFor, setLocale, toggle }
 }

@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import { contactChannels } from '../model/portfolio'
@@ -54,6 +55,7 @@ const schema = yup.object({
 })
 
 export function useContactForm() {
+  const { t } = useI18n()
   const sent = ref(false)
   const { defineField, errors, handleSubmit, isSubmitting, resetForm } = useForm({
     validationSchema: schema,
@@ -65,11 +67,14 @@ export function useContactForm() {
   const [message, messageAttrs] = defineField('message')
 
   const submit = handleSubmit(async (values) => {
-    await sendContactRequest({
-      name: values.name.trim(),
-      contact: values.contact.trim(),
-      message: values.message.trim(),
-    })
+    await sendContactRequest(
+      {
+        name: values.name.trim(),
+        contact: values.contact.trim(),
+        message: values.message.trim(),
+      },
+      t('home.contact.form.sendError')
+    )
     sent.value = true
   })
 

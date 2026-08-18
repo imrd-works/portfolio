@@ -1,33 +1,43 @@
 <!doctype html>
-<html lang="en">
+<html>
   <head>
     <meta charset="UTF-8" />
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="/favicon.svg"
-    />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0"
     />
     <link
-      rel="preconnect"
-      href="https://fonts.googleapis.com"
+      rel="icon"
+      type="image/svg+xml"
+      href="/favicon.svg"
     />
     <link
-      rel="preconnect"
-      href="https://fonts.gstatic.com"
-      crossorigin
+      rel="apple-touch-icon"
+      href="/apple-touch-icon.png"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Geologica:wght@500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;1,500&display=swap"
-      rel="stylesheet"
+      rel="manifest"
+      href="/site.webmanifest"
     />
-    <title>Daniel Rassomakhin — Portfolio</title>
+    <meta
+      name="theme-color"
+      content="#06050d"
+    />
+    <meta
+      name="color-scheme"
+      content="dark"
+    />
+    <!--app-head-->
   </head>
   <body>
-    <div id="app"></div>
+    <!-- `npm run build` replaces this marker with the prerendered markup for
+         each route; `vite dev` leaves it empty and the app mounts normally. -->
+    <div
+      id="app"
+      data-prerendered=""
+    >
+      <!--app-html-->
+    </div>
     <script
       type="module"
       src="/src/main.ts"

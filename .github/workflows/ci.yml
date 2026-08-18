@@ -32,5 +32,10 @@ jobs:
       - name: Verify
         run: npm run verify
 
+      # Builds and then asserts the prerendered documents carry real content,
+      # canonical URLs, hreflang and JSON-LD — a regression that empties the
+      # HTML fails here instead of in production.
       - name: Build
+        env:
+          VITE_SITE_URL: https://ci.example.test
         run: npm run build

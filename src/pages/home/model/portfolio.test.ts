@@ -7,6 +7,7 @@ import {
   frontendChips,
   projects,
   socials,
+  stats,
   timeline,
 } from './portfolio'
 
@@ -21,8 +22,30 @@ describe('portfolio CV data', () => {
     expect(socials).toEqual([{ label: 'GitHub', href: 'https://github.com/imrd-works' }])
   })
 
+  it('states core skills without unverifiable percentage bars', () => {
+    expect(coreSkills.every((skill) => !('value' in skill))).toBe(true)
+    expect(coreSkills.map(({ id }) => id)).toEqual([
+      'vue',
+      'typescript',
+      'dataviz',
+      'architecture',
+      'react',
+    ])
+    for (const { id } of coreSkills) {
+      expect((ru.skills.core as Record<string, string>)[id]?.length ?? 0).toBeGreaterThan(20)
+      expect((en.skills.core as Record<string, string>)[id]?.length ?? 0).toBeGreaterThan(20)
+    }
+  })
+
+  it('backs the headline numbers with things listed on the page', () => {
+    expect(stats.map(({ id }) => id)).toEqual(['systems', 'launches', 'lead'])
+    expect(stats.find(({ id }) => id === 'systems')?.value).toBe(projects.length)
+    expect(Object.keys(ru.about.stats)).toEqual(['systems', 'launches', 'lead'])
+    expect(Object.keys(en.about.stats)).toEqual(['systems', 'launches', 'lead'])
+  })
+
   it('represents the Vue and Nuxt specialization from the CV', () => {
-    expect(coreSkills[0].label).toBe('Vue 3 / Nuxt 3–4')
+    expect(coreSkills[0]).toEqual({ id: 'vue', label: 'Vue 3 / Nuxt 3–4' })
     expect(frontendChips).toEqual(expect.arrayContaining(['Vue 3', 'Nuxt 3 / 4', 'Pinia']))
     expect(ru.hero.status).toContain('Vue / Nuxt')
     expect(en.hero.status).toContain('Vue / Nuxt')

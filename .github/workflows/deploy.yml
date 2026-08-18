@@ -12,14 +12,23 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 22
+          cache: npm
+
+      # `npm run build` = client bundle -> SSR bundle -> prerender every route
+      # to static HTML -> verify the output actually contains the page.
+      # VITE_SITE_URL must be set here: canonical URLs, hreflang, Open Graph,
+      # JSON-LD, robots.txt and sitemap.xml are all absolute.
       - name: Install & build
         env:
           VITE_CONTACT_API_URL: ${{ secrets.VITE_CONTACT_API_URL }}
           VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
+          VITE_GOOGLE_SITE_VERIFICATION: ${{ secrets.VITE_GOOGLE_SITE_VERIFICATION }}
+          VITE_YANDEX_VERIFICATION: ${{ secrets.VITE_YANDEX_VERIFICATION }}
         run: |
           npm ci
           npm run build
+
       - name: Sync to bucket
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
