@@ -1,22 +1,60 @@
-name: Mirror main to portfolio-prod
+name: Mirror master to portfolio-prod
 
 on:
   push:
     branches: [master]
 
+# Never run two mirrors at once: both push --force to the same branch.
+concurrency:
+  group: mirror-portfolio-prod
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
   mirror:
     if: github.repository == 'imrd-works/portfolio'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
+
+      # A deploy key rather than a personal access token: it does not expire,
+      # it is scoped to portfolio-prod alone, and it is not tied to a personal
+      # account that can lose access to the org. The previous PAT went stale
+      # silently — the mirror stopped, and the deploy with it.
+      #
+      # Setup (once):
+      #   ssh-keygen -t ed25519 -f ~/.ssh/prod_deploy_key -N "" \
+      #     -C "mirror portfolio -> portfolio-prod"
+      #   pbcopy < ~/.ssh/prod_deploy_key.pub  -> portfolio-prod:
+      #     Settings > Deploy keys > Add key, with "Allow write access"
+      #   pbcopy < ~/.ssh/prod_deploy_key      -> portfolio:
+      #     Settings > Secrets and variables > Actions > PROD_DEPLOY_KEY
       - name: Push to portfolio-prod
         env:
-          TOKEN: ${{ secrets.PROD_PUSH_TOKEN }}
+          DEPLOY_KEY: ${{ secrets.PROD_DEPLOY_KEY }}
         run: |
-          git push --force \
-            https://x-access-token:${TOKEN}@github.com/imrd-works/portfolio-prod.git \
-            HEAD:master
+          set -euo pipefail
+
+          # An unset secret expands to an empty string, and the failure then
+          # surfaces as an unrelated authentication error further down. Say
+          # what is actually wrong instead.
+          if [ -z "${DEPLOY_KEY}" ]; then
+            echo "::error::PROD_DEPLOY_KEY is empty. Add the private half of the portfolio-prod deploy key under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${DEPLOY_KEY}" > ~/.ssh/mirror_key
+          chmod 600 ~/.ssh/mirror_key
+          ssh-keyscan -t rsa,ecdsa,ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
+
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/mirror_key -o IdentitiesOnly=yes" \
+            git push --force git@github.com:imrd-works/portfolio-prod.git HEAD:master
