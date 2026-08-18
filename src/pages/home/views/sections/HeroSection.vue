@@ -159,7 +159,11 @@ const { t } = useI18n()
   }
 
   &__line {
-    display: inline-block;
+    // `block`, not `inline-block`: on a wide viewport both words fitted on one
+    // line and rendered as "DanielRassomakhin" — no space between them in the
+    // accessibility tree or in any text extracted from the page.
+    display: block;
+    width: fit-content;
     max-width: 100%;
     padding-bottom: 0.06em;
     overflow: hidden;

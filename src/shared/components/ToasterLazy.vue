@@ -6,9 +6,11 @@ const ToasterComponent = ref<(typeof import('vue-sonner'))['Toaster'] | null>(nu
 
 async function loadToaster() {
   if (ToasterComponent.value) return
-  const mod = await import('vue-sonner')
+  // Component and stylesheet are requested together so the toast never
+  // paints unstyled. Kept as one `Promise.all` expression: a bare
+  // `await import('...css')` is rewritten incorrectly in the SSR build.
+  const [mod] = await Promise.all([import('vue-sonner'), import('vue-sonner/style.css')])
   ToasterComponent.value = mod.Toaster
-  await import('vue-sonner/style.css')
   await nextTick()
   markToasterMounted()
 }

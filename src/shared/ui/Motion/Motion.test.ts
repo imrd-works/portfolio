@@ -121,6 +121,8 @@ describe('Motion', () => {
     expect(gsapMock.fromTo).not.toHaveBeenCalled()
 
     IntersectionObserverMock.instances[0].trigger()
+    // GSAP is imported on demand, so the tween starts a microtask later.
+    await flushPromises()
 
     expect(gsapMock.fromTo).toHaveBeenCalled()
     expect(IntersectionObserverMock.instances[0].disconnect).toHaveBeenCalled()

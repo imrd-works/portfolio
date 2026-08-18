@@ -1,14 +1,25 @@
 {
   "meta": {
     "title": "Daniel Rassomakhin — Vue / Nuxt Developer and Team Lead",
-    "description": "Portfolio of Daniel Rassomakhin, a frontend developer with 5+ years of commercial experience specializing in Vue 3, Nuxt and complex enterprise systems."
+    "description": "Senior frontend developer and team lead: Vue 3, Nuxt, TypeScript. Enterprise and public-sector systems, dashboards, digital signatures, products from scratch.",
+    "personName": "Daniel Rassomakhin",
+    "alternateName": "Даниил Рассомахин",
+    "jobTitle": "Senior Frontend Developer / Team Lead",
+    "locality": "Novorossiysk",
+    "region": "Krasnodar Krai",
+    "ogAlt": "Daniel Rassomakhin — Vue / Nuxt developer and team lead"
   },
   "nav": {
     "about": "About",
     "skills": "Skills",
     "work": "Work",
     "path": "Path",
-    "contact": "Contact"
+    "contact": "Contact",
+    "label": "Main navigation",
+    "switchTo": {
+      "ru": "Переключить на русский",
+      "en": "Switch to English"
+    }
   },
   "brand": {
     "mark": "D",
@@ -34,9 +45,9 @@
     "p2": "I take products from the idea stage to production: I build DDD and FSD architectures that can grow without turning into legacy within a year. As a Team Lead, I am responsible not only for my own code, but also for timelines, reviews and onboarding.",
     "p3": "I configure Docker and CI/CD, work confidently with backend teams and take on fullstack tasks when that speeds up the result without diluting focus.",
     "stats": {
-      "years": "years building",
-      "projects": "projects",
-      "tech": "technologies"
+      "systems": "systems in production",
+      "launches": "products from scratch",
+      "lead": "years as team lead"
     },
     "badge": "Novorossiysk · hybrid / remote",
     "photo": "Daniel Rassomakhin"
@@ -46,8 +57,16 @@
     "title": "A stack for complex interfaces and product systems",
     "coreTitle": "Core",
     "frontendTitle": "Frontend",
-    "backendTitle": "Data, DX & DevOps",
-    "toolsTitle": "Tools & Process"
+    "dataTitle": "Data, APIs and visualization",
+    "platformTitle": "Fullstack, DX and DevOps",
+    "toolsTitle": "Architecture, quality and tools",
+    "core": {
+      "vue": "5 years in production — six enterprise systems and landing pages",
+      "typescript": "4 years in strict mode: contract types generated from OpenAPI",
+      "dataviz": "Highcharts and ECharts, interactive SVG schematics, heavy tables and forms",
+      "architecture": "3+ years leading teams: decomposition, code review, release cycle",
+      "react": "Next.js in production: a financial landing with animation and a headless CMS"
+    }
   },
   "work": {
     "eyebrow": "Selected work",
@@ -81,7 +100,7 @@
       },
       "irlix": {
         "title": "Document Management System",
-        "desc": "An internal public transport system with a file manager, hierarchical document catalogue, analytics dashboards and a redesigned landing page.",
+        "desc": "An internal public-transport system: a file manager with automated document upload, a hierarchical catalogue and analytical dashboards.",
         "placeholder": "Vue 3 · Pinia · Highcharts"
       },
       "baccasoft": {
@@ -96,6 +115,11 @@
     "eyebrow": "Path",
     "title": "Timeline",
     "items": {
+      "current": {
+        "period": "June 2026 — present",
+        "role": "Frontend / Fullstack Developer",
+        "desc": "I run the company's product projects as a fullstack developer: a Nuxt 3 SSG site on a headless CMS and a storefront on Nuxt 2 with a Symfony backend. Cut load time and closed CLS, hardened the forms, static delivery and deploys across several environments. Inside the team I own the technical decisions and the release cycle."
+      },
       "fullstack": {
         "period": "March — June 2026",
         "role": "Fullstack Developer / Team Lead",
@@ -107,12 +131,12 @@
         "desc": "Owned the architecture of core workflows for an energy trading marketplace, including CryptoPro signatures, complex data tables and ECharts visualizations. Maintained team delivery quality through code review, mentoring and release oversight."
       },
       "educationLead": {
-        "period": "February 2023 — November 2025",
+        "period": "June — November 2024, March 2025 — February 2026",
         "role": "Frontend Developer / Team Lead",
         "desc": "Built an education platform from the ground up with DDD architecture, testing, analytics, content editing, purchases and role-based access. Led decomposition, code review and mentoring so the team could make durable technical decisions."
       },
       "complexSystems": {
-        "period": "February 2022 — January 2023",
+        "period": "February 2022 — February 2023",
         "role": "Frontend Developer",
         "desc": "As part of a development team, independently owned modules across a financial monitoring portal, a public transport document system and an industrial business-process platform. Aligned solutions with other developers and delivered SVG visualizations, GraphQL, dashboards and complex forms."
       },
@@ -183,5 +207,8 @@
   "footer": {
     "name": "Daniel Rassomakhin",
     "note": "© 2026 · Crafted with attention to detail"
+  },
+  "a11y": {
+    "skip": "Skip to content"
   }
 }

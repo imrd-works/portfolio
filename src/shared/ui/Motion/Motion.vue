@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
-import { gsap } from 'gsap'
+import { shouldSkipEntrance } from '@/shared/lib/hydration'
 
 defineOptions({
   name: 'UiMotion',
@@ -70,11 +70,24 @@ const presetVars: Record<MotionPreset, { from: MotionVars; to: MotionVars }> = {
   },
 }
 
+type Gsap = (typeof import('gsap'))['gsap']
+type Tween = ReturnType<Gsap['fromTo']>
+
 const el = ref<HTMLElement | null>(null)
 const classes = computed(() => ['motion', `motion--${props.preset}`])
 
 let observer: IntersectionObserver | null = null
-let tween: gsap.core.Tween | null = null
+let tween: Tween | null = null
+let gsapPromise: Promise<Gsap> | null = null
+
+// GSAP is ~30 kB gzipped and nothing above the fold needs it: the page is
+// prerendered, so the first screen is already painted and its entrance
+// animations are skipped on hydration. Loading it on demand keeps it off the
+// critical path.
+function loadGsap(): Promise<Gsap> {
+  gsapPromise ??= import('gsap').then((mod) => mod.gsap)
+  return gsapPromise
+}
 
 function toSeconds(value: number) {
   return value / 1000
@@ -109,13 +122,14 @@ function cleanupTween() {
   tween = null
 }
 
-function animate() {
+async function animate() {
   if (props.disabled || props.preset === 'none' || prefersReducedMotion()) return
 
   const targets = getTargets()
   if (!targets) return
 
   const { from, to } = getMotionVars()
+  const gsap = await loadGsap()
 
   cleanupTween()
   tween = gsap.fromTo(targets, from, {
@@ -128,17 +142,20 @@ function animate() {
   })
 }
 
-function setupVisibleTrigger() {
+async function setupVisibleTrigger() {
   const targets = getTargets()
   if (!el.value || !targets) return
 
   const { from } = getMotionVars()
+  const gsap = await loadGsap()
+  if (!el.value) return
+
   gsap.set(targets, from as CSSProperties)
 
   observer = new IntersectionObserver((entries) => {
     if (!entries[0]?.isIntersecting) return
 
-    animate()
+    void animate()
 
     if (props.once) {
       observer?.disconnect()
@@ -154,12 +171,16 @@ onMounted(async () => {
 
   if (props.disabled || props.preset === 'none' || prefersReducedMotion()) return
 
+  // Already painted by the prerendered HTML — leave it alone rather than
+  // hiding it and fading it back in.
+  if (shouldSkipEntrance(el.value)) return
+
   if (props.trigger === 'visible') {
-    setupVisibleTrigger()
+    await setupVisibleTrigger()
     return
   }
 
-  animate()
+  await animate()
 })
 
 onUnmounted(() => {

@@ -4,9 +4,13 @@ import ru from '../locales/ru.json'
 import {
   contactChannels,
   coreSkills,
+  dataChips,
   frontendChips,
+  platformChips,
+  toolsChips,
   projects,
   socials,
+  stats,
   timeline,
 } from './portfolio'
 
@@ -21,8 +25,54 @@ describe('portfolio CV data', () => {
     expect(socials).toEqual([{ label: 'GitHub', href: 'https://github.com/imrd-works' }])
   })
 
+  it('states core skills without unverifiable percentage bars', () => {
+    expect(coreSkills.every((skill) => !('value' in skill))).toBe(true)
+    expect(coreSkills.map(({ id }) => id)).toEqual([
+      'vue',
+      'typescript',
+      'dataviz',
+      'architecture',
+      'react',
+    ])
+    for (const { id } of coreSkills) {
+      expect((ru.skills.core as Record<string, string>)[id]?.length ?? 0).toBeGreaterThan(20)
+      expect((en.skills.core as Record<string, string>)[id]?.length ?? 0).toBeGreaterThan(20)
+    }
+  })
+
+  it('lists no technology the CV does not claim', () => {
+    const chips = [...frontendChips, ...dataChips, ...platformChips, ...toolsChips]
+
+    expect(new Set(chips).size).toBe(chips.length)
+    // Removed on purpose while aligning the site with the CV — putting any of
+    // them back means adding it to the CV first.
+    for (const absent of [
+      'WebSocket / Socket.io',
+      'Bootstrap',
+      'Material Design',
+      'Storybook',
+      'Photoshop',
+      'Jira',
+      'Notion',
+      'ClickUp',
+    ]) {
+      expect(chips).not.toContain(absent)
+    }
+    // Named in the CV, so they belong on the site too.
+    expect(chips).toEqual(
+      expect.arrayContaining(['Symfony', 'PostgreSQL', 'Nginx', 'Lottie', 'Nuxt 2'])
+    )
+  })
+
+  it('backs the headline numbers with things listed on the page', () => {
+    expect(stats.map(({ id }) => id)).toEqual(['systems', 'launches', 'lead'])
+    expect(stats.find(({ id }) => id === 'systems')?.value).toBe(projects.length)
+    expect(Object.keys(ru.about.stats)).toEqual(['systems', 'launches', 'lead'])
+    expect(Object.keys(en.about.stats)).toEqual(['systems', 'launches', 'lead'])
+  })
+
   it('represents the Vue and Nuxt specialization from the CV', () => {
-    expect(coreSkills[0].label).toBe('Vue 3 / Nuxt 3–4')
+    expect(coreSkills[0]).toEqual({ id: 'vue', label: 'Vue 3 / Nuxt 3–4' })
     expect(frontendChips).toEqual(expect.arrayContaining(['Vue 3', 'Nuxt 3 / 4', 'Pinia']))
     expect(ru.hero.status).toContain('Vue / Nuxt')
     expect(en.hero.status).toContain('Vue / Nuxt')
@@ -66,8 +116,9 @@ describe('portfolio CV data', () => {
     expect(en.work.items.moex.title).toBe('Financial Monitoring Portal')
   })
 
-  it('shows five responsibility milestones in reverse chronological order', () => {
+  it('shows six responsibility milestones in reverse chronological order', () => {
     expect(timeline.map(({ id }) => id)).toEqual([
+      'current',
       'fullstack',
       'energyLead',
       'educationLead',
@@ -95,7 +146,7 @@ describe('portfolio CV data', () => {
     )
   })
 
-  it('shows team leadership from 2023 and collaboration at every career stage', () => {
+  it('keeps the timeline current and shows collaboration at every career stage', () => {
     type ExperienceCopy = { period: string; role: string; desc: string }
     const ruItems = ru.experience.items as Record<string, ExperienceCopy>
     const enItems = en.experience.items as Record<string, ExperienceCopy>
@@ -103,8 +154,10 @@ describe('portfolio CV data', () => {
 
     expect(ruItems.fullstack?.role).toBe('Fullstack Developer / Team Lead')
     expect(enItems.fullstack?.role).toBe('Fullstack Developer / Team Lead')
-    expect(ruItems.educationLead?.period).toContain('2023')
-    expect(enItems.educationLead?.period).toBe('February 2023 — November 2025')
+    expect(ruItems.educationLead?.period).toContain('2024')
+    expect(enItems.educationLead?.period).toBe('June — November 2024, March 2025 — February 2026')
+    // The timeline must reach today, not stop at the last finished project.
+    expect(enItems.current?.period).toContain('present')
     expect(
       ids.every((id) => /\u043a\u043e\u043c\u0430\u043d\u0434/i.test(ruItems[id]?.desc ?? ''))
     ).toBe(true)

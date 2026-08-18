@@ -1,12 +1,12 @@
 # Daniel Rassomakhin — Portfolio
 
-Личный сайт-портфолио frontend-разработчика и Team Lead. Одностраничник на Vue 3 + Vite + TypeScript с анимациями на GSAP, дизайн-токенами, i18n и SEO.
+Личный сайт-портфолио frontend-разработчика и Team Lead. Vue 3 + Vite + TypeScript, анимации на GSAP, дизайн-токены, две локали и **пререндер в статику**: каждый маршрут собирается в готовый HTML, браузер потом гидрирует ту же разметку.
 
 ```bash
 npm install && npm run dev
 ```
 
-Прод-сборка: `npm run build`. Полный прогон проверок перед сборкой: `npm run build:checked`.
+Прод-сборка: `npm run build` (клиентский бандл → SSR-бандл → пререндер маршрутов → проверка выходного HTML). Полный прогон проверок перед сборкой: `npm run build:checked`.
 
 > Сайт вырос из собственного Vue-стартера, поэтому в проекте остаётся «боевой» каркас (API-клиент с тостами, роутер с middleware, husky/commitlint, BEM-stylelint). Сейчас он используется как одностраничное портфолио, но инфраструктура готова к расширению.
 
@@ -17,13 +17,35 @@ npm install && npm run dev
 Главная (`src/pages/home`) собрана из секций:
 
 - **Hero** — имя, статус, кнопки (Telegram, e-mail, резюме).
-- **About** — о себе + счётчики (лет в профессии, проектов, технологий).
+- **About** — о себе + счётчики (систем в продакшене, продуктов с нуля, лет в роли Team Lead).
 - **Skills** — стек: Core / Frontend / Data, DX & DevOps.
 - **Work** — избранные проекты (energy trading, education platform, Bitcoin-лендинг, financial monitoring и др.).
 - **Experience** — таймлайн ролей.
 - **Contact** — форма заявки + ссылки.
 
-Плюс страница **404** (`src/pages/not-found`). Контент вынесен в локали (`locales/en.json`) и подключается через `vue-i18n`.
+Плюс страница **404** (`src/pages/not-found`). Контент вынесен в локали (`locales/ru.json`, `locales/en.json`) и подключается через `vue-i18n`.
+
+Язык живёт в URL: `/` — русская версия, `/en/` — английская. Переключатель в шапке — обычная ссылка, а не скрытое состояние, поэтому каждая версия индексируется, шарится и открывается на том языке, на котором её отправили.
+
+---
+
+## Пререндер и SEO
+
+`npm run build` не отдаёт пустой `<div id="app">`:
+
+1. `vite build` — клиентский бандл.
+2. `vite build --ssr src/entry-server.ts` — тот же граф приложения, собранный под Node.
+3. `scripts/prerender.mjs` — рендерит `/`, `/en/` и `/404` в готовые документы, подставляет их в `index.html` вместе с тегами `<head>` от unhead и генерирует `robots.txt` и `sitemap.xml` с `hreflang`.
+4. `scripts/verify-build.mjs` — падает, если в HTML не оказалось контента, canonical, hreflang, Open Graph или JSON-LD.
+
+Что попадает в исходник страницы без выполнения JS: весь текст и заголовки, `title` и `description`, `canonical`, `hreflang` (`ru` / `en` / `x-default`), Open Graph и Twitter-карточка с картинкой 1200×630, JSON-LD (`Person`, `WebSite`, `ProfilePage`, `ItemList` проектов). Ссылку можно кинуть в Telegram, LinkedIn или в резюме — превью развернётся, парсер вакансий прочитает текст.
+
+Дополнительно:
+
+- **Гидратация вместо перерисовки.** Точка входа сверяет отметку `data-prerendered` с текущим путём и гидрирует разметку только если они совпали.
+- **Анимации не мигают.** `Motion` и `CountUp` не переигрывают появление для блоков, которые уже видны на экране при первой гидратации (`src/shared/lib/hydration.ts`).
+- **Шрифты self-hosted.** `public/fonts` вместо запроса к Google Fonts: минус блокирующий CSS и два внешних origin, плюс `preload` ровно тех сабсетов, которые нужны локали. Обновляются через `npm run fonts:sync`.
+- **OG-картинки и иконки** генерируются из тех же токенов — `npm run og:generate` (headless Chromium).
 
 ---
 
@@ -36,7 +58,8 @@ npm install && npm run dev
 | Состояние     | Pinia                                                  |
 | Анимации      | GSAP, кастомные компоненты Motion / CountUp / Ticker   |
 | Стили         | SCSS, дизайн-токены, BEM (stylelint)                   |
-| i18n / SEO    | vue-i18n, @unhead/vue, vite-plugin-sitemap             |
+| SSG           | vue/server-renderer + собственный prerender-скрипт     |
+| i18n / SEO    | vue-i18n, @unhead/vue, JSON-LD, hreflang               |
 | UX            | vue-sonner (тосты), @vueuse/core                       |
 | Качество      | ESLint, Stylelint, Prettier, Vitest, Playwright, Husky |
 
@@ -48,8 +71,11 @@ npm install && npm run dev
 src/
 ├── app/
 │   ├── api/           # API-клиент, адаптеры (axios)
+│   ├── config/        # site.ts — домен, локали, канонические пути
 │   ├── i18n/          # настройка vue-i18n
-│   └── router/        # Vue Router, middleware
+│   ├── router/        # Vue Router, middleware
+│   ├── seo/           # useSiteSeo — head, OG, hreflang, JSON-LD
+│   └── create.ts      # общая сборка приложения для браузера и пререндера
 ├── layouts/           # layout-обёртки
 ├── pages/             # модули страниц
 │   ├── home/          # главная: views/sections, model, seo, locales
@@ -58,7 +84,9 @@ src/
 │   ├── ui/            # Button, Icon, Text, Motion, CountUp,
 │   │                  #   Ticker, CustomCursor, AuroraBackdrop, ScrollProgress
 │   ├── layout/        # Container, Grid, Section, PageSection
-│   ├── composables/   # useToast, useHelpers, useSeo
+│   ├── composables/   # useToast, useLocale, useInView
+│   ├── config/        # контакты и идентичность (их читает и SEO-слой)
+│   ├── lib/           # hydration — правила анимаций после пререндера
 │   ├── directives/    # пользовательские директивы
 │   ├── stores/        # Pinia-сторы
 │   └── locales/       # общие переводы
@@ -113,20 +141,24 @@ GSAP подключён для таймлайнов, scroll-driven эффект�
 
 ## Скрипты
 
-| Команда                 | Описание                                            |
-| ----------------------- | --------------------------------------------------- |
-| `npm run dev`           | Dev-сервер                                          |
-| `npm run build`         | Production-сборка                                   |
-| `npm run build:checked` | Проверки качества + сборка                          |
-| `npm run preview`       | Просмотр собранного билда                           |
-| `npm run build:analyze` | Сборка с анализом бандла (rollup-visualizer)        |
-| `npm run verify`        | Prettier + ESLint + Stylelint + TypeScript + Vitest |
-| `npm run a11y`          | Проверка доступности Vue-шаблонов                   |
-| `npm run lint`          | ESLint + Stylelint (BEM) с автофиксом               |
-| `npm run format`        | Prettier для всего проекта                          |
-| `npm run test`          | Vitest в watch-режиме                               |
-| `npm run test:e2e`      | Playwright e2e-тесты                                |
-| `npm run generate:api`  | TS-типы из OpenAPI → `src/app/api/contracts.d.ts`   |
+| Команда                 | Описание                                                |
+| ----------------------- | ------------------------------------------------------- |
+| `npm run dev`           | Dev-сервер                                              |
+| `npm run build`         | Полная прод-сборка: бандлы → пререндер → проверка       |
+| `npm run prerender`     | Только пререндер (после `build:client` + `build:ssr`)   |
+| `npm run verify:build`  | Проверка готового `dist/` на контент, SEO-теги, JSON-LD |
+| `npm run fonts:sync`    | Обновить self-hosted шрифты из @fontsource              |
+| `npm run og:generate`   | Перерисовать OG-картинки и PNG-иконки                   |
+| `npm run build:checked` | Проверки качества + сборка                              |
+| `npm run preview`       | Просмотр собранного билда                               |
+| `npm run build:analyze` | Сборка с анализом бандла (rollup-visualizer)            |
+| `npm run verify`        | Prettier + ESLint + Stylelint + TypeScript + Vitest     |
+| `npm run a11y`          | Проверка доступности Vue-шаблонов                       |
+| `npm run lint`          | ESLint + Stylelint (BEM) с автофиксом                   |
+| `npm run format`        | Prettier для всего проекта                              |
+| `npm run test`          | Vitest в watch-режиме                                   |
+| `npm run test:e2e`      | Playwright e2e-тесты                                    |
+| `npm run generate:api`  | TS-типы из OpenAPI → `src/app/api/contracts.d.ts`       |
 
 ---
 
@@ -140,6 +172,34 @@ GSAP подключён для таймлайнов, scroll-driven эффект�
 
 **BEM (stylelint):** блок `.block`, элемент `.block__element`, модификатор `.block--mod`; в начале `<style>` указывай `/** @define block-name */`. Kebab-case утилиты (`.flex`, `.gap-m`) разрешены.
 
-**Окружение:** `VITE_SITE_URL` задаёт hostname для sitemap (см. `.env.example`).
+**Окружение:** `VITE_SITE_URL` — канонический origin: canonical, hreflang, Open Graph, JSON-LD, `robots.txt`, `sitemap.xml`. Переезд на свой домен = одна переменная (локально в `.env`, в CI — секрет `VITE_SITE_URL`), после чего стоит перегенерировать OG-картинки: на них напечатан адрес сайта.
+
+---
+
+## Деплой (Yandex Object Storage)
+
+`dist/` заливается в бакет как есть. В настройках хостинга бакета:
+
+- **Главная страница** — `index.html`
+- **Страница ошибки** — `404.html`
+
+`/en/` отдаётся из `dist/en/index.html`. Если хостинг всё же вернёт `404.html` на существующий путь, приложение это переживёт: отметка `data-prerendered` не совпадёт, и страница смонтируется на клиенте вместо кривой гидратации.
+
+Object Storage не умеет content negotiation, поэтому `.gz`/`.br` рядом с файлами по умолчанию не создаются. За nginx (`gzip_static`) или другим хостингом, который их понимает, включаются переменной `PRERENDER_COMPRESS=1`.
+
+### Переезд на свой домен
+
+Object Storage требует, чтобы **имя бакета полностью совпадало с доменом**, поэтому переименованием не обойтись — заводится новый бакет, старый остаётся под редирект.
+
+1. Купить домен и создать бакет с именем ровно как домен (`example.dev`). Хостинг: главная `index.html`, ошибка `404.html`, публичное чтение.
+2. Создать публичную зону в Cloud DNS, у регистратора делегировать домен на `ns1.yandexcloud.net` и `ns2.yandexcloud.net`.
+3. В зоне добавить `ANAME` на корень: `example.dev.` → `example.dev.website.yandexcloud.net.`, TTL 600. `CNAME` на корень зоны не вешается — только на третий уровень и ниже.
+4. Certificate Manager → сертификат от Let's Encrypt → проверка прав **по CNAME** (единственный способ с автопродлением). На `_acme-challenge` не должно быть других записей.
+5. Бакет → Безопасность → HTTPS → источник Certificate Manager. Доступ открывается примерно за полчаса, редирект HTTP → HTTPS включается сам.
+6. Обновить секреты в GitHub: `YC_BUCKET` — новое имя бакета, `VITE_SITE_URL` — новый origin. То же в локальном `.env`.
+7. `npm run og:generate` и закоммитить новые `public/og-*.jpg`: на карточках напечатан адрес сайта.
+8. Старый бакет перевести в режим «Перенаправление всех запросов» на новый домен, чтобы уже разосланные ссылки не умерли.
+
+После деплоя: `curl -sI https://example.dev/en/` должен вернуть `200`, а `curl -s https://example.dev/robots.txt` — показать новый домен в `Sitemap:`. Если `/en/` отдаёт 404, значит бакет не подставляет индексный документ внутри префикса — добавить routing rule `KeyPrefixEquals: en/` → `ReplaceKeyWith: en/index.html`.
 
 Подробнее про настройку husky, GitHub Rulesets и линтеры — в [SETUP.md](./SETUP.md).
