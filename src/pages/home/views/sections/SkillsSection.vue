@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { PageSection, Grid, Motion, Text } from '@/shared/ui'
-import { coreSkills, frontendChips, backendChips, toolsChips } from '../../model/portfolio'
+import {
+  coreSkills,
+  frontendChips,
+  dataChips,
+  platformChips,
+  toolsChips,
+} from '../../model/portfolio'
 import SectionEyebrow from './SectionEyebrow.vue'
 
 const { t } = useI18n()
@@ -74,7 +80,7 @@ const { t } = useI18n()
             </div>
           </dl>
         </div>
-        <div class="skills__card skills__card--order-4">
+        <div class="skills__card skills__card--order-5">
           <Text
             tag="h3"
             variant="heading-s"
@@ -126,11 +132,29 @@ const { t } = useI18n()
             tone="secondary"
             class="skills__group-title"
           >
-            {{ t('home.skills.backendTitle') }}
+            {{ t('home.skills.dataTitle') }}
           </Text>
           <div class="skills__chips">
             <span
-              v-for="chip in backendChips"
+              v-for="chip in dataChips"
+              :key="chip"
+              class="skills__chip"
+              >{{ chip }}</span
+            >
+          </div>
+        </div>
+        <div class="skills__card skills__card--order-4">
+          <Text
+            tag="h3"
+            variant="heading-s"
+            tone="secondary"
+            class="skills__group-title"
+          >
+            {{ t('home.skills.platformTitle') }}
+          </Text>
+          <div class="skills__chips">
+            <span
+              v-for="chip in platformChips"
               :key="chip"
               class="skills__chip"
               >{{ chip }}</span
@@ -230,6 +254,10 @@ const { t } = useI18n()
 
   .skills__card--order-4 {
     order: 4;
+  }
+
+  .skills__card--order-5 {
+    order: 5;
   }
 }
 

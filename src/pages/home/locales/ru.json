@@ -57,8 +57,9 @@
     "title": "Стек для сложных интерфейсов и продуктовых систем",
     "coreTitle": "Ядро",
     "frontendTitle": "Frontend",
-    "backendTitle": "Данные, DX & DevOps",
-    "toolsTitle": "Инструменты и процессы",
+    "dataTitle": "Данные, API и визуализация",
+    "platformTitle": "Fullstack, DX и DevOps",
+    "toolsTitle": "Архитектура, качество и инструменты",
     "core": {
       "vue": "5 лет в продакшене — шесть корпоративных систем и лендингов",
       "typescript": "4 года в строгом режиме: типы контрактов из OpenAPI, кодоген",

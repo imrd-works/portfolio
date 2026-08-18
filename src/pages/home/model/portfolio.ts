@@ -20,14 +20,24 @@ export const coreSkills: CoreSkill[] = [
   { id: 'react', label: 'React / Next.js' },
 ]
 
+// The chip groups mirror the "Key skills" table of the CV, plus the stacks
+// named under the projects listed below. Nothing here is on the site but
+// absent from the CV: a recruiter reading both documents side by side should
+// not find a single technology that only one of them claims.
+
 export const frontendChips: string[] = [
   'Vue 3',
-  'Vue 2.7',
+  'Vue 2 / 2.7',
   'Nuxt 3 / 4',
+  'Nuxt 2',
+  'React',
+  'Next.js',
   'TypeScript',
   'JavaScript ES6+',
-  'HTML5 / CSS3',
+  'HTML5',
+  'CSS3',
   'SCSS / SASS',
+  'Pug',
   'Pinia',
   'Vuex',
   'Vue Router',
@@ -37,50 +47,68 @@ export const frontendChips: string[] = [
   'Vuelidate',
   'Vuetify',
   'Tailwind CSS',
-  'Bootstrap',
-  'Material Design',
   'TipTap',
   'GSAP',
-  'React / Next.js',
+  'Lottie',
+  'Anime.js',
+  'Swiper',
 ]
 
-export const backendChips: string[] = [
-  'REST / OpenAPI',
-  'GraphQL / Apollo',
-  'Axios / Fetch',
-  'WebSocket / Socket.io',
-  'Postman',
-  'CryptoPro',
+export const dataChips: string[] = [
+  'REST API',
+  'OpenAPI / Swagger',
+  'Apollo (GraphQL)',
+  'Axios',
   'i18n',
+  'CryptoPro',
   'Highcharts',
   'ECharts',
   'Chart.js',
   'SVG Data Viz',
+  'Yandex Metrica',
+  'reCAPTCHA',
+  'HubSpot',
+]
+
+export const platformChips: string[] = [
+  'Node',
+  'Sanity',
+  'Symfony',
+  'Twig',
+  'PHP / Yii2',
+  'WordPress',
+  'Shopify',
+  'PostgreSQL',
   'Vite',
   'Webpack',
+  'npm / Yarn / PNPM',
   'ESLint / Prettier',
   'PostCSS',
-  'BEM',
   'Vitest',
   'Docker',
   'CI/CD',
   'GitHub Actions / GitLab CI',
   'Vercel',
-  'Git',
-  'Node / PHP · Yii2',
-  'Sanity · Shopify · WP',
+  'Nginx',
+  'Traefik',
+  'MinIO (S3)',
 ]
 
 export const toolsChips: string[] = [
+  'DDD',
+  'FSD',
+  'BEM',
+  'Responsive / Cross-browser',
+  'Code review',
+  'Legacy refactoring',
+  'Git (GitHub / GitLab)',
   'Figma',
   'Adobe XD',
-  'Photoshop',
-  'Storybook',
-  'Cursor / Copilot',
-  'Jira',
-  'Notion',
-  'ClickUp',
-  'Agile / Scrum',
+  'Postman',
+  'Cursor',
+  'GitHub Copilot',
+  'Codex / Claude',
+  'Agile / Scrum / Kanban',
 ]
 
 export const techMarquee: string[] = [

@@ -57,8 +57,9 @@
     "title": "A stack for complex interfaces and product systems",
     "coreTitle": "Core",
     "frontendTitle": "Frontend",
-    "backendTitle": "Data, DX & DevOps",
-    "toolsTitle": "Tools & Process",
+    "dataTitle": "Data, APIs and visualization",
+    "platformTitle": "Fullstack, DX and DevOps",
+    "toolsTitle": "Architecture, quality and tools",
     "core": {
       "vue": "5 years in production — six enterprise systems and landing pages",
       "typescript": "4 years in strict mode: contract types generated from OpenAPI",

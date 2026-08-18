@@ -4,7 +4,10 @@ import ru from '../locales/ru.json'
 import {
   contactChannels,
   coreSkills,
+  dataChips,
   frontendChips,
+  platformChips,
+  toolsChips,
   projects,
   socials,
   stats,
@@ -35,6 +38,30 @@ describe('portfolio CV data', () => {
       expect((ru.skills.core as Record<string, string>)[id]?.length ?? 0).toBeGreaterThan(20)
       expect((en.skills.core as Record<string, string>)[id]?.length ?? 0).toBeGreaterThan(20)
     }
+  })
+
+  it('lists no technology the CV does not claim', () => {
+    const chips = [...frontendChips, ...dataChips, ...platformChips, ...toolsChips]
+
+    expect(new Set(chips).size).toBe(chips.length)
+    // Removed on purpose while aligning the site with the CV — putting any of
+    // them back means adding it to the CV first.
+    for (const absent of [
+      'WebSocket / Socket.io',
+      'Bootstrap',
+      'Material Design',
+      'Storybook',
+      'Photoshop',
+      'Jira',
+      'Notion',
+      'ClickUp',
+    ]) {
+      expect(chips).not.toContain(absent)
+    }
+    // Named in the CV, so they belong on the site too.
+    expect(chips).toEqual(
+      expect.arrayContaining(['Symfony', 'PostgreSQL', 'Nginx', 'Lottie', 'Nuxt 2'])
+    )
   })
 
   it('backs the headline numbers with things listed on the page', () => {
