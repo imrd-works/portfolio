@@ -99,7 +99,7 @@
       },
       "irlix": {
         "title": "Document Management System",
-        "desc": "An internal public transport system with a file manager, hierarchical document catalogue, analytics dashboards and a redesigned landing page.",
+        "desc": "An internal public-transport system: a file manager with automated document upload, a hierarchical catalogue and analytical dashboards.",
         "placeholder": "Vue 3 · Pinia · Highcharts"
       },
       "baccasoft": {
@@ -114,6 +114,11 @@
     "eyebrow": "Path",
     "title": "Timeline",
     "items": {
+      "current": {
+        "period": "June 2026 — present",
+        "role": "Frontend / Fullstack Developer",
+        "desc": "I run the company's product projects as a fullstack developer: a Nuxt 3 SSG site on a headless CMS and a storefront on Nuxt 2 with a Symfony backend. Cut load time and closed CLS, hardened the forms, static delivery and deploys across several environments. Inside the team I own the technical decisions and the release cycle."
+      },
       "fullstack": {
         "period": "March — June 2026",
         "role": "Fullstack Developer / Team Lead",
@@ -125,12 +130,12 @@
         "desc": "Owned the architecture of core workflows for an energy trading marketplace, including CryptoPro signatures, complex data tables and ECharts visualizations. Maintained team delivery quality through code review, mentoring and release oversight."
       },
       "educationLead": {
-        "period": "February 2023 — November 2025",
+        "period": "June — November 2024, March 2025 — February 2026",
         "role": "Frontend Developer / Team Lead",
         "desc": "Built an education platform from the ground up with DDD architecture, testing, analytics, content editing, purchases and role-based access. Led decomposition, code review and mentoring so the team could make durable technical decisions."
       },
       "complexSystems": {
-        "period": "February 2022 — January 2023",
+        "period": "February 2022 — February 2023",
         "role": "Frontend Developer",
         "desc": "As part of a development team, independently owned modules across a financial monitoring portal, a public transport document system and an industrial business-process platform. Aligned solutions with other developers and delivered SVG visualizations, GraphQL, dashboards and complex forms."
       },

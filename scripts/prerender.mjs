@@ -127,6 +127,10 @@ Allow: /
 Disallow: /404.html
 Disallow: /stats.html
 
+# The CV is downloadable from the page but kept out of search: it carries a
+# phone number, and everything in it is already indexable as page copy.
+Disallow: /Rassomakhin_CV.pdf
+
 Sitemap: ${siteUrl}/sitemap.xml
 `
 }

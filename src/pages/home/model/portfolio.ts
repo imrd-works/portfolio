@@ -150,12 +150,21 @@ export const projects: Project[] = [
 ]
 
 export interface TimelineEntry {
-  id: 'fullstack' | 'energyLead' | 'educationLead' | 'complexSystems' | 'commercialStart'
+  id:
+    | 'current'
+    | 'fullstack'
+    | 'energyLead'
+    | 'educationLead'
+    | 'complexSystems'
+    | 'commercialStart'
   dot: string
 }
 
+// Reverse chronological. Periods here mirror the CV exactly — a recruiter
+// comparing the two documents should find the same dates in both.
 export const timeline: TimelineEntry[] = [
-  { id: 'fullstack', dot: 'var(--color-accent)' },
+  { id: 'current', dot: 'var(--color-accent)' },
+  { id: 'fullstack', dot: '#9a8ae8' },
   { id: 'energyLead', dot: '#8b7be0' },
   { id: 'educationLead', dot: '#6c66c8' },
   { id: 'complexSystems', dot: '#555196' },

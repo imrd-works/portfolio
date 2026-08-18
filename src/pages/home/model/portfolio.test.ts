@@ -89,8 +89,9 @@ describe('portfolio CV data', () => {
     expect(en.work.items.moex.title).toBe('Financial Monitoring Portal')
   })
 
-  it('shows five responsibility milestones in reverse chronological order', () => {
+  it('shows six responsibility milestones in reverse chronological order', () => {
     expect(timeline.map(({ id }) => id)).toEqual([
+      'current',
       'fullstack',
       'energyLead',
       'educationLead',
@@ -118,7 +119,7 @@ describe('portfolio CV data', () => {
     )
   })
 
-  it('shows team leadership from 2023 and collaboration at every career stage', () => {
+  it('keeps the timeline current and shows collaboration at every career stage', () => {
     type ExperienceCopy = { period: string; role: string; desc: string }
     const ruItems = ru.experience.items as Record<string, ExperienceCopy>
     const enItems = en.experience.items as Record<string, ExperienceCopy>
@@ -126,8 +127,10 @@ describe('portfolio CV data', () => {
 
     expect(ruItems.fullstack?.role).toBe('Fullstack Developer / Team Lead')
     expect(enItems.fullstack?.role).toBe('Fullstack Developer / Team Lead')
-    expect(ruItems.educationLead?.period).toContain('2023')
-    expect(enItems.educationLead?.period).toBe('February 2023 — November 2025')
+    expect(ruItems.educationLead?.period).toContain('2024')
+    expect(enItems.educationLead?.period).toBe('June — November 2024, March 2025 — February 2026')
+    // The timeline must reach today, not stop at the last finished project.
+    expect(enItems.current?.period).toContain('present')
     expect(
       ids.every((id) => /\u043a\u043e\u043c\u0430\u043d\u0434/i.test(ruItems[id]?.desc ?? ''))
     ).toBe(true)
