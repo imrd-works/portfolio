@@ -38,6 +38,22 @@ const FONTS = [
     '@fontsource/playfair-display/files/playfair-display-cyrillic-500-italic.woff2',
     'playfair-cyrillic-italic.woff2',
   ],
+  [
+    '@fontsource-variable/unbounded/files/unbounded-latin-wght-normal.woff2',
+    'unbounded-latin.woff2',
+  ],
+  [
+    '@fontsource-variable/unbounded/files/unbounded-cyrillic-wght-normal.woff2',
+    'unbounded-cyrillic.woff2',
+  ],
+  [
+    '@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2',
+    'jetbrains-mono-latin.woff2',
+  ],
+  [
+    '@fontsource-variable/jetbrains-mono/files/jetbrains-mono-cyrillic-wght-normal.woff2',
+    'jetbrains-mono-cyrillic.woff2',
+  ],
 ]
 
 await rm(outDir, { recursive: true, force: true })
