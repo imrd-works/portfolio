@@ -9,22 +9,6 @@
     "region": "Krasnodar Krai",
     "ogAlt": "Daniel Rassomakhin — Vue / Nuxt developer and team lead"
   },
-  "nav": {
-    "about": "About",
-    "skills": "Skills",
-    "work": "Work",
-    "path": "Path",
-    "contact": "Contact",
-    "label": "Main navigation",
-    "switchTo": {
-      "ru": "Переключить на русский",
-      "en": "Switch to English"
-    }
-  },
-  "brand": {
-    "mark": "D",
-    "name": "Rassomakhin"
-  },
   "hero": {
     "status": "Open to opportunities · Vue / Nuxt · Team Lead",
     "firstName": "Daniel",

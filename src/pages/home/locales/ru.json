@@ -9,22 +9,6 @@
     "region": "Краснодарский край",
     "ogAlt": "Даниил Рассомахин — Vue / Nuxt разработчик и Team Lead"
   },
-  "nav": {
-    "about": "Обо мне",
-    "skills": "Навыки",
-    "work": "Проекты",
-    "path": "Опыт",
-    "contact": "Контакты",
-    "label": "Основная навигация",
-    "switchTo": {
-      "ru": "Переключить на русский",
-      "en": "Switch to English"
-    }
-  },
-  "brand": {
-    "mark": "Д",
-    "name": "Рассомахин"
-  },
   "hero": {
     "status": "Открыт к предложениям · Vue / Nuxt · Team Lead",
     "firstName": "Даниил",

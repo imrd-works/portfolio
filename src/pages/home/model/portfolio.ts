@@ -212,7 +212,3 @@ export const services: ServiceId[] = [
 // Contacts live in `shared/config` — the app-level SEO layer reads them too.
 export { contactChannels, socials, sameAs } from '@/shared/config/contacts'
 export type { SocialLink } from '@/shared/config/contacts'
-
-// Anchor targets used by the in-page navigation.
-export const sectionNav = ['about', 'skills', 'work', 'path', 'contact'] as const
-export type SectionId = (typeof sectionNav)[number]

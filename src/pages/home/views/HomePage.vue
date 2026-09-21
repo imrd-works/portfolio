@@ -2,7 +2,6 @@
 import { Ticker } from '@/shared/ui'
 import { usePageSeo } from '../seo/usePageSeo'
 import { techMarquee } from '../model/portfolio'
-import SiteNav from './sections/SiteNav.vue'
 import HeroSection from './sections/HeroSection.vue'
 import AboutSection from './sections/AboutSection.vue'
 import SkillsSection from './sections/SkillsSection.vue'
@@ -15,7 +14,6 @@ usePageSeo()
 
 <template>
   <div class="home-page">
-    <SiteNav />
     <HeroSection />
     <Ticker :items="techMarquee" />
     <AboutSection />
