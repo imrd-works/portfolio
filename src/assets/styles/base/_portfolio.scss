@@ -31,6 +31,21 @@ body {
   background: #3a3270;
 }
 
+// The ink-brush cursor replaces the native pointer (the class is set by
+// CustomCursor only on fine, hovering pointers). Text fields keep their caret.
+.has-brush-cursor,
+.has-brush-cursor * {
+  cursor: none !important;
+}
+
+.has-brush-cursor :is(input, textarea, [contenteditable='true']) {
+  cursor: text !important;
+}
+
+.has-brush-cursor select {
+  cursor: default !important;
+}
+
 // Hide the magnetic/tilt custom cursor affordances on touch / coarse pointers.
 @media (hover: none), (pointer: coarse) {
   .custom-cursor {

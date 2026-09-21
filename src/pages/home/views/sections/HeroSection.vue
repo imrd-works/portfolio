@@ -124,6 +124,7 @@ function toggleFog() {
       <div
         ref="paper"
         class="hero__paper"
+        data-ink-surface="paper"
       >
         <div
           ref="sheet"
