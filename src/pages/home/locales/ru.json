@@ -10,16 +10,17 @@
     "ogAlt": "Даниил Рассомахин — Vue / Nuxt разработчик и Team Lead"
   },
   "hero": {
-    "status": "Открыт к предложениям · Vue / Nuxt · Team Lead",
     "firstName": "Даниил",
     "lastName": "Рассомахин",
-    "lead": "Frontend-разработчик с 5+ годами коммерческого опыта. Проектирую сложные интерфейсы на Vue и Nuxt, веду команды и при необходимости закрываю задачи как {accent}.",
-    "cta": {
-      "telegram": "Написать в Telegram",
-      "email": "Почта",
-      "resume": "Резюме"
-    },
-    "scroll": "Scroll"
+    "role": "Senior Frontend Developer · Team Lead",
+    "hint": "Листайте вниз",
+    "seal": "ДР",
+    "art": "Рисунок тушью: долина тайги в тумане",
+    "replay": "Нарисовать заново",
+    "fog": {
+      "on": "Туман: вкл",
+      "off": "Туман: выкл"
+    }
   },
   "about": {
     "eyebrow": "Обо мне",

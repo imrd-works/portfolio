@@ -10,16 +10,17 @@
     "ogAlt": "Daniel Rassomakhin — Vue / Nuxt developer and team lead"
   },
   "hero": {
-    "status": "Open to opportunities · Vue / Nuxt · Team Lead",
     "firstName": "Daniel",
     "lastName": "Rassomakhin",
-    "lead": "Frontend developer with 5+ years of commercial experience. I architect complex Vue and Nuxt interfaces, lead teams and cover adjacent layers as a {accent} developer when needed.",
-    "cta": {
-      "telegram": "Message on Telegram",
-      "email": "Email",
-      "resume": "Résumé"
-    },
-    "scroll": "Scroll"
+    "role": "Senior Frontend Developer · Team Lead",
+    "hint": "Scroll down",
+    "seal": "DR",
+    "art": "Ink painting: a taiga valley in the mist",
+    "replay": "Paint it again",
+    "fog": {
+      "on": "Mist: on",
+      "off": "Mist: off"
+    }
   },
   "about": {
     "eyebrow": "About",

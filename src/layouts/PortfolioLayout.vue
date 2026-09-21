@@ -42,7 +42,9 @@ const { t } = useI18n()
   position: relative;
   min-height: 100vh; // fallback for browsers without svh / JS
   min-height: var(--app-height, 100svh);
-  overflow: hidden;
+  // `clip`, not `hidden`: it trims the same overflow without turning the
+  // layout into a scroll container, which would break the sticky hero stage.
+  overflow: clip;
   color: var(--color-text-primary);
   background: var(--color-bg-canvas);
 

@@ -74,8 +74,8 @@ describe('portfolio CV data', () => {
   it('represents the Vue and Nuxt specialization from the CV', () => {
     expect(coreSkills[0]).toEqual({ id: 'vue', label: 'Vue 3 / Nuxt 3–4' })
     expect(frontendChips).toEqual(expect.arrayContaining(['Vue 3', 'Nuxt 3 / 4', 'Pinia']))
-    expect(ru.hero.status).toContain('Vue / Nuxt')
-    expect(en.hero.status).toContain('Vue / Nuxt')
+    expect(ru.meta.title).toContain('Vue / Nuxt')
+    expect(en.meta.title).toContain('Vue / Nuxt')
   })
 
   it('includes six named CV projects and no placeholder links', () => {
