@@ -1,0 +1,4 @@
+# Prettier (and the pre-commit `npm run verify`) expects LF. Without this,
+# a Windows checkout with core.autocrlf=true turns every text file into CRLF
+# and the format check fails on files nobody touched.
+* text=auto eol=lf
