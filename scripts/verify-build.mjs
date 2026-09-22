@@ -15,7 +15,7 @@ const DOCUMENTS = [
     file: 'index.html',
     lang: 'ru',
     canonicalSuffix: '/',
-    mustContain: ['Рассомахин', 'Избранные работы', '@IIMRD'],
+    mustContain: ['Рассомахин', 'Избранные проекты', '@IIMRD'],
   },
   {
     file: 'en/index.html',

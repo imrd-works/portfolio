@@ -56,43 +56,66 @@
   "work": {
     "eyebrow": "Selected work",
     "title": "Things I've built",
-    "open": "Open project",
-    "nda": "Commercial project · details limited by NDA",
+    "lead": "Commercial projects under NDA: the paintings stand in for the products, everything I did is real. Click a sheet to step into its painting.",
+    "filters": {
+      "all": "All",
+      "system": "Systems",
+      "product": "Products",
+      "landing": "Landings"
+    },
+    "filterLabel": "Filter projects",
+    "kinds": {
+      "system": "System",
+      "product": "Product",
+      "landing": "Landing"
+    },
+    "tabs": {
+      "about": "About",
+      "tools": "Tools",
+      "role": "My role"
+    },
+    "tabsLabel": "Project details",
+    "soon": "painting in progress",
+    "close": "Step out of the painting",
+    "prev": "Previous",
+    "next": "Next",
+    "zoom": "Open picture",
     "items": {
       "sigma": {
         "title": "Energy Trading Marketplace",
-        "desc": "An electricity trading marketplace with procurement lots, commercial bids, CryptoPro digital signatures, a market-depth chart and detailed data tables.",
-        "placeholder": "Vue 3 · Digital signature · ECharts",
-        "imageAlt": "Altai Energy Retail marketplace interface"
+        "about": "A trading marketplace for energy market participants: procurement lots, commercial bids, auctions and deals, contract registries and reports.\n\nKey business processes are signed with CryptoPro digital signatures, and prices and volumes are shown in complex tables, a market-depth chart and ECharts visualisations.",
+        "role": "Frontend Developer / Team Lead",
+        "did": "Designed the architecture of the key trading processes\nBuilt CryptoPro digital signatures into bids and contracts\nBuilt complex filtered tables and ECharts trading visualisations\nRan code review and mentoring, and owned the frontend team's releases"
       },
       "education": {
         "title": "Education Platform",
-        "desc": "An education platform built from scratch: test authoring and delivery, analytics, WYSIWYG editing, events, chat, purchases and role-based access.",
-        "placeholder": "Nuxt · DDD · Highcharts",
-        "imageAlt": "Academy education platform interface"
+        "about": "An education platform built from scratch: courses and lessons, test authoring and delivery, a WYSIWYG content editor, events, chat, purchases and dashboards for students, authors and admins.\n\nThe product grew with the team, so it was built on a DDD architecture with tests and analytics from day one.",
+        "role": "Frontend Developer / Team Lead",
+        "did": "Laid down the DDD frontend architecture and the team's conventions\nBuilt the content editor, purchases and role-based access\nSet up testing and product analytics\nBroke down tasks, ran code review and helped the team make technical decisions"
       },
       "bitcoin": {
         "title": "Bitcoin Financial Services Landing",
-        "desc": "A landing page for an institutional Bitcoin service with advanced animation, managed content, SEO, analytics and an automated delivery workflow.",
-        "placeholder": "Next.js · Sanity · GSAP",
-        "imageAlt": "Bitcoin financial services landing page interface"
+        "about": "A Next.js landing page for an institutional Bitcoin service with advanced scroll animation, managed content, SEO, analytics and an automated delivery workflow.",
+        "role": "Fullstack Developer / Team Lead",
+        "did": "Owned the full cycle, from the interactive Next.js and GSAP frontend to Sanity CMS\nSet up SEO, analytics, Docker and CI/CD\nCoordinated technical decisions and owned the result as a whole"
       },
       "moex": {
         "title": "Financial Monitoring Portal",
-        "desc": "A financial monitoring portal for a public-sector client featuring interactive SVG diagrams, KPI monitoring, large data tables, reports and GraphQL integrations.",
-        "placeholder": "Vue 3 · GraphQL · SVG",
-        "imageAlt": "Financial monitoring portal interface"
+        "about": "A financial monitoring portal for a public-sector client featuring interactive SVG diagrams, KPI monitoring, large data tables, reports and GraphQL integrations.",
+        "role": "Frontend Developer",
+        "did": "Owned portal modules end to end\nBuilt interactive SVG visualisations and dashboards\nIntegrated data through GraphQL"
       },
       "irlix": {
         "title": "Document Management System",
-        "desc": "An internal public-transport system: a file manager with automated document upload, a hierarchical catalogue and analytical dashboards.",
-        "placeholder": "Vue 3 · Pinia · Highcharts"
+        "about": "An internal public-transport system: a file manager with automated document upload, a hierarchical catalogue and analytical dashboards.",
+        "role": "Frontend Developer",
+        "did": "Built the file manager and the hierarchical document catalogue\nBuilt analytical dashboards with Highcharts\nAgreed on solutions with the backend developers"
       },
       "baccasoft": {
         "title": "Business Process Management System",
-        "desc": "An enterprise system for the mining and metals sector covering business processes, complex forms, filtering, chat and legacy product development.",
-        "placeholder": "Vue 2.7 · Pinia · REST",
-        "imageAlt": "Business process management system interface"
+        "about": "An enterprise system for the mining and metals sector covering business processes, complex forms, filtering, chat and legacy product development.",
+        "role": "Frontend Developer",
+        "did": "Owned business-process modules and complex forms\nBuilt filtering and chat\nEvolved the legacy Vue 2.7 codebase"
       }
     }
   },

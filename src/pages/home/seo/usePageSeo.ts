@@ -13,7 +13,8 @@ export function usePageSeo() {
     const active = locale.value
     const works = projects.map((project) => ({
       name: t(`home.work.items.${project.id}.title`),
-      description: t(`home.work.items.${project.id}.desc`),
+      // the first paragraph of "About the project" says what it is
+      description: t(`home.work.items.${project.id}.about`).split('\n\n')[0],
     }))
 
     return {

@@ -116,7 +116,10 @@ export function buildPortfolioSchema(input: PersonSchemaInput): Record<string, u
             name: work.name,
             description: work.description,
             creator: { '@id': personId },
-            keywords: projects[index]?.tags.join(', '),
+            keywords: [
+              ...(projects[index]?.tools.main ?? []),
+              ...(projects[index]?.tools.rest ?? []),
+            ].join(', '),
             inLanguage: OG_LOCALE[input.locale].replace('_', '-'),
           },
         })),

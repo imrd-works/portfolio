@@ -78,7 +78,7 @@ describe('portfolio CV data', () => {
     expect(en.meta.title).toContain('Vue / Nuxt')
   })
 
-  it('includes six named CV projects and no placeholder links', () => {
+  it('includes six named CV projects with their stacks and full details', () => {
     expect(projects.map(({ id }) => id)).toEqual([
       'sigma',
       'education',
@@ -87,23 +87,25 @@ describe('portfolio CV data', () => {
       'irlix',
       'baccasoft',
     ])
-    expect(projects.flatMap(({ image }) => (image ? [image] : []))).toEqual([
-      '/altai.webp',
-      '/academy.webp',
-      '/twoprime.webp',
-      '/moex.webp',
-      '/transport.webp',
+    // NDA: the paintings stand in for the products, no screens or links
+    expect(projects.flatMap(({ art }) => (art ? [art] : []))).toEqual([
+      '/work/energy.webp',
+      '/work/education.webp',
     ])
-    expect(projects.find(({ id }) => id === 'bitcoin')?.image).toBe('/twoprime.webp')
-    expect(projects.find(({ id }) => id === 'moex')?.image).toBe('/moex.webp')
-    expect(projects.find(({ id }) => id === 'baccasoft')?.image).toBe('/transport.webp')
-    expect(projects.every(({ href }) => href === undefined)).toBe(true)
-    expect(ru.work.items.sigma.desc.length).toBeGreaterThan(50)
-    expect(en.work.items.education.desc).toContain('education')
-    expect(ru.work.items.bitcoin.desc).toContain('Next.js')
-    expect(en.work.items.moex.desc).toContain('monitoring')
-    expect(ru.work.items.irlix.placeholder).toContain('Vue 3')
-    expect(en.work.items.baccasoft.placeholder).toContain('Vue 2.7')
+    expect(projects.every((p) => !('href' in p) && !('image' in p))).toBe(true)
+    expect(projects.find(({ id }) => id === 'bitcoin')?.tools.main).toContain('Next.js')
+    expect(projects.find(({ id }) => id === 'baccasoft')?.tools.main).toContain('Vue 2.7')
+    for (const locale of [ru, en]) {
+      for (const { id, kind } of projects) {
+        const item = locale.work.items[id]
+        expect(item.about.length).toBeGreaterThan(80)
+        expect(item.role).toMatch(/Developer/)
+        expect(item.did.split('\n').length).toBeGreaterThanOrEqual(3)
+        expect(locale.work.kinds[kind]).toBeTruthy()
+      }
+    }
+    expect(ru.work.items.sigma.about).toContain('CryptoPro')
+    expect(en.work.items.moex.about).toContain('monitoring')
   })
 
   it('uses neutral localized project titles without company names', () => {

@@ -8,66 +8,48 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }))
 
-describe('WorkSection', () => {
-  it('marks projects without public links as NDA work', () => {
-    const wrapper = shallowMount(WorkSection, {
-      global: {
-        renderStubDefaultSlot: true,
-        directives: {
-          magnetic: {},
-          tilt: {},
-        },
-      },
-    })
+const mountWork = () => shallowMount(WorkSection)
 
-    expect(wrapper.findAll('.work__nda-badge')).toHaveLength(
-      projects.filter(({ href }) => !href).length
+describe('WorkSection', () => {
+  it('pins a sheet for every project, in the prerendered HTML too', () => {
+    const wrapper = mountWork()
+    const sheets = wrapper.findAll('.work__sheet')
+
+    expect(sheets.map((s) => s.attributes('data-id'))).toEqual(projects.map(({ id }) => id))
+    expect(wrapper.findAll('.work__name').map((n) => n.text())).toEqual(
+      projects.map(({ id }) => `home.work.items.${id}.title`)
     )
   })
 
-  it('renders the matching project preview images', () => {
-    const wrapper = shallowMount(WorkSection, {
-      global: {
-        renderStubDefaultSlot: true,
-        directives: {
-          magnetic: {},
-          tilt: {},
-        },
-      },
-    })
+  it('shows the paintings it has and waits blank for the rest', () => {
+    const wrapper = mountWork()
 
-    expect(wrapper.findAll('.work__image').map((image) => image.attributes('src'))).toEqual([
-      '/altai.webp',
-      '/academy.webp',
-      '/twoprime.webp',
-      '/moex.webp',
-      '/transport.webp',
+    expect(wrapper.findAll('.work__art[src]').map((img) => img.attributes('src'))).toEqual(
+      projects.flatMap(({ art }) => (art ? [art] : []))
+    )
+    expect(wrapper.findAll('.work__soon')).toHaveLength(projects.filter(({ art }) => !art).length)
+  })
+
+  it('offers a filter for every kind of project', () => {
+    const wrapper = mountWork()
+
+    expect(wrapper.findAll('.work__filter').map((f) => f.text())).toEqual([
+      'home.work.filters.all',
+      'home.work.filters.system',
+      'home.work.filters.product',
+      'home.work.filters.landing',
     ])
   })
 
-  it('keeps a text preview for projects without an image', () => {
-    const wrapper = shallowMount(WorkSection, {
-      global: {
-        renderStubDefaultSlot: true,
-        directives: {
-          magnetic: {},
-          tilt: {},
-        },
-      },
-    })
+  it('keeps the painting closed until a sheet is chosen', () => {
+    const wrapper = mountWork()
 
-    expect(wrapper.findAll('.work__placeholder')).toHaveLength(projects.length)
-    expect(wrapper.findAll('.work__image')).toHaveLength(
-      projects.filter(({ image }) => image).length
-    )
+    expect(wrapper.find('.work__inside').classes()).not.toContain('work__inside--on')
+    expect(wrapper.find('.work__body').exists()).toBe(false)
   })
 
-  it('clips each composited preview image from the first animation frame', () => {
-    expect(workSectionSource).toMatch(/\.work__image\s*\{[\s\S]*?border-radius:\s*inherit;/)
-  })
-
-  it('renders project names from the active locale', () => {
-    expect(workSectionSource).toContain('t(`home.work.items.${project.id}.title`)')
+  it('renders project copy from the active locale', () => {
+    expect(workSectionSource).toContain('t(`home.work.items.${p.id}.title`)')
     expect(workSectionSource).not.toContain('project.title')
   })
 })

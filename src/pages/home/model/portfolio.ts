@@ -138,42 +138,71 @@ export const stats: StatItem[] = [
   { id: 'lead', value: 3, suffix: '+' },
 ]
 
+export type ProjectKind = 'system' | 'product' | 'landing'
+
 export interface Project {
   id: 'sigma' | 'education' | 'bitcoin' | 'moex' | 'irlix' | 'baccasoft'
-  tags: string[]
-  image?: string
-  href?: string
+  kind: ProjectKind
+  /** Years of work on it, as shown on the sheet. */
+  years: string
+  /**
+   * A sumi-e painting standing in for the product (the real screens are under
+   * NDA), served from `public/work/`. Without one the sheet waits blank.
+   */
+  art?: string
+  /** Latin stack names, identical in both locales; `main` are shown inked. */
+  tools: { main: string[]; rest: string[] }
 }
+
+export const projectKinds: ProjectKind[] = ['system', 'product', 'landing']
 
 export const projects: Project[] = [
   {
     id: 'sigma',
-    tags: ['Vue 3', 'TypeScript', 'CryptoPro · ECharts'],
-    image: '/altai.webp',
+    kind: 'system',
+    years: '2025–2026',
+    art: '/work/energy.webp',
+    tools: {
+      main: ['Vue 3', 'TypeScript'],
+      rest: ['Pinia', 'ECharts', 'CryptoPro', 'REST API', 'Vite', 'Vitest'],
+    },
   },
   {
     id: 'education',
-    tags: ['Nuxt 3 / 4', 'TypeScript', 'DDD · Highcharts'],
-    image: '/academy.webp',
+    kind: 'product',
+    years: '2024–2026',
+    art: '/work/education.webp',
+    tools: {
+      main: ['Nuxt 3 / 4', 'TypeScript'],
+      rest: ['Vue 3', 'Pinia', 'DDD', 'Highcharts', 'WYSIWYG', 'Vitest', 'REST API'],
+    },
   },
   {
     id: 'bitcoin',
-    tags: ['Next.js', 'Sanity', 'GSAP · Vercel'],
-    image: '/twoprime.webp',
+    kind: 'landing',
+    years: '2026',
+    tools: {
+      main: ['Next.js', 'GSAP'],
+      rest: ['Sanity CMS', 'TypeScript', 'SEO', 'Analytics', 'Docker', 'CI/CD'],
+    },
   },
   {
     id: 'moex',
-    tags: ['Vue 3', 'GraphQL', 'SVG · Data Viz'],
-    image: '/moex.webp',
+    kind: 'system',
+    years: '2022–2023',
+    tools: { main: ['Vue 3', 'GraphQL'], rest: ['TypeScript', 'SVG', 'Data Viz', 'Pinia'] },
   },
   {
     id: 'irlix',
-    tags: ['Vue 3', 'TypeScript', 'Highcharts · Pinia'],
+    kind: 'system',
+    years: '2022–2023',
+    tools: { main: ['Vue 3', 'Pinia'], rest: ['TypeScript', 'Highcharts', 'REST API'] },
   },
   {
     id: 'baccasoft',
-    tags: ['Vue 2.7', 'TypeScript', 'Pinia · REST'],
-    image: '/transport.webp',
+    kind: 'system',
+    years: '2022–2023',
+    tools: { main: ['Vue 2.7', 'Pinia'], rest: ['TypeScript', 'REST API', 'WebSocket'] },
   },
 ]
 
