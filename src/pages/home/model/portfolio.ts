@@ -118,6 +118,7 @@ export const stackGroups: StackGroup[] = [
           'Stylelint',
           'Husky / lint-staged',
           'Git (GitHub / GitLab)',
+          'GitKraken / Sourcetree / GitHub Desktop',
           'Code review',
         ],
       },
