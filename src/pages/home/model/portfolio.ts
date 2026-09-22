@@ -92,7 +92,6 @@ export const stackGroups: StackGroup[] = [
     rows: [
       { id: 'languages', chips: ['Symfony', 'PHP / Yii2', 'Twig'] },
       { id: 'databases', chips: ['PostgreSQL'] },
-      { id: 'cms', chips: ['Sanity', 'WordPress', 'Shopify'] },
     ],
   },
   {
@@ -166,6 +165,7 @@ export const sharedRows: StackRow[] = [
     id: 'api',
     chips: ['REST API', 'OpenAPI / Swagger', 'Apollo (GraphQL)', 'CryptoPro', 'reCAPTCHA'],
   },
+  { id: 'cms', chips: ['Sanity', 'WordPress', 'Shopify'] },
   { id: 'build', chips: ['Vite', 'Webpack', 'npm / Yarn / PNPM', 'Docker'] },
 ]
 

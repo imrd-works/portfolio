@@ -79,6 +79,9 @@ describe('portfolio CV data', () => {
     expect(homeOf('Nuxt 3 / 4')).toBe('frontend')
     expect(homeOf('SSR / SSG / ISR')).toBe('fullstack')
     expect(homeOf('Next.js API routes')).toBe('fullstack')
+    // a CMS project is the whole site: templates, admin and the data behind it
+    expect(homeOf('Sanity')).toBe('fullstack')
+    expect(homeOf('WordPress')).toBe('fullstack')
     expect(rowsFor('frontend').flatMap(({ chips }) => chips)).not.toContain('TypeScript')
     expect(rowsFor('fullstack').flatMap(({ chips }) => chips)).toEqual(
       expect.arrayContaining(['TypeScript', 'OpenAPI / Swagger', 'Docker'])
