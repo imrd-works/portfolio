@@ -133,9 +133,8 @@ const { targetRef: spread, inView: shown } = useInView({ threshold: 0.12 })
     width: 100%;
     max-width: none;
     height: auto;
-    // the painting is ink on transparency, so it lies on the paper itself; the
-    // mask only softens what little edge the sheet had
-    mask-image: radial-gradient(125% 96% at 45% 48%, #000 62%, transparent 92%);
+    // the painting is ink on transparency and already fades out in the file
+    // itself, so it lies on the paper with no edge of any kind
     filter: blur(6px);
     opacity: 0;
     transition:

@@ -124,16 +124,53 @@ export const stackGroups: StackGroup[] = [
 ]
 
 /**
- * Tools that genuinely work in more than one direction. They keep a single
- * home on the shelf (so nothing is listed twice) and name the other
- * directions they also belong to.
+ * Tools that work in more than one direction. Each keeps a home row (so the
+ * shelf reads as a list of jobs, not a wall of repeats) and names the other
+ * directions it belongs to; every tab then shows them again in a
+ * "cross-cutting" row. Anything that spans directions is fullstack by
+ * definition, so the fullstack tab collects all of them.
  */
 export const crossChips: Record<string, StackId[]> = {
   TypeScript: ['backend'],
-  Node: ['devops'],
+  Node: ['frontend', 'devops'],
   'REST API': ['frontend'],
+  'OpenAPI / Swagger': ['frontend'],
+  'Apollo (GraphQL)': ['frontend'],
+  CryptoPro: ['frontend'],
+  reCAPTCHA: ['frontend'],
   Docker: ['backend'],
   'Git (GitHub / GitLab)': ['frontend', 'backend', 'devops'],
+  Vite: ['devops'],
+  Webpack: ['devops'],
+  Vitest: ['frontend', 'backend'],
+  'ESLint / Prettier': ['frontend', 'backend'],
+  i18n: ['frontend'],
+  'Yandex Metrica': ['frontend'],
+  Postman: ['backend'],
+}
+
+/** Which direction a tool is filed under. */
+export const homeOf = (chip: string): StackId | undefined =>
+  stackGroups.find(({ rows }) => rows.some((row) => row.chips.includes(chip)))?.id
+
+/**
+ * The tools a direction borrows: everything filed elsewhere that also works
+ * here. Fullstack borrows every cross-cutting tool, since spanning directions
+ * is what fullstack means.
+ */
+export const crossFor = (id: StackId): string[] =>
+  Object.entries(crossChips)
+    .filter(([chip, directions]) =>
+      id === 'fullstack' ? homeOf(chip) !== 'fullstack' : directions.includes(id)
+    )
+    .map(([chip]) => chip)
+
+/** Every direction a tool works in, its home first. */
+export const directionsOf = (chip: string): StackId[] => {
+  const home = homeOf(chip)
+  const others = crossChips[chip] ?? []
+  const all = home ? [home, ...others] : others
+  return all.length > 1 && !all.includes('fullstack') ? [...all, 'fullstack'] : all
 }
 
 /** Worked with day to day: these are inked solid, the rest are outlines. */

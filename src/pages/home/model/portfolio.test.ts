@@ -6,6 +6,9 @@ import {
   allChips,
   coreSkills,
   crossChips,
+  crossFor,
+  directionsOf,
+  homeOf,
   stackGroups,
   strongChips,
   projects,
@@ -56,10 +59,14 @@ describe('portfolio CV data', () => {
     // a cross-cutting tool is listed once and names other directions, never its own
     for (const [chip, directions] of Object.entries(crossChips)) {
       expect(chips.filter((x) => x === chip)).toHaveLength(1)
-      const home = stackGroups.find(({ rows }) => rows.some((row) => row.chips.includes(chip)))?.id
-      expect(directions).not.toContain(home)
-      expect(directions.length).toBeGreaterThan(0)
+      expect(directions).not.toContain(homeOf(chip))
+      expect(directionsOf(chip).length).toBeGreaterThan(1)
     }
+    // anything that spans directions is fullstack, so that tab borrows them all
+    expect(crossFor('fullstack')).toEqual(
+      Object.keys(crossChips).filter((chip) => homeOf(chip) !== 'fullstack')
+    )
+    expect(crossFor('frontend')).toContain('OpenAPI / Swagger')
     expect(new Set(chips).size).toBe(chips.length)
     // Removed on purpose while aligning the site with the CV — putting any of
     // them back means adding it to the CV first.

@@ -5,7 +5,8 @@ import { useInView } from '@/shared/composables/useInView'
 import {
   allChips,
   coreSkills,
-  crossChips,
+  crossFor,
+  directionsOf,
   stackCount,
   stackGroups,
   strongChips,
@@ -25,12 +26,19 @@ const matches = (chip: string) => chip.toLowerCase().includes(query.value.trim()
 const strong = (chip: string) => strongChips.includes(chip)
 // marked with a dot: one home on the shelf, but it works in other directions too,
 // and the mark says which ones instead of listing the tool twice
-const cross = (chip: string) => crossChips[chip] ?? null
-const alsoIn = (chip: string) => {
-  const directions = cross(chip)
-  if (!directions) return undefined
-  const list = directions.map((id) => t(`home.skills.tabs.${id}`)).join(', ')
+const cross = (chip: string) => directionsOf(chip).length > 1
+const worksIn = (chip: string) => {
+  if (!cross(chip)) return undefined
+  const list = directionsOf(chip)
+    .map((id) => t(`home.skills.tabs.${id}`))
+    .join(', ')
   return t('home.skills.alsoIn', { list })
+}
+
+// a direction shows its own rows plus what it borrows from the others
+const rowsOf = (group: (typeof stackGroups)[number]) => {
+  const borrowed = crossFor(group.id)
+  return borrowed.length ? [...group.rows, { id: 'cross', chips: borrowed }] : group.rows
 }
 
 // While searching the tabs step aside: the results come from all four
@@ -39,7 +47,7 @@ const shelfGroups = computed(() =>
   (searching.value ? stackGroups : stackGroups.filter(({ id }) => id === tab.value))
     .map((group) => ({
       ...group,
-      rows: group.rows
+      rows: rowsOf(group)
         .map((row) => ({ ...row, chips: searching.value ? row.chips.filter(matches) : row.chips }))
         .filter(({ chips }) => chips.length),
     }))
@@ -183,16 +191,16 @@ const found = computed(() => allChips.filter(matches).length)
                 class="skills__chip"
                 :class="{
                   'skills__chip--strong': strong(chip),
-                  'skills__chip--cross': !!cross(chip),
+                  'skills__chip--cross': cross(chip),
                 }"
                 :tabindex="cross(chip) ? 0 : undefined"
-                :data-tip="alsoIn(chip)"
+                :data-tip="worksIn(chip)"
                 >{{ chip
                 }}<span
                   v-if="cross(chip)"
                   class="skills__tip"
                   role="tooltip"
-                  >{{ alsoIn(chip) }}</span
+                  >{{ worksIn(chip) }}</span
                 ></span
               >
             </div>
