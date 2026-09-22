@@ -5,8 +5,9 @@ import { useInView } from '@/shared/composables/useInView'
 import {
   allChips,
   coreSkills,
-  crossFor,
   directionsOf,
+  isCross,
+  rowsFor,
   stackCount,
   stackGroups,
   strongChips,
@@ -26,7 +27,7 @@ const matches = (chip: string) => chip.toLowerCase().includes(query.value.trim()
 const strong = (chip: string) => strongChips.includes(chip)
 // marked with a dot: one home on the shelf, but it works in other directions too,
 // and the mark says which ones instead of listing the tool twice
-const cross = (chip: string) => directionsOf(chip).length > 1
+const cross = (chip: string) => isCross(chip)
 const worksIn = (chip: string) => {
   if (!cross(chip)) return undefined
   const list = directionsOf(chip)
@@ -35,14 +36,9 @@ const worksIn = (chip: string) => {
   return t('home.skills.alsoIn', { list })
 }
 
-// A direction shows its own rows plus what it borrows from the others. The
-// search looks at the home rows only, so a cross-cutting tool is answered once
-// and not repeated under every direction it serves.
-const rowsOf = (group: (typeof stackGroups)[number]) => {
-  if (searching.value) return group.rows
-  const borrowed = crossFor(group.id)
-  return borrowed.length ? [...group.rows, { id: 'cross', chips: borrowed }] : group.rows
-}
+// Frontend, backend and devops keep what is theirs alone; everything that
+// spans directions is gathered under fullstack, so each tool is listed once.
+const rowsOf = (group: (typeof stackGroups)[number]) => rowsFor(group.id)
 
 // While searching the tabs step aside: the results come from all four
 // directions, so one technology is found without knowing where it was filed.

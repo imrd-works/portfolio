@@ -6,9 +6,9 @@ import {
   allChips,
   coreSkills,
   crossChips,
-  crossFor,
   directionsOf,
   homeOf,
+  rowsFor,
   stackGroups,
   strongChips,
   projects,
@@ -62,11 +62,16 @@ describe('portfolio CV data', () => {
       expect(directions).not.toContain(homeOf(chip))
       expect(directionsOf(chip).length).toBeGreaterThan(1)
     }
-    // anything that spans directions is fullstack, so that tab borrows them all
-    expect(crossFor('fullstack')).toEqual(
-      Object.keys(crossChips).filter((chip) => homeOf(chip) !== 'fullstack')
+    // shown once: the shared tools under fullstack, the rest on their own tab
+    const shown = (['frontend', 'backend', 'devops', 'fullstack'] as const).flatMap((id) =>
+      rowsFor(id).flatMap(({ chips }) => chips)
     )
-    expect(crossFor('frontend')).toContain('OpenAPI / Swagger')
+    expect(new Set(shown).size).toBe(shown.length)
+    expect([...shown].sort()).toEqual([...chips].sort())
+    expect(rowsFor('frontend').flatMap(({ chips }) => chips)).not.toContain('TypeScript')
+    expect(rowsFor('fullstack').flatMap(({ chips }) => chips)).toEqual(
+      expect.arrayContaining(['TypeScript', 'OpenAPI / Swagger', 'Docker'])
+    )
     expect(new Set(chips).size).toBe(chips.length)
     // Removed on purpose while aligning the site with the CV — putting any of
     // them back means adding it to the CV first.

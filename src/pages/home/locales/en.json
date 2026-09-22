@@ -75,11 +75,10 @@
       "quality": "Quality and process",
       "architecture": "Architecture",
       "analytics": "Analytics and services",
-      "tools": "Tools",
-      "cross": "Cross-cutting"
+      "tools": "Tools"
     },
     "cross": "Cross-cutting: it works in other directions too",
-    "legend": "A dot means the tool works in several directions at once. In its own section it sits in the row for the job it does; in the others it sits under “Cross-cutting”. Hover to see every direction.",
+    "legend": "A dot means the tool works in several directions at once. Those are gathered under Fullstack; the other tabs hold only what belongs to them alone. Hover to see every direction.",
     "alsoIn": "I use it in: {list}"
   },
   "work": {

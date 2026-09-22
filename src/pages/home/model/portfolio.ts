@@ -156,25 +156,50 @@ export const crossChips: Record<string, StackId[]> = {
 export const homeOf = (chip: string): StackId | undefined =>
   stackGroups.find(({ rows }) => rows.some((row) => row.chips.includes(chip)))?.id
 
-/**
- * The tools a direction borrows: everything filed elsewhere that also works
- * here. Fullstack borrows every cross-cutting tool, since spanning directions
- * is what fullstack means.
- */
-export const crossFor = (id: StackId): string[] =>
-  Object.entries(crossChips)
-    .filter(([chip, directions]) =>
-      id === 'fullstack' ? homeOf(chip) !== 'fullstack' : directions.includes(id)
-    )
-    .map(([chip]) => chip)
+/** Works in more than one direction, so it belongs to fullstack. */
+export const isCross = (chip: string): boolean => chip in crossChips
 
-/** Every direction a tool works in, its home first. */
+/** Every direction a tool is used in, fullstack last. */
 export const directionsOf = (chip: string): StackId[] => {
+  if (!isCross(chip)) return homeOf(chip) ? [homeOf(chip) as StackId] : []
   const home = homeOf(chip)
-  const others = crossChips[chip] ?? []
-  const all = home ? [home, ...others] : others
-  return all.length > 1 && !all.includes('fullstack') ? [...all, 'fullstack'] : all
+  const all = home ? [home, ...crossChips[chip]] : [...crossChips[chip]]
+  return [...all.filter((id) => id !== 'fullstack'), 'fullstack']
 }
+
+/**
+ * What a tab shows. Frontend, backend and devops keep only what is theirs
+ * alone; everything that spans directions is gathered under fullstack, in the
+ * rows of the jobs those tools do.
+ */
+export const rowsFor = (id: StackId): StackRow[] => {
+  const own = stackGroups.find((group) => group.id === id)?.rows ?? []
+  if (id !== 'fullstack') {
+    return own
+      .map((row) => ({ ...row, chips: row.chips.filter((chip) => !isCross(chip)) }))
+      .filter(({ chips }) => chips.length)
+  }
+  const borrowed = new Map<string, string[]>()
+  for (const group of stackGroups) {
+    if (group.id === 'fullstack') continue
+    for (const row of group.rows) {
+      const chips = row.chips.filter(isCross)
+      if (chips.length) borrowed.set(row.id, [...(borrowed.get(row.id) ?? []), ...chips])
+    }
+  }
+  const rows = own.map((row) => ({
+    ...row,
+    chips: [...row.chips, ...(borrowed.get(row.id) ?? [])],
+  }))
+  const extra = [...borrowed]
+    .filter(([rowId]) => !own.some((row) => row.id === rowId))
+    .map(([rowId, chips]) => ({ id: rowId, chips }))
+  return [...rows, ...extra]
+}
+
+/** How many technologies a tab shows. */
+export const stackCount = (id: StackId): number =>
+  rowsFor(id).reduce((total, row) => total + row.chips.length, 0)
 
 /** Worked with day to day: these are inked solid, the rest are outlines. */
 export const strongChips: string[] = [
@@ -201,12 +226,6 @@ export const strongChips: string[] = [
 export const allChips: string[] = stackGroups.flatMap(({ rows }) =>
   rows.flatMap(({ chips }) => chips)
 )
-
-/** How many technologies a direction holds, for the tab. */
-export const stackCount = (id: StackId): number =>
-  stackGroups
-    .find((group) => group.id === id)
-    ?.rows.reduce((total, row) => total + row.chips.length, 0) ?? 0
 
 export const techMarquee: string[] = [
   'Vue 3',
