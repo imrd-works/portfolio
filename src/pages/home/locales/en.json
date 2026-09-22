@@ -72,12 +72,12 @@
       "build": "Build",
       "ci": "Containers and CI",
       "hosting": "Hosting and network",
-      "quality": "Quality",
+      "quality": "Quality and process",
       "architecture": "Architecture",
-      "process": "Process",
       "analytics": "Analytics and services",
       "tools": "Tools"
-    }
+    },
+    "cross": "Cross-cutting: it works in other directions too"
   },
   "work": {
     "eyebrow": "Selected work",

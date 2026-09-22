@@ -5,6 +5,7 @@ import { useInView } from '@/shared/composables/useInView'
 import {
   allChips,
   coreSkills,
+  crossChips,
   stackCount,
   stackGroups,
   strongChips,
@@ -22,6 +23,8 @@ const query = ref('')
 const searching = computed(() => query.value.trim().length > 0)
 const matches = (chip: string) => chip.toLowerCase().includes(query.value.trim().toLowerCase())
 const strong = (chip: string) => strongChips.includes(chip)
+// marked with a dot: one home on the shelf, but it works in other directions too
+const cross = (chip: string) => crossChips.includes(chip)
 
 // While searching the tabs step aside: the results come from all four
 // directions, so one technology is found without knowing where it was filed.
@@ -163,7 +166,11 @@ const found = computed(() => allChips.filter(matches).length)
                 v-for="chip in row.chips"
                 :key="chip"
                 class="skills__chip"
-                :class="{ 'skills__chip--strong': strong(chip) }"
+                :class="{
+                  'skills__chip--strong': strong(chip),
+                  'skills__chip--cross': cross(chip),
+                }"
+                :title="cross(chip) ? t('home.skills.cross') : undefined"
                 >{{ chip }}</span
               >
             </div>
@@ -465,6 +472,18 @@ const found = computed(() => allChips.filter(matches).length)
       border: 1.5px solid currentcolor;
       border-radius: 3px;
       filter: url('#skills-rough');
+    }
+
+    // a dot on the corner: this one also works in the other directions
+    &--cross::after {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 5px;
+      height: 5px;
+      content: '';
+      background: var(--skills-seal);
+      border-radius: 50%;
     }
 
     // worked with day to day: inked solid, so the weight of the stack shows

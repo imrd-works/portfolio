@@ -78,13 +78,14 @@ export const stackGroups: StackGroup[] = [
       },
       { id: 'charts', chips: ['Highcharts', 'ECharts', 'Chart.js', 'SVG Data Viz'] },
       { id: 'motion', chips: ['GSAP', 'Lottie', 'Anime.js', 'Swiper'] },
+      { id: 'build', chips: ['Vite', 'Webpack', 'npm / Yarn / PNPM'] },
     ],
   },
   {
     id: 'backend',
     rows: [
       { id: 'servers', chips: ['Node', 'Symfony', 'PHP / Yii2', 'Twig'] },
-      { id: 'data', chips: ['PostgreSQL', 'MinIO (S3)'] },
+      { id: 'data', chips: ['PostgreSQL'] },
       { id: 'cms', chips: ['Sanity', 'WordPress', 'Shopify'] },
       {
         id: 'api',
@@ -95,21 +96,43 @@ export const stackGroups: StackGroup[] = [
   {
     id: 'devops',
     rows: [
-      { id: 'build', chips: ['Vite', 'Webpack', 'npm / Yarn / PNPM'] },
       { id: 'ci', chips: ['Docker', 'CI/CD', 'GitHub Actions / GitLab CI'] },
-      { id: 'hosting', chips: ['Nginx', 'Traefik', 'Vercel'] },
-      { id: 'quality', chips: ['Vitest', 'ESLint / Prettier', 'Git (GitHub / GitLab)'] },
+      { id: 'hosting', chips: ['Nginx', 'Traefik', 'Vercel', 'MinIO (S3)'] },
     ],
   },
   {
     id: 'fullstack',
     rows: [
       { id: 'architecture', chips: ['DDD', 'FSD', 'Legacy refactoring'] },
-      { id: 'process', chips: ['Code review', 'Agile / Scrum / Kanban', 'Postman'] },
+      {
+        id: 'quality',
+        chips: [
+          'Vitest',
+          'ESLint / Prettier',
+          'Git (GitHub / GitLab)',
+          'Code review',
+          'Agile / Scrum / Kanban',
+        ],
+      },
       { id: 'analytics', chips: ['Yandex Metrica', 'HubSpot', 'i18n'] },
-      { id: 'tools', chips: ['Figma', 'Adobe XD', 'Cursor', 'GitHub Copilot', 'Codex / Claude'] },
+      {
+        id: 'tools',
+        chips: ['Postman', 'Figma', 'Adobe XD', 'Cursor', 'GitHub Copilot', 'Codex / Claude'],
+      },
     ],
   },
+]
+
+/**
+ * Tools that genuinely work in more than one direction. They keep a single
+ * home (so the shelf stays readable) and carry a mark saying so.
+ */
+export const crossChips: string[] = [
+  'TypeScript',
+  'Node',
+  'REST API',
+  'Docker',
+  'Git (GitHub / GitLab)',
 ]
 
 /** Worked with day to day: these are inked solid, the rest are outlines. */

@@ -5,6 +5,7 @@ import {
   contactChannels,
   allChips,
   coreSkills,
+  crossChips,
   stackGroups,
   strongChips,
   projects,
@@ -52,6 +53,7 @@ describe('portfolio CV data', () => {
       }
     }
     expect(strongChips.every((chip) => chips.includes(chip))).toBe(true)
+    expect(crossChips.every((chip) => chips.includes(chip))).toBe(true)
     expect(new Set(chips).size).toBe(chips.length)
     // Removed on purpose while aligning the site with the CV — putting any of
     // them back means adding it to the CV first.
