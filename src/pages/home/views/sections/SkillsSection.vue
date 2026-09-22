@@ -35,8 +35,11 @@ const worksIn = (chip: string) => {
   return t('home.skills.alsoIn', { list })
 }
 
-// a direction shows its own rows plus what it borrows from the others
+// A direction shows its own rows plus what it borrows from the others. The
+// search looks at the home rows only, so a cross-cutting tool is answered once
+// and not repeated under every direction it serves.
 const rowsOf = (group: (typeof stackGroups)[number]) => {
+  if (searching.value) return group.rows
   const borrowed = crossFor(group.id)
   return borrowed.length ? [...group.rows, { id: 'cross', chips: borrowed }] : group.rows
 }
