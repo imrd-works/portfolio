@@ -88,9 +88,13 @@ describe('portfolio CV data', () => {
       'baccasoft',
     ])
     // NDA: the paintings stand in for the products, no screens or links
-    expect(projects.flatMap(({ art }) => (art ? [art] : []))).toEqual([
+    expect(projects.map(({ art }) => art)).toEqual([
       '/work/energy.webp',
       '/work/education.webp',
+      '/work/bitcoin.webp',
+      '/work/monitoring.webp',
+      '/work/documents.webp',
+      '/work/process.webp',
     ])
     expect(projects.every((p) => !('href' in p) && !('image' in p))).toBe(true)
     expect(projects.find(({ id }) => id === 'bitcoin')?.tools.main).toContain('Next.js')

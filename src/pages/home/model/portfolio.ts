@@ -147,9 +147,9 @@ export interface Project {
   years: string
   /**
    * A sumi-e painting standing in for the product (the real screens are under
-   * NDA), served from `public/work/`. Without one the sheet waits blank.
+   * NDA), served from `public/work/`.
    */
-  art?: string
+  art: string
   /** Latin stack names, identical in both locales; `main` are shown inked. */
   tools: { main: string[]; rest: string[] }
 }
@@ -181,6 +181,7 @@ export const projects: Project[] = [
     id: 'bitcoin',
     kind: 'landing',
     years: '2026',
+    art: '/work/bitcoin.webp',
     tools: {
       main: ['Next.js', 'GSAP'],
       rest: ['Sanity CMS', 'TypeScript', 'SEO', 'Analytics', 'Docker', 'CI/CD'],
@@ -190,18 +191,21 @@ export const projects: Project[] = [
     id: 'moex',
     kind: 'system',
     years: '2022–2023',
+    art: '/work/monitoring.webp',
     tools: { main: ['Vue 3', 'GraphQL'], rest: ['TypeScript', 'SVG', 'Data Viz', 'Pinia'] },
   },
   {
     id: 'irlix',
     kind: 'system',
     years: '2022–2023',
+    art: '/work/documents.webp',
     tools: { main: ['Vue 3', 'Pinia'], rest: ['TypeScript', 'Highcharts', 'REST API'] },
   },
   {
     id: 'baccasoft',
     kind: 'system',
     years: '2022–2023',
+    art: '/work/process.webp',
     tools: { main: ['Vue 2.7', 'Pinia'], rest: ['TypeScript', 'REST API', 'WebSocket'] },
   },
 ]
