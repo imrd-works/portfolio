@@ -190,7 +190,7 @@
     "items": {
       "vue": {
         "title": "Vue / Nuxt development",
-        "desc": "Vue 3, Nuxt 3/4, TypeScript, Pinia and Vue Query: architecture, performance and long-term product development."
+        "desc": "Vue 3, Nuxt 3/4, TypeScript, Pinia and TanStack Query: architecture, performance and long-term product development."
       },
       "systems": {
         "title": "Complex business systems",
