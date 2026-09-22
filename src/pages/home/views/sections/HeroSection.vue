@@ -79,6 +79,7 @@ function toggleFog() {
     id="top"
     ref="root"
     class="hero"
+    :class="{ 'hero--flat': imageFallback }"
   >
     <svg
       class="hero__defs"
@@ -112,6 +113,14 @@ function toggleFog() {
       ref="stage"
       class="hero__stage"
     >
+      <!-- the hanging scroll in 3D; the paper below only carries the captions -->
+      <canvas
+        v-if="!imageFallback"
+        ref="canvas"
+        class="hero__canvas"
+        aria-hidden="true"
+      ></canvas>
+
       <!-- hint on the desk while the scroll is still rolled up -->
       <div
         class="hero__hint"
@@ -130,13 +139,7 @@ function toggleFog() {
           ref="sheet"
           class="hero__sheet"
         >
-          <canvas
-            v-if="!imageFallback"
-            ref="canvas"
-            class="hero__canvas"
-            aria-hidden="true"
-          ></canvas>
-          <!-- The WebGL texture source and the painting itself when WebGL is out. -->
+          <!-- The WebGL texture source and the painting itself when WebGL2 is out. -->
           <picture>
             <source
               type="image/avif"
@@ -272,6 +275,18 @@ function toggleFog() {
     animation: hero-drip 2.2s cubic-bezier(0.6, 0, 0.3, 1) infinite;
   }
 
+  // Without WebGL2 the scroll is flat CSS: rod, paper window and roller.
+  // In 3D the canvas draws all of it and the paper is a clear overlay.
+  &__rod,
+  &__roller {
+    display: none;
+  }
+
+  &--flat &__rod,
+  &--flat &__roller {
+    display: block;
+  }
+
   // top rod of the scroll
   &__rod {
     position: absolute;
@@ -288,12 +303,18 @@ function toggleFog() {
   // the paper: a window that grows downwards
   &__paper {
     position: absolute;
-    top: var(--hero-top);
-    right: var(--hero-m);
-    left: var(--hero-m);
+    top: 0;
+    right: 0;
+    left: 0;
     z-index: 1;
     height: var(--hero-h, 0);
     overflow: hidden;
+  }
+
+  &--flat &__paper {
+    top: var(--hero-top);
+    right: var(--hero-m);
+    left: var(--hero-m);
     background-color: var(--hero-paper);
     background-image: var(--hero-grain);
     box-shadow: 0 18px 40px rgb(0 0 0 / 22%);
@@ -326,6 +347,12 @@ function toggleFog() {
     position: absolute;
     display: block;
     max-width: none;
+  }
+
+  &__canvas {
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
 
   // Until the scene takes over, the image is only a texture source.

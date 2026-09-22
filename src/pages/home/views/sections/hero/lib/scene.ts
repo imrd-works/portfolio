@@ -1,7 +1,8 @@
 /**
- * The hero scene outside of Vue: the scroll unrolls the hanging scroll, a drop
- * of ink falls from the top rod, the painting blooms out of the blot, then a
- * cinnabar drop becomes the sun and the mist keeps drifting.
+ * The hero scene outside of Vue: the scroll unrolls the hanging scroll (in 3D,
+ * edge to edge), a drop of ink falls from the top, the painting blooms out of
+ * the blot, then a cinnabar drop becomes the sun and the mist keeps drifting.
+ * Without WebGL2 the flat CSS scroll unrolls with the plain image on it.
  *
  * Ported from `hero-prototype.html` with the logic unchanged. The only
  * structural difference: CSS custom properties are written to the section
@@ -9,7 +10,8 @@
  * reported through `hooks` so Vue owns the classes.
  */
 import { CAPTION_TIMING, FOG_DEFAULTS, INK, INK_RATIO as RATIO, type FogConfig } from '../config'
-import { createInkRenderer, createSegmentBuffers, type InkRenderer } from './renderer'
+import { createSegmentBuffers } from './renderer'
+import { createScroll3D, type Scroll3D } from './scroll3d'
 import { makeSplash, updateSplash, type SplashPart } from '@/shared/lib/ink/splash'
 
 export type Caption = keyof typeof CAPTION_TIMING
@@ -20,6 +22,7 @@ export interface SceneElements {
   stage: HTMLElement
   paper: HTMLElement
   sheet: HTMLElement
+  /** The 3D scroll's canvas, over the whole stage. */
   canvas: HTMLCanvasElement
   /** The <img> inside <picture>: the WebGL texture source and the no-WebGL fallback. */
   art: HTMLImageElement
@@ -31,7 +34,7 @@ export interface SceneHooks {
   show(caption: Caption): void
   /** Hides every caption again (replay, or the scroll rolled back up). */
   hideCaptions(): void
-  /** WebGL is out: drop the canvas, paint with the plain image. */
+  /** WebGL2 is out: drop the canvas, unroll the flat scroll with the plain image. */
   useImageFallback(): void
   /** Fallback image fade (only used without WebGL). */
   showArt(on: boolean): void
@@ -60,7 +63,7 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
 
   const FOG: FogConfig = { ...FOG_DEFAULTS, on: FOG_DEFAULTS.on && !REDUCED }
 
-  let renderer: InkRenderer | null = null
+  let renderer: Scroll3D | null = null
   let fallback = false
   let destroyed = false
 
@@ -109,11 +112,14 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
   const setVar = (name: string, value: string) => root.style.setProperty(name, value)
 
   function layout() {
-    const m = parseFloat(getComputedStyle(paper).left) || 0
-    const top = parseFloat(getComputedStyle(root).getPropertyValue('--hero-top')) || 26
+    // in 3D the sheet covers the stage; the flat scroll keeps margins, the rod and the roller
+    const m = fallback ? parseFloat(getComputedStyle(paper).left) || 0 : 0
+    const top = fallback
+      ? parseFloat(getComputedStyle(root).getPropertyValue('--hero-top')) || 26
+      : 0
     const stageH = stage.clientHeight
     const sheetW = stage.clientWidth - m * 2
-    sheetH = stageH - top - 34 // room for the roller at the bottom
+    sheetH = fallback ? stageH - top - 34 : stageH // room for the roller at the bottom
     setVar('--hero-sheet-h', sheetH + 'px')
 
     // the painting: "cover" anchored to the bottom on wide screens; wider than
@@ -123,21 +129,15 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     const h = w / RATIO
     const left = (sheetW - w) / 2
     const bottom = portrait ? sheetH * 0.06 : 0
-    const el = renderer ? canvas : fallback ? art : null
-    if (el) {
-      Object.assign(el.style, {
+    if (fallback) {
+      Object.assign(art.style, {
         width: w + 'px',
         height: h + 'px',
         left: left + 'px',
         bottom: bottom + 'px',
       })
     }
-    if (renderer) {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      const scale = Math.min(1, 2900 / (w * dpr))
-      canvas.width = Math.round(w * dpr * scale)
-      canvas.height = Math.round(h * dpr * scale)
-    }
+    renderer?.setLayout(sheetW, stageH, { left, bottom, w, h })
 
     // the blot: in the dark spruce on the left, within the visible part
     const vx0 = Math.max(0, -left / w)
@@ -264,15 +264,17 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
 
   function impact() {
     dropEl.style.opacity = '0'
-    sheet.animate(
-      [
-        { transform: 'translateY(0)' },
-        { transform: 'translateY(3px)' },
-        { transform: 'translateY(-1px)' },
-        { transform: 'translateY(0)' },
-      ],
-      { duration: 260, easing: 'ease-out' }
-    )
+    // the flat sheet gives a little under the hit (the 3D one hangs still)
+    if (fallback)
+      sheet.animate(
+        [
+          { transform: 'translateY(0)' },
+          { transform: 'translateY(3px)' },
+          { transform: 'translateY(-1px)' },
+          { transform: 'translateY(0)' },
+        ],
+        { duration: 260, easing: 'ease-out' }
+      )
     parts = makeSplash(R0)
     state.seed = 1 + Math.random() * 40
     t0 = performance.now()
@@ -340,11 +342,16 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     const range = root.offsetHeight - stage.clientHeight
     const s = Math.min(1, Math.max(0, -root.getBoundingClientRect().top / range))
     const u = Math.min(1, s / 0.55) // the first 55% of the track unrolls the paper
-    const h = u * sheetH
     setVar('--hero-u', u.toFixed(4))
-    setVar('--hero-h', h.toFixed(1) + 'px')
-    setVar('--hero-roll', h.toFixed(1) + 'px') // the roller surface travels 1:1 with the paper
-    setVar('--hero-d', (58 - 24 * u).toFixed(1) + 'px') // the roller gets thinner
+    if (renderer) {
+      // captions and drops live on the paper overlay, cut where the 3D sheet ends
+      setVar('--hero-h', Math.max(0, renderer.setUnroll(u)).toFixed(1) + 'px')
+    } else {
+      const h = u * sheetH
+      setVar('--hero-h', h.toFixed(1) + 'px')
+      setVar('--hero-roll', h.toFixed(1) + 'px') // the roller surface travels 1:1 with the paper
+      setVar('--hero-d', (58 - 24 * u).toFixed(1) + 'px') // the roller gets thinner
+    }
     if (u >= 0.985 && phase === 'idle') play()
     if (u < 0.15 && phase !== 'idle') reset()
   }
@@ -379,7 +386,7 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
   function start() {
     if (destroyed) return
     try {
-      renderer = createInkRenderer(canvas)
+      renderer = createScroll3D(canvas)
     } catch (e) {
       console.error(e)
       renderer = null
