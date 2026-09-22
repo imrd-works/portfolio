@@ -48,7 +48,7 @@ export const stackGroups: StackGroup[] = [
     id: 'frontend',
     rows: [
       {
-        id: 'core',
+        id: 'frameworks',
         chips: [
           'Vue 3',
           'Vue 2 / 2.7',
@@ -56,14 +56,10 @@ export const stackGroups: StackGroup[] = [
           'Nuxt 2',
           'React',
           'Next.js',
-          'TypeScript',
           'JavaScript ES6+',
         ],
       },
-      {
-        id: 'state',
-        chips: ['Pinia', 'Vuex', 'Vue Router', 'TanStack Query', 'VueUse', 'Axios'],
-      },
+      { id: 'state', chips: ['Pinia', 'Vuex', 'Vue Router', 'TanStack Query', 'VueUse', 'Axios'] },
       { id: 'forms', chips: ['Vee-validate / Yup', 'Vuelidate', 'TipTap'] },
       {
         id: 'markup',
@@ -81,26 +77,23 @@ export const stackGroups: StackGroup[] = [
       },
       { id: 'charts', chips: ['Highcharts', 'ECharts', 'Chart.js', 'SVG Data Viz'] },
       { id: 'motion', chips: ['GSAP', 'Lottie', 'Anime.js', 'Swiper'] },
-      { id: 'build', chips: ['Vite', 'Webpack', 'npm / Yarn / PNPM'] },
+      { id: 'analytics', chips: ['Yandex Metrica'] },
     ],
   },
   {
     id: 'backend',
     rows: [
-      { id: 'servers', chips: ['Node', 'Symfony', 'PHP / Yii2', 'Twig'] },
-      { id: 'data', chips: ['PostgreSQL'] },
+      { id: 'languages', chips: ['Symfony', 'PHP / Yii2', 'Twig'] },
+      { id: 'databases', chips: ['PostgreSQL'] },
       { id: 'cms', chips: ['Sanity', 'WordPress', 'Shopify'] },
-      {
-        id: 'api',
-        chips: ['REST API', 'OpenAPI / Swagger', 'Apollo (GraphQL)', 'CryptoPro', 'reCAPTCHA'],
-      },
     ],
   },
   {
     id: 'devops',
     rows: [
-      { id: 'ci', chips: ['Docker', 'CI/CD', 'GitHub Actions / GitLab CI'] },
-      { id: 'hosting', chips: ['Nginx', 'Traefik', 'Vercel', 'MinIO (S3)'] },
+      { id: 'delivery', chips: ['CI/CD (GitHub Actions / GitLab CI)'] },
+      { id: 'hosting', chips: ['Nginx', 'Traefik', 'Vercel'] },
+      { id: 'storage', chips: ['MinIO (S3)'] },
     ],
   },
   {
@@ -117,7 +110,7 @@ export const stackGroups: StackGroup[] = [
           'Agile / Scrum / Kanban',
         ],
       },
-      { id: 'analytics', chips: ['Yandex Metrica', 'HubSpot', 'i18n'] },
+      { id: 'services', chips: ['i18n', 'HubSpot'] },
       {
         id: 'tools',
         chips: ['Postman', 'Figma', 'Adobe XD', 'Cursor', 'GitHub Copilot', 'Codex / Claude'],
@@ -127,79 +120,38 @@ export const stackGroups: StackGroup[] = [
 ]
 
 /**
- * Tools that work in more than one direction. Each keeps a home row (so the
- * shelf reads as a list of jobs, not a wall of repeats) and names the other
- * directions it belongs to; every tab then shows them again in a
- * "cross-cutting" row. Anything that spans directions is fullstack by
- * definition, so the fullstack tab collects all of them.
+ * Tools that work on both sides. They live on the fullstack tab — standing
+ * there says by itself that they are used in more than one direction.
  */
-export const crossChips: Record<string, StackId[]> = {
-  TypeScript: ['backend'],
-  Node: ['frontend', 'devops'],
-  'REST API': ['frontend'],
-  'OpenAPI / Swagger': ['frontend'],
-  'Apollo (GraphQL)': ['frontend'],
-  CryptoPro: ['frontend'],
-  reCAPTCHA: ['frontend'],
-  Docker: ['backend'],
-  'Git (GitHub / GitLab)': ['frontend', 'backend', 'devops'],
-  Vite: ['devops'],
-  Webpack: ['devops'],
-  Vitest: ['frontend', 'backend'],
-  'ESLint / Prettier': ['frontend', 'backend'],
-  i18n: ['frontend'],
-  'Yandex Metrica': ['frontend'],
-  Postman: ['backend'],
-}
+export const sharedRows: StackRow[] = [
+  { id: 'languages', chips: ['TypeScript', 'Node'] },
+  {
+    id: 'api',
+    chips: ['REST API', 'OpenAPI / Swagger', 'Apollo (GraphQL)', 'CryptoPro', 'reCAPTCHA'],
+  },
+  { id: 'build', chips: ['Vite', 'Webpack', 'npm / Yarn / PNPM', 'Docker'] },
+]
 
 /** Which direction a tool is filed under. */
 export const homeOf = (chip: string): StackId | undefined =>
-  stackGroups.find(({ rows }) => rows.some((row) => row.chips.includes(chip)))?.id
+  sharedRows.some((row) => row.chips.includes(chip))
+    ? 'fullstack'
+    : stackGroups.find(({ rows }) => rows.some((row) => row.chips.includes(chip)))?.id
 
-/** Works in more than one direction, so it belongs to fullstack. */
-export const isCross = (chip: string): boolean => chip in crossChips
-
-/** Every direction a tool is used in, fullstack last. */
-export const directionsOf = (chip: string): StackId[] => {
-  if (!isCross(chip)) return homeOf(chip) ? [homeOf(chip) as StackId] : []
-  const home = homeOf(chip)
-  const all = home ? [home, ...crossChips[chip]] : [...crossChips[chip]]
-  return [...all.filter((id) => id !== 'fullstack'), 'fullstack']
-}
-
-/**
- * What a tab shows. Frontend, backend and devops keep only what is theirs
- * alone; everything that spans directions is gathered under fullstack, in the
- * rows of the jobs those tools do.
- */
+/** What a tab shows: its own rows, plus the shared ones under fullstack. */
 export const rowsFor = (id: StackId): StackRow[] => {
   const own = stackGroups.find((group) => group.id === id)?.rows ?? []
-  if (id !== 'fullstack') {
-    return own
-      .map((row) => ({ ...row, chips: row.chips.filter((chip) => !isCross(chip)) }))
-      .filter(({ chips }) => chips.length)
-  }
-  const borrowed = new Map<string, string[]>()
-  for (const group of stackGroups) {
-    if (group.id === 'fullstack') continue
-    for (const row of group.rows) {
-      const chips = row.chips.filter(isCross)
-      if (chips.length) borrowed.set(row.id, [...(borrowed.get(row.id) ?? []), ...chips])
-    }
-  }
-  const rows = own.map((row) => ({
-    ...row,
-    chips: [...row.chips, ...(borrowed.get(row.id) ?? [])],
-  }))
-  const extra = [...borrowed]
-    .filter(([rowId]) => !own.some((row) => row.id === rowId))
-    .map(([rowId, chips]) => ({ id: rowId, chips }))
-  return [...rows, ...extra]
+  return id === 'fullstack' ? [...sharedRows, ...own] : own
 }
 
 /** How many technologies a tab shows. */
 export const stackCount = (id: StackId): number =>
   rowsFor(id).reduce((total, row) => total + row.chips.length, 0)
+
+/** Every technology on the page, in one list. */
+export const allChips: string[] = (
+  ['frontend', 'backend', 'devops', 'fullstack'] as StackId[]
+).flatMap((id) => rowsFor(id).flatMap(({ chips }) => chips))
 
 /** Worked with day to day: these are inked solid, the rest are outlines. */
 export const strongChips: string[] = [
@@ -216,16 +168,11 @@ export const strongChips: string[] = [
   'Node',
   'PostgreSQL',
   'Docker',
-  'CI/CD',
+  'CI/CD (GitHub Actions / GitLab CI)',
   'DDD',
   'FSD',
   'Code review',
 ]
-
-/** Every technology on the page, in one list. */
-export const allChips: string[] = stackGroups.flatMap(({ rows }) =>
-  rows.flatMap(({ chips }) => chips)
-)
 
 export const techMarquee: string[] = [
   'Vue 3',
@@ -235,7 +182,7 @@ export const techMarquee: string[] = [
   'TanStack Query',
   'Highcharts',
   'Docker',
-  'CI/CD',
+  'CI/CD (GitHub Actions / GitLab CI)',
 ]
 
 export interface StatItem {

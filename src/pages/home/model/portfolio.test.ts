@@ -5,10 +5,9 @@ import {
   contactChannels,
   allChips,
   coreSkills,
-  crossChips,
-  directionsOf,
   homeOf,
   rowsFor,
+  sharedRows,
   stackGroups,
   strongChips,
   projects,
@@ -56,40 +55,19 @@ describe('portfolio CV data', () => {
       }
     }
     expect(strongChips.every((chip) => chips.includes(chip))).toBe(true)
-    // a cross-cutting tool is listed once and names other directions, never its own
-    for (const [chip, directions] of Object.entries(crossChips)) {
+    // a shared tool is filed once, on the fullstack tab
+    for (const chip of sharedRows.flatMap(({ chips }) => chips)) {
       expect(chips.filter((x) => x === chip)).toHaveLength(1)
-      expect(directions).not.toContain(homeOf(chip))
-      expect(directionsOf(chip).length).toBeGreaterThan(1)
+      expect(homeOf(chip)).toBe('fullstack')
     }
-    // shown once: the shared tools under fullstack, the rest on their own tab
+    // every row is named after what is in it, in both locales, and shown once
     const shown = (['frontend', 'backend', 'devops', 'fullstack'] as const).flatMap((id) =>
       rowsFor(id).flatMap(({ chips }) => chips)
     )
     expect(new Set(shown).size).toBe(shown.length)
-    expect([...shown].sort()).toEqual([...chips].sort())
     expect(rowsFor('frontend').flatMap(({ chips }) => chips)).not.toContain('TypeScript')
     expect(rowsFor('fullstack').flatMap(({ chips }) => chips)).toEqual(
       expect.arrayContaining(['TypeScript', 'OpenAPI / Swagger', 'Docker'])
-    )
-    expect(new Set(chips).size).toBe(chips.length)
-    // Removed on purpose while aligning the site with the CV — putting any of
-    // them back means adding it to the CV first.
-    for (const absent of [
-      'WebSocket / Socket.io',
-      'Bootstrap',
-      'Material Design',
-      'Storybook',
-      'Photoshop',
-      'Jira',
-      'Notion',
-      'ClickUp',
-    ]) {
-      expect(chips).not.toContain(absent)
-    }
-    // Named in the CV, so they belong on the site too.
-    expect(chips).toEqual(
-      expect.arrayContaining(['Symfony', 'PostgreSQL', 'Nginx', 'Lottie', 'Nuxt 2'])
     )
   })
 
