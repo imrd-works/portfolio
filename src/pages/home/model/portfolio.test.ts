@@ -65,6 +65,15 @@ describe('portfolio CV data', () => {
       rowsFor(id).flatMap(({ chips }) => chips)
     )
     expect(new Set(shown).size).toBe(shown.length)
+    // versions of one tool go up, so Vue 2 stands before Vue 3
+    const frameworks = rowsFor('frontend').find(({ id }) => id === 'frameworks')?.chips ?? []
+
+    expect(frameworks.indexOf('Vue 2 / 2.7')).toBeLessThan(frameworks.indexOf('Vue 3'))
+    expect(frameworks.indexOf('Nuxt 2')).toBeLessThan(frameworks.indexOf('Nuxt 3 / 4'))
+    // the language and the build tools serve both sides
+    expect(homeOf('JavaScript ES6+')).toBe('fullstack')
+    expect(homeOf('npm / Yarn / PNPM')).toBe('fullstack')
+    expect(homeOf('Google Analytics')).toBe('frontend')
     expect(rowsFor('frontend').flatMap(({ chips }) => chips)).not.toContain('TypeScript')
     expect(rowsFor('fullstack').flatMap(({ chips }) => chips)).toEqual(
       expect.arrayContaining(['TypeScript', 'OpenAPI / Swagger', 'Docker'])

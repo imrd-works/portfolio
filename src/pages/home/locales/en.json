@@ -62,7 +62,7 @@
       "frameworks": "Frameworks",
       "state": "State and data",
       "forms": "Forms and editors",
-      "markup": "Markup and styles",
+      "markup": "Markup, styles and UI",
       "charts": "Charts",
       "motion": "Motion and sliders",
       "analytics": "Analytics",
@@ -77,7 +77,8 @@
       "architecture": "Architecture and refactoring",
       "quality": "Quality and process",
       "services": "Services",
-      "tools": "Tools"
+      "tools": "Tools",
+      "perf": "Performance and SEO"
     }
   },
   "work": {

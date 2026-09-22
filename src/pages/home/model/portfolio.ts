@@ -49,15 +49,7 @@ export const stackGroups: StackGroup[] = [
     rows: [
       {
         id: 'frameworks',
-        chips: [
-          'Vue 3',
-          'Vue 2 / 2.7',
-          'Nuxt 3 / 4',
-          'Nuxt 2',
-          'React',
-          'Next.js',
-          'JavaScript ES6+',
-        ],
+        chips: ['Vue 2 / 2.7', 'Vue 3', 'Nuxt 2', 'Nuxt 3 / 4', 'React', 'Next.js'],
       },
       { id: 'state', chips: ['Pinia', 'Vuex', 'Vue Router', 'TanStack Query', 'VueUse', 'Axios'] },
       { id: 'forms', chips: ['Vee-validate / Yup', 'Vuelidate', 'TipTap'] },
@@ -72,12 +64,14 @@ export const stackGroups: StackGroup[] = [
           'BEM',
           'Tailwind CSS',
           'Vuetify',
+          'vue-sonner',
           'Responsive / Cross-browser',
         ],
       },
       { id: 'charts', chips: ['Highcharts', 'ECharts', 'Chart.js', 'SVG Data Viz'] },
       { id: 'motion', chips: ['GSAP', 'Lottie', 'Anime.js', 'Swiper'] },
-      { id: 'analytics', chips: ['Yandex Metrica'] },
+      { id: 'analytics', chips: ['Yandex Metrica', 'Google Analytics'] },
+      { id: 'perf', chips: ['@nuxt/image', 'h3-compression', 'SEO (sitemap, robots, Open Graph)'] },
     ],
   },
   {
@@ -99,12 +93,15 @@ export const stackGroups: StackGroup[] = [
   {
     id: 'fullstack',
     rows: [
-      { id: 'architecture', chips: ['DDD', 'FSD', 'Legacy refactoring'] },
+      { id: 'architecture', chips: ['DDD', 'FSD', 'Atomic Design', 'Legacy refactoring'] },
       {
         id: 'quality',
         chips: [
           'Vitest',
+          'Vue Test Utils / Nuxt Test Utils',
           'ESLint / Prettier',
+          'Stylelint',
+          'Husky / lint-staged',
           'Git (GitHub / GitLab)',
           'Code review',
           'Agile / Scrum / Kanban',
@@ -124,7 +121,7 @@ export const stackGroups: StackGroup[] = [
  * there says by itself that they are used in more than one direction.
  */
 export const sharedRows: StackRow[] = [
-  { id: 'languages', chips: ['TypeScript', 'Node'] },
+  { id: 'languages', chips: ['TypeScript', 'JavaScript ES6+', 'Node'] },
   {
     id: 'api',
     chips: ['REST API', 'OpenAPI / Swagger', 'Apollo (GraphQL)', 'CryptoPro', 'reCAPTCHA'],
