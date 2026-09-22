@@ -833,6 +833,7 @@ onBeforeUnmount(() => {
     display: block;
     padding: 10px;
     overflow: hidden;
+    clip-path: inset(0 0 100% 0);
     background: var(--work-sheet);
     box-shadow:
       0 12px 24px -10px rgb(0 0 0 / 30%),
@@ -901,36 +902,30 @@ onBeforeUnmount(() => {
   // the roll of paper that travels down as the sheet unrolls
   &__curl {
     position: absolute;
-    top: 100%;
+    top: 0;
     right: -2px;
     left: -2px;
     z-index: 2;
-    display: none;
     height: 16px;
     margin-top: -8px;
     background: linear-gradient(to bottom, #d9d4cb 0%, #fbf9f5 38%, #efebe4 60%, #c9c3b8 100%);
     border-radius: 8px;
     box-shadow: 0 6px 8px -3px rgb(0 0 0 / 25%);
-    opacity: 0;
     transition:
       top 1.1s cubic-bezier(0.3, 0.7, 0.2, 1),
       opacity 0.25s ease 1.05s;
   }
 
-  // With the scene up, the sheets come rolled and unroll as they come into
-  // view; the prerendered page shows them open.
-  &--live &__curl {
-    display: block;
+  // Every sheet is rolled up until it comes into view; the roll then travels
+  // down and the painting appears behind it. Without JavaScript the <noscript>
+  // rule below leaves them open.
+  &__sheet--open &__frame {
+    clip-path: inset(0 0 0 0);
   }
 
-  &--live &__sheet:not(&__sheet--open) &__frame {
-    clip-path: inset(0 0 100% 0);
-  }
-
-  &--live &__sheet:not(&__sheet--open) &__curl {
-    top: 0;
-    opacity: 1;
-    transition: none;
+  &__sheet--open &__curl {
+    top: 100%;
+    opacity: 0;
   }
 
   &__label {

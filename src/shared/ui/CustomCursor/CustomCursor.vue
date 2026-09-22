@@ -9,8 +9,8 @@ defineOptions({ name: 'UiCustomCursor' })
  * bristles, pinned to the pointer. The handle sways on a spring as the pointer
  * moves; the bristles follow on a softer spring, so they visibly bend. A press
  * squashes and splays them. Ink is drawn by the hero's splash shader
- * (./splash-layer.ts): a resting brush lets ink gather and drip; a click drops
- * a drop of ink that splashes like the one on the hero scroll.
+ * (./splash-layer.ts): a resting brush lets ink gather and drip; a click on the
+ * page (not on a control) drops ink that splashes like the one on the hero scroll.
  * The native cursor is hidden while it is active, except over text fields.
  */
 
@@ -271,7 +271,10 @@ function dropInk(x: number, y: number) {
 
 function onDown(event: MouseEvent) {
   pressed = true
-  if (visible && event.button === 0) dropInk(event.clientX, event.clientY)
+  // Ink only falls on the page itself: a button or a link already answers the
+  // click, and a blot over it would be in the way.
+  const onControl = (event.target as HTMLElement | null)?.closest(`${INTERACTIVE}, ${TEXT_FIELD}`)
+  if (visible && event.button === 0 && !onControl) dropInk(event.clientX, event.clientY)
   schedule()
 }
 
