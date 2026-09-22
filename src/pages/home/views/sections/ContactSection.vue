@@ -26,12 +26,15 @@ const gl = useTemplateRef<HTMLCanvasElement>('gl')
 const print = useTemplateRef<HTMLCanvasElement>('print')
 const envBody = useTemplateRef<HTMLCanvasElement>('envBody')
 const envFlap = useTemplateRef<HTMLCanvasElement>('envFlap')
+const waxArt = useTemplateRef<HTMLCanvasElement>('waxArt')
 
 // Client-only: the prerendered HTML is the letter on plain paper. The ink
 // pool, the print and the painted envelope arrive once the page is live.
 const live = ref(false)
 // once the envelope is up the letter is inside it and leaves the flow
 const folded = ref(false)
+// the seal is a lump of wax lit in 3d; until it is rendered the css one shows
+const waxed = ref(false)
 let wash: Wash | null = null
 let fold = 0
 let unmounted = false
@@ -64,11 +67,22 @@ function show(target: HTMLCanvasElement | null, art: HTMLCanvasElement) {
 
 /** The envelope is painted, so it is drawn only once the letter is sealed. */
 async function paintEnvelope() {
-  const { envelopeBody, envelopeFlap } = await import('./contact/lib/envelope')
+  const [{ envelopeBody, envelopeFlap }, { paintWax }] = await Promise.all([
+    import('./contact/lib/envelope'),
+    import('./contact/lib/wax'),
+  ])
+  // the initials are pressed with the page's own font, so it has to be there
+  await document.fonts?.ready
   await nextTick()
   if (unmounted) return
   show(envBody.value, envelopeBody(dpr))
   show(envFlap.value, envelopeFlap(dpr))
+
+  const seal = paintWax({ size: 92, dpr, text: t('home.contact.seal') })
+  if (!seal) return
+  show(waxArt.value, seal.canvas)
+  waxed.value = true
+  seal.dispose()
 }
 
 onMounted(async () => {
@@ -104,6 +118,7 @@ onMounted(async () => {
 watch(sent, (done) => {
   clearTimeout(fold)
   folded.value = false
+  waxed.value = false
   if (!done) return
   if (live.value) void paintEnvelope()
   // the letter has gone into the envelope by now, so it stops taking room
@@ -302,7 +317,15 @@ onBeforeUnmount(() => {
               class="contact__envelope-flap"
               aria-hidden="true"
             ></canvas>
-            <span class="contact__wax">
+            <span
+              class="contact__wax"
+              :class="{ 'contact__wax--painted': waxed }"
+            >
+              <canvas
+                ref="waxArt"
+                class="contact__wax-art"
+                aria-hidden="true"
+              ></canvas>
               <span class="contact__wax-mark">{{ t('home.contact.seal') }}</span>
             </span>
           </div>
@@ -606,6 +629,31 @@ onBeforeUnmount(() => {
     animation: contact-press 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) 1.9s both;
   }
 
+  /* the rendered lump of wax replaces the flat one, letters and all */
+  &__wax--painted {
+    background: none;
+    clip-path: none;
+    box-shadow: none;
+    transform: none;
+  }
+
+  &__wax-art {
+    position: absolute;
+    inset: 0;
+    display: none;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__wax--painted &__wax-art {
+    display: block;
+  }
+
+  &__wax--painted &__wax-mark,
+  &__wax--painted::before {
+    display: none;
+  }
+
   &__wax::before {
     position: absolute;
     inset: 7px;
@@ -788,7 +836,7 @@ onBeforeUnmount(() => {
   }
 
   100% {
-    opacity: 0.97;
+    opacity: 1;
     transform: scale(1) rotate(-5deg);
   }
 }
