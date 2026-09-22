@@ -216,30 +216,36 @@
     }
   },
   "contact": {
-    "title": "Let's build{br}something {accent}",
-    "titleAccent": "remarkable",
-    "lead": "Open to frontend and team lead roles, project work and complex product challenges. Telegram and email are the easiest ways to reach me.",
+    "eyebrow": "Contact",
+    "title": "Write me a letter",
+    "letter": "Hello, Daniil. My name is {name}, you can reach me at {contact}. I need help with:",
+    "seal": "DR",
+    "sealHint": "Press the seal to send",
+    "lead": "Open to frontend and team lead roles, project work and complex product challenges. I answer within a day, usually on Telegram.",
     "links": {
       "telegram": "Telegram",
       "email": "Email",
-      "phone": "Phone"
+      "github": "GitHub",
+      "resume": "CV",
+      "resumeNote": "PDF, one page"
     },
     "form": {
       "name": "Your name",
-      "contact": "Email or Telegram",
-      "about": "About the project",
-      "submit": "Send request →",
+      "contact": "Where to reply",
+      "about": "About the task",
+      "phName": "name",
+      "phContact": "email or telegram",
+      "phAbout": "a few lines about the project",
       "sending": "Sending…",
       "errorName": "Name — at least 3 characters, letters only",
       "errorContact": "Enter a valid email or Telegram — e.g. {email} or {handle}",
       "errorContactOwn": "Those are my contacts — please leave your own",
       "errorAbout": "Describe your task",
-      "sendError": "Couldn't send your request. Please try again."
+      "sendError": "Couldn't send your letter. Please try again."
     },
     "success": {
-      "title": "Request sent",
-      "text": "Thank you! I'll get back to you within a day — usually via Telegram.",
-      "again": "Send another request"
+      "text": "The letter is sealed · I answer within a day, usually on Telegram",
+      "again": "Write another one"
     }
   },
   "footer": {
