@@ -134,6 +134,9 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
+    <!-- what comes right after the river (the work wall), before the services -->
+    <slot />
+
     <PageSection
       relative
       padding-top="band"

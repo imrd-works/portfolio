@@ -15,11 +15,12 @@ usePageSeo()
 <template>
   <div class="home-page">
     <HeroSection />
-    <ExperienceSection />
+    <ExperienceSection>
+      <WorkSection />
+    </ExperienceSection>
     <Ticker :items="techMarquee" />
     <AboutSection />
     <SkillsSection />
-    <WorkSection />
     <ContactSection />
   </div>
 </template>
