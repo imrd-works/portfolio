@@ -40,11 +40,6 @@
   "skills": {
     "eyebrow": "Навыки",
     "title": "Стек для сложных интерфейсов и продуктовых систем",
-    "coreTitle": "Ядро",
-    "frontendTitle": "Frontend",
-    "dataTitle": "Данные, API и визуализация",
-    "platformTitle": "Fullstack, DX и DevOps",
-    "toolsTitle": "Архитектура, качество и инструменты",
     "core": {
       "vue": "5 лет в продакшене — шесть корпоративных систем и лендингов",
       "typescript": "4 года в строгом режиме: типы контрактов из OpenAPI, кодоген",
@@ -54,7 +49,35 @@
     },
     "searchLabel": "Поиск по стеку",
     "searchHint": "например, GraphQL",
-    "found": "Найдено: {n}"
+    "found": "Найдено: {n}",
+    "tabs": {
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "devops": "DevOps",
+      "fullstack": "Fullstack"
+    },
+    "searchAll": "Поиск идёт по всем направлениям",
+    "clear": "Сбросить",
+    "rows": {
+      "core": "Каркас",
+      "state": "Состояние и данные",
+      "forms": "Формы и редакторы",
+      "markup": "Вёрстка и стили",
+      "charts": "Графики",
+      "motion": "Анимация",
+      "servers": "Серверы и языки",
+      "data": "Базы и хранилища",
+      "cms": "CMS и платформы",
+      "api": "API и интеграции",
+      "build": "Сборка",
+      "ci": "Контейнеры и CI",
+      "hosting": "Хостинг и сеть",
+      "quality": "Качество",
+      "architecture": "Архитектура",
+      "process": "Процесс",
+      "analytics": "Аналитика и сервисы",
+      "tools": "Инструменты"
+    }
   },
   "work": {
     "eyebrow": "Работы",

@@ -4,8 +4,8 @@ import { useInView } from '@/shared/composables/useInView'
 import { stats } from '../../model/portfolio'
 
 const { t } = useI18n()
-// The whole spread comes in at once: the sheet unrolls, the text blooms, the
-// counts are stamped.
+// The whole spread comes in at once: the painting soaks into the paper, the
+// text blooms, the counts are stamped.
 const { targetRef: spread, inView: shown } = useInView({ threshold: 0.12 })
 </script>
 
@@ -46,30 +46,18 @@ const { targetRef: spread, inView: shown } = useInView({ threshold: 0.12 })
     </svg>
 
     <div class="about__spread">
-      <!-- the portrait: the wolverine from the path, and the man it walks with -->
-      <div class="about__portrait">
-        <span
-          class="about__nail"
-          aria-hidden="true"
-          >{{ t('home.hero.seal') }}</span
-        >
-        <div class="about__frame">
-          <img
-            class="about__art"
-            src="/about/portrait.webp"
-            :alt="t('home.about.photo')"
-            width="896"
-            height="1344"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <span
-          class="about__curl"
-          aria-hidden="true"
-        ></span>
-        <p class="about__badge">{{ t('home.about.badge') }}</p>
-      </div>
+      <!-- the painting is the ground the text lies on: the wolverine from the
+           path and the man it walks with, soaked into the paper -->
+      <img
+        class="about__art"
+        src="/about/portrait.webp"
+        :alt="t('home.about.photo')"
+        width="896"
+        height="1344"
+        loading="lazy"
+        decoding="async"
+      />
+      <p class="about__badge">{{ t('home.about.badge') }}</p>
 
       <div class="about__body">
         <p class="about__eyebrow">{{ t('home.about.eyebrow') }}</p>
@@ -127,96 +115,60 @@ const { targetRef: spread, inView: shown } = useInView({ threshold: 0.12 })
 
   &__spread {
     display: grid;
-    grid-template-columns: minmax(260px, 420px) minmax(0, 1fr);
-    gap: clamp(32px, 6vw, 96px);
+    grid-template-areas:
+      'art body'
+      'badge body';
+    grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    gap: 18px clamp(24px, 4vw, 64px);
     align-items: start;
     max-width: 1320px;
     margin: 0 auto;
   }
 
-  /* ---------- the portrait, pinned and rolled ---------- */
-  &__portrait {
-    position: relative;
-    padding-top: 12px;
-    transform: rotate(-1.2deg);
-  }
-
-  &__nail {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    z-index: 3;
-    display: grid;
-    place-items: center;
-    width: 26px;
-    height: 26px;
-    margin-left: -13px;
-    font-family: Unbounded, sans-serif;
-    font-size: 8.5px;
-    font-weight: 500;
-    color: var(--about-paper);
-    letter-spacing: -0.04em;
-    background: var(--about-seal);
-    filter: url('#about-rough');
-    border-radius: 50%;
-    box-shadow: 0 3px 4px rgb(0 0 0 / 28%);
-  }
-
-  &__frame {
-    position: relative;
-    padding: 12px;
-    overflow: hidden;
-    background: var(--about-sheet);
-    box-shadow:
-      0 12px 24px -10px rgb(0 0 0 / 30%),
-      0 1px 2px rgb(0 0 0 / 8%);
-    clip-path: inset(0 0 100% 0);
-    transition: clip-path 1.2s cubic-bezier(0.3, 0.7, 0.2, 1);
-  }
-
-  &--shown &__frame {
-    clip-path: inset(0 0 0 0);
-  }
-
+  /* ---------- the painting, soaked into the paper ---------- */
   &__art {
-    display: block;
+    grid-area: art;
+    align-self: start;
     width: 100%;
     max-width: none;
     height: auto;
-    mix-blend-mode: multiply;
-  }
-
-  // the roll of paper that travels down as the sheet unrolls
-  &__curl {
-    position: absolute;
-    top: 0;
-    right: -2px;
-    left: -2px;
-    z-index: 2;
-    height: 16px;
-    margin-top: -8px;
-    background: linear-gradient(to bottom, #d9d4cb 0%, #fbf9f5 38%, #efebe4 60%, #c9c3b8 100%);
-    border-radius: 8px;
-    box-shadow: 0 6px 8px -3px rgb(0 0 0 / 25%);
-    transition:
-      top 1.2s cubic-bezier(0.3, 0.7, 0.2, 1),
-      opacity 0.25s ease 1.15s;
-  }
-
-  &--shown &__curl {
-    top: 100%;
+    // the painting is ink on transparency, so it lies on the paper itself; the
+    // mask only softens what little edge the sheet had
+    mask-image: radial-gradient(125% 96% at 45% 48%, #000 62%, transparent 92%);
+    filter: blur(6px);
     opacity: 0;
+    transition:
+      opacity 1.6s ease,
+      filter 2s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  &--shown &__art {
+    filter: blur(0);
+    opacity: 1;
   }
 
   &__badge {
-    margin: 18px 0 0;
+    grid-area: badge;
+    margin: 0;
     font-size: 11px;
     color: var(--about-ink-soft);
     text-transform: uppercase;
     letter-spacing: 0.1em;
+    opacity: 0;
+    transition: opacity 1s ease 0.6s;
+  }
+
+  &--shown &__badge {
+    opacity: 1;
   }
 
   /* ---------- the text ---------- */
+  &__body {
+    grid-area: body;
+    align-self: center;
+  }
+
   &__body > * {
     filter: blur(10px);
     opacity: 0;
@@ -325,17 +277,23 @@ const { targetRef: spread, inView: shown } = useInView({ threshold: 0.12 })
 
   @media (width < 860px) {
     &__spread {
+      grid-template-areas:
+        'art'
+        'badge'
+        'body';
       grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto auto;
     }
 
-    &__portrait {
-      max-width: 320px;
+    &__art {
+      max-width: 420px;
+      margin: 0 auto;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    &__frame,
-    &__curl,
+    &__art,
+    &__badge,
     &__body > *,
     &__seal {
       transition: none;

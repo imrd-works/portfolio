@@ -40,11 +40,6 @@
   "skills": {
     "eyebrow": "Skills",
     "title": "A stack for complex interfaces and product systems",
-    "coreTitle": "Core",
-    "frontendTitle": "Frontend",
-    "dataTitle": "Data, APIs and visualization",
-    "platformTitle": "Fullstack, DX and DevOps",
-    "toolsTitle": "Architecture, quality and tools",
     "core": {
       "vue": "5 years in production — six enterprise systems and landing pages",
       "typescript": "4 years in strict mode: contract types generated from OpenAPI",
@@ -54,7 +49,35 @@
     },
     "searchLabel": "Search the stack",
     "searchHint": "GraphQL, for example",
-    "found": "Found: {n}"
+    "found": "Found: {n}",
+    "tabs": {
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "devops": "DevOps",
+      "fullstack": "Fullstack"
+    },
+    "searchAll": "The search looks across all directions",
+    "clear": "Clear",
+    "rows": {
+      "core": "Framework",
+      "state": "State and data",
+      "forms": "Forms and editors",
+      "markup": "Markup and styles",
+      "charts": "Charts",
+      "motion": "Motion",
+      "servers": "Servers and languages",
+      "data": "Databases and storage",
+      "cms": "CMS and platforms",
+      "api": "APIs and integrations",
+      "build": "Build",
+      "ci": "Containers and CI",
+      "hosting": "Hosting and network",
+      "quality": "Quality",
+      "architecture": "Architecture",
+      "process": "Process",
+      "analytics": "Analytics and services",
+      "tools": "Tools"
+    }
   },
   "work": {
     "eyebrow": "Selected work",

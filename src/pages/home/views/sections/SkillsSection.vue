@@ -3,31 +3,39 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useInView } from '@/shared/composables/useInView'
 import {
+  allChips,
   coreSkills,
-  frontendChips,
-  dataChips,
-  platformChips,
-  toolsChips,
+  stackCount,
+  stackGroups,
+  strongChips,
+  type StackId,
 } from '../../model/portfolio'
 
 const { t } = useI18n()
 const { targetRef: shelf, inView: shown } = useInView({ threshold: 0.1 })
 
-// The brands are grouped the way a client thinks about work, not by kind of
-// technology, so "we need heavy tables and charts" lands in one place.
-const groups = computed(() => [
-  { id: 'frontend', title: t('home.skills.frontendTitle'), chips: frontendChips },
-  { id: 'data', title: t('home.skills.dataTitle'), chips: dataChips },
-  { id: 'platform', title: t('home.skills.platformTitle'), chips: platformChips },
-  { id: 'tools', title: t('home.skills.toolsTitle'), chips: toolsChips },
-])
-
-// Everything stays on the shelf; the search only dims what does not match, so
-// a client looking for one technology finds it without losing the rest.
+// Two levels: the direction a client hires for, and the job each tool does
+// inside it. Nothing is hidden, but a row of six names reads where a wall of
+// thirty does not.
+const tab = ref<StackId>('frontend')
 const query = ref('')
-const matches = (chip: string) =>
-  !query.value.trim() || chip.toLowerCase().includes(query.value.trim().toLowerCase())
-const found = computed(() => groups.value.flatMap(({ chips }) => chips).filter(matches).length)
+const searching = computed(() => query.value.trim().length > 0)
+const matches = (chip: string) => chip.toLowerCase().includes(query.value.trim().toLowerCase())
+const strong = (chip: string) => strongChips.includes(chip)
+
+// While searching the tabs step aside: the results come from all four
+// directions, so one technology is found without knowing where it was filed.
+const shelfGroups = computed(() =>
+  (searching.value ? stackGroups : stackGroups.filter(({ id }) => id === tab.value))
+    .map((group) => ({
+      ...group,
+      rows: group.rows
+        .map((row) => ({ ...row, chips: searching.value ? row.chips.filter(matches) : row.chips }))
+        .filter(({ chips }) => chips.length),
+    }))
+    .filter(({ rows }) => rows.length)
+)
+const found = computed(() => allChips.filter(matches).length)
 </script>
 
 <template>
@@ -87,41 +95,78 @@ const found = computed(() => groups.value.flatMap(({ chips }) => chips).filter(m
       </ul>
 
       <div class="skills__shelf">
-        <label
-          class="skills__search"
-          for="skills-search"
-        >
-          <span class="skills__search-label">{{ t('home.skills.searchLabel') }}</span>
-          <input
-            id="skills-search"
-            v-model="query"
-            class="skills__search-input"
-            type="search"
-            :placeholder="t('home.skills.searchHint')"
-          />
-        </label>
+        <div class="skills__bar">
+          <div
+            class="skills__tabs"
+            role="tablist"
+            :aria-label="t('home.skills.eyebrow')"
+          >
+            <button
+              v-for="group in stackGroups"
+              :id="`skills-tab-${group.id}`"
+              :key="group.id"
+              class="skills__tab"
+              :class="{ 'skills__tab--on': !searching && tab === group.id }"
+              role="tab"
+              type="button"
+              :aria-selected="!searching && tab === group.id"
+              :tabindex="tab === group.id ? 0 : -1"
+              @click="((tab = group.id), (query = ''))"
+            >
+              {{ t(`home.skills.tabs.${group.id}`) }}
+              <span class="skills__tab-count">{{ stackCount(group.id) }}</span>
+            </button>
+          </div>
+
+          <label
+            class="skills__search"
+            for="skills-search"
+          >
+            <span class="skills__search-label">{{ t('home.skills.searchLabel') }}</span>
+            <input
+              id="skills-search"
+              v-model="query"
+              class="skills__search-input"
+              type="search"
+              :placeholder="t('home.skills.searchHint')"
+            />
+          </label>
+        </div>
+
         <p
-          v-if="query.trim()"
+          v-if="searching"
           class="skills__found"
           role="status"
         >
-          {{ t('home.skills.found', { n: found }) }}
+          {{ t('home.skills.found', { n: found }) }} · {{ t('home.skills.searchAll') }}
         </p>
 
         <div
-          v-for="group in groups"
+          v-for="group in shelfGroups"
           :key="group.id"
           class="skills__group"
         >
-          <h3 class="skills__group-title">{{ group.title }}</h3>
-          <div class="skills__chips">
-            <span
-              v-for="chip in group.chips"
-              :key="chip"
-              class="skills__chip"
-              :class="{ 'skills__chip--dim': !matches(chip) }"
-              >{{ chip }}</span
-            >
+          <h3
+            v-if="searching"
+            class="skills__group-title"
+          >
+            {{ t(`home.skills.tabs.${group.id}`) }}
+          </h3>
+          <div
+            v-for="row in group.rows"
+            :key="row.id"
+            class="skills__row"
+          >
+            <h4 class="skills__row-title">{{ t(`home.skills.rows.${row.id}`) }}</h4>
+            <div class="skills__chips">
+              <span
+                v-for="chip in row.chips"
+                :key="chip"
+                class="skills__chip"
+                :class="{ 'skills__chip--strong': strong(chip) }"
+                >{{ chip }}</span
+              >
+            </div>
           </div>
         </div>
       </div>
@@ -250,12 +295,75 @@ const found = computed(() => groups.value.flatMap(({ chips }) => chips).filter(m
   }
 
   /* ---------- the shelf of brands ---------- */
+  &__bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 28px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  &__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  // the direction is chosen with a seal, like the filters on the work wall
+  &__tab {
+    position: relative;
+    z-index: 0;
+    padding: 8px 12px 7px;
+    font: inherit;
+    font-size: 11.5px;
+    color: var(--skills-seal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    background: none;
+    border: 0;
+    transition:
+      color 0.25s,
+      transform 0.25s cubic-bezier(0.2, 1.4, 0.4, 1);
+
+    &::before {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      content: '';
+      border: 1.5px solid currentcolor;
+      border-radius: 3px;
+      opacity: 0.6;
+      filter: url('#skills-rough');
+      transition: opacity 0.25s;
+    }
+
+    &:hover::before {
+      opacity: 1;
+    }
+
+    &--on {
+      color: var(--skills-paper);
+      transform: rotate(-2deg);
+
+      &::before {
+        background: var(--skills-seal);
+        opacity: 1;
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--skills-seal);
+      outline-offset: 4px;
+    }
+  }
+
   &__search {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     align-items: baseline;
-    margin-bottom: 8px;
   }
 
   &__search-label {
@@ -267,8 +375,8 @@ const found = computed(() => groups.value.flatMap(({ chips }) => chips).filter(m
 
   // the field is a brush stroke: a line of ink, nothing else
   &__search-input {
-    flex: 1 1 220px;
-    max-width: 320px;
+    flex: 1 1 200px;
+    max-width: 280px;
     padding: 4px 2px;
     font: inherit;
     font-size: 13px;
@@ -298,6 +406,33 @@ const found = computed(() => groups.value.flatMap(({ chips }) => chips).filter(m
     margin-top: 26px;
   }
 
+  // one line per job a tool does: the label on the left, the brands beside it
+  &__row {
+    display: grid;
+    grid-template-columns: minmax(120px, 190px) minmax(0, 1fr);
+    gap: 10px 20px;
+    align-items: baseline;
+    padding: 12px 0;
+
+    & + & {
+      border-top: 1px solid rgb(16 18 20 / 10%);
+    }
+  }
+
+  &__row-title {
+    margin: 0;
+    font-size: 11px;
+    color: var(--skills-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  &__tab-count {
+    margin-left: 6px;
+    font-size: 10px;
+    opacity: 0.75;
+  }
+
   &__group-title {
     margin: 0 0 12px;
     font-size: 11px;
@@ -320,9 +455,7 @@ const found = computed(() => groups.value.flatMap(({ chips }) => chips).filter(m
     font-size: 11.5px;
     color: var(--skills-ink);
     opacity: 0;
-    transition:
-      opacity 0.45s ease,
-      color 0.35s ease;
+    transition: opacity 0.45s ease;
 
     &::before {
       position: absolute;
@@ -334,8 +467,14 @@ const found = computed(() => groups.value.flatMap(({ chips }) => chips).filter(m
       filter: url('#skills-rough');
     }
 
-    &--dim {
-      color: rgb(16 18 20 / 28%);
+    // worked with day to day: inked solid, so the weight of the stack shows
+    &--strong {
+      color: var(--skills-paper);
+
+      &::before {
+        background: var(--skills-ink);
+        border-color: var(--skills-ink);
+      }
     }
   }
 
@@ -344,6 +483,11 @@ const found = computed(() => groups.value.flatMap(({ chips }) => chips).filter(m
   }
 
   @media (width < 700px) {
+    &__row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 6px;
+    }
+
     &__core {
       grid-template-columns: 26px minmax(0, 1fr);
       gap: 10px 14px;

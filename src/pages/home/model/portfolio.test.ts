@@ -3,11 +3,10 @@ import en from '../locales/en.json'
 import ru from '../locales/ru.json'
 import {
   contactChannels,
+  allChips,
   coreSkills,
-  dataChips,
-  frontendChips,
-  platformChips,
-  toolsChips,
+  stackGroups,
+  strongChips,
   projects,
   socials,
   stats,
@@ -41,8 +40,18 @@ describe('portfolio CV data', () => {
   })
 
   it('lists no technology the CV does not claim', () => {
-    const chips = [...frontendChips, ...dataChips, ...platformChips, ...toolsChips]
+    const chips = allChips
 
+    expect(stackGroups.map(({ id }) => id)).toEqual(['frontend', 'backend', 'devops', 'fullstack'])
+    // every row is named in both locales, and none is left empty
+    for (const { rows } of stackGroups) {
+      for (const row of rows) {
+        expect(row.chips.length).toBeGreaterThan(0)
+        expect((ru.skills.rows as Record<string, string>)[row.id]).toBeTruthy()
+        expect((en.skills.rows as Record<string, string>)[row.id]).toBeTruthy()
+      }
+    }
+    expect(strongChips.every((chip) => chips.includes(chip))).toBe(true)
     expect(new Set(chips).size).toBe(chips.length)
     // Removed on purpose while aligning the site with the CV — putting any of
     // them back means adding it to the CV first.
@@ -73,7 +82,10 @@ describe('portfolio CV data', () => {
 
   it('represents the Vue and Nuxt specialization from the CV', () => {
     expect(coreSkills[0]).toEqual({ id: 'vue', label: 'Vue 3 / Nuxt 3–4' })
-    expect(frontendChips).toEqual(expect.arrayContaining(['Vue 3', 'Nuxt 3 / 4', 'Pinia']))
+    const frontend =
+      stackGroups.find(({ id }) => id === 'frontend')?.rows.flatMap(({ chips }) => chips) ?? []
+
+    expect(frontend).toEqual(expect.arrayContaining(['Vue 3', 'Nuxt 3 / 4', 'Pinia']))
     expect(ru.meta.title).toContain('Vue / Nuxt')
     expect(en.meta.title).toContain('Vue / Nuxt')
   })

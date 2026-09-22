@@ -25,91 +25,124 @@ export const coreSkills: CoreSkill[] = [
 // absent from the CV: a recruiter reading both documents side by side should
 // not find a single technology that only one of them claims.
 
-export const frontendChips: string[] = [
-  'Vue 3',
-  'Vue 2 / 2.7',
-  'Nuxt 3 / 4',
-  'Nuxt 2',
-  'React',
-  'Next.js',
-  'TypeScript',
-  'JavaScript ES6+',
-  'HTML5',
-  'CSS3',
-  'SCSS / SASS',
-  'Pug',
-  'Pinia',
-  'Vuex',
-  'Vue Router',
-  'Vue Query',
-  'VueUse',
-  'Vee-validate / Yup',
-  'Vuelidate',
-  'Vuetify',
-  'Tailwind CSS',
-  'TipTap',
-  'GSAP',
-  'Lottie',
-  'Anime.js',
-  'Swiper',
+export type StackId = 'frontend' | 'backend' | 'devops' | 'fullstack'
+
+export interface StackRow {
+  /** Names the part a tool plays here: framework, state, charts, hosting… */
+  id: string
+  chips: string[]
+}
+
+export interface StackGroup {
+  id: StackId
+  rows: StackRow[]
+}
+
+/**
+ * The same technologies as the CV, on two levels: the direction a client hires
+ * for, and the job each tool does inside it. Nothing is dropped, and a client
+ * reading "we need charts" finds one short row instead of a wall of names.
+ */
+export const stackGroups: StackGroup[] = [
+  {
+    id: 'frontend',
+    rows: [
+      {
+        id: 'core',
+        chips: [
+          'Vue 3',
+          'Vue 2 / 2.7',
+          'Nuxt 3 / 4',
+          'Nuxt 2',
+          'React',
+          'Next.js',
+          'TypeScript',
+          'JavaScript ES6+',
+        ],
+      },
+      { id: 'state', chips: ['Pinia', 'Vuex', 'Vue Router', 'Vue Query', 'VueUse', 'Axios'] },
+      { id: 'forms', chips: ['Vee-validate / Yup', 'Vuelidate', 'TipTap'] },
+      {
+        id: 'markup',
+        chips: [
+          'HTML5',
+          'CSS3',
+          'SCSS / SASS',
+          'PostCSS',
+          'Pug',
+          'BEM',
+          'Tailwind CSS',
+          'Vuetify',
+          'Responsive / Cross-browser',
+        ],
+      },
+      { id: 'charts', chips: ['Highcharts', 'ECharts', 'Chart.js', 'SVG Data Viz'] },
+      { id: 'motion', chips: ['GSAP', 'Lottie', 'Anime.js', 'Swiper'] },
+    ],
+  },
+  {
+    id: 'backend',
+    rows: [
+      { id: 'servers', chips: ['Node', 'Symfony', 'PHP / Yii2', 'Twig'] },
+      { id: 'data', chips: ['PostgreSQL', 'MinIO (S3)'] },
+      { id: 'cms', chips: ['Sanity', 'WordPress', 'Shopify'] },
+      {
+        id: 'api',
+        chips: ['REST API', 'OpenAPI / Swagger', 'Apollo (GraphQL)', 'CryptoPro', 'reCAPTCHA'],
+      },
+    ],
+  },
+  {
+    id: 'devops',
+    rows: [
+      { id: 'build', chips: ['Vite', 'Webpack', 'npm / Yarn / PNPM'] },
+      { id: 'ci', chips: ['Docker', 'CI/CD', 'GitHub Actions / GitLab CI'] },
+      { id: 'hosting', chips: ['Nginx', 'Traefik', 'Vercel'] },
+      { id: 'quality', chips: ['Vitest', 'ESLint / Prettier', 'Git (GitHub / GitLab)'] },
+    ],
+  },
+  {
+    id: 'fullstack',
+    rows: [
+      { id: 'architecture', chips: ['DDD', 'FSD', 'Legacy refactoring'] },
+      { id: 'process', chips: ['Code review', 'Agile / Scrum / Kanban', 'Postman'] },
+      { id: 'analytics', chips: ['Yandex Metrica', 'HubSpot', 'i18n'] },
+      { id: 'tools', chips: ['Figma', 'Adobe XD', 'Cursor', 'GitHub Copilot', 'Codex / Claude'] },
+    ],
+  },
 ]
 
-export const dataChips: string[] = [
-  'REST API',
-  'OpenAPI / Swagger',
-  'Apollo (GraphQL)',
-  'Axios',
-  'i18n',
-  'CryptoPro',
+/** Worked with day to day: these are inked solid, the rest are outlines. */
+export const strongChips: string[] = [
+  'Vue 3',
+  'Nuxt 3 / 4',
+  'TypeScript',
+  'Pinia',
+  'Vue Query',
+  'SCSS / SASS',
   'Highcharts',
   'ECharts',
-  'Chart.js',
   'SVG Data Viz',
-  'Yandex Metrica',
-  'reCAPTCHA',
-  'HubSpot',
-]
-
-export const platformChips: string[] = [
+  'REST API',
   'Node',
-  'Sanity',
-  'Symfony',
-  'Twig',
-  'PHP / Yii2',
-  'WordPress',
-  'Shopify',
   'PostgreSQL',
-  'Vite',
-  'Webpack',
-  'npm / Yarn / PNPM',
-  'ESLint / Prettier',
-  'PostCSS',
-  'Vitest',
   'Docker',
   'CI/CD',
-  'GitHub Actions / GitLab CI',
-  'Vercel',
-  'Nginx',
-  'Traefik',
-  'MinIO (S3)',
-]
-
-export const toolsChips: string[] = [
   'DDD',
   'FSD',
-  'BEM',
-  'Responsive / Cross-browser',
   'Code review',
-  'Legacy refactoring',
-  'Git (GitHub / GitLab)',
-  'Figma',
-  'Adobe XD',
-  'Postman',
-  'Cursor',
-  'GitHub Copilot',
-  'Codex / Claude',
-  'Agile / Scrum / Kanban',
 ]
+
+/** Every technology on the page, in one list. */
+export const allChips: string[] = stackGroups.flatMap(({ rows }) =>
+  rows.flatMap(({ chips }) => chips)
+)
+
+/** How many technologies a direction holds, for the tab. */
+export const stackCount = (id: StackId): number =>
+  stackGroups
+    .find((group) => group.id === id)
+    ?.rows.reduce((total, row) => total + row.chips.length, 0) ?? 0
 
 export const techMarquee: string[] = [
   'Vue 3',
