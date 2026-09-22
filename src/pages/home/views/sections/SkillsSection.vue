@@ -23,8 +23,15 @@ const query = ref('')
 const searching = computed(() => query.value.trim().length > 0)
 const matches = (chip: string) => chip.toLowerCase().includes(query.value.trim().toLowerCase())
 const strong = (chip: string) => strongChips.includes(chip)
-// marked with a dot: one home on the shelf, but it works in other directions too
-const cross = (chip: string) => crossChips.includes(chip)
+// marked with a dot: one home on the shelf, but it works in other directions too,
+// and the mark says which ones instead of listing the tool twice
+const cross = (chip: string) => crossChips[chip] ?? null
+const alsoIn = (chip: string) => {
+  const directions = cross(chip)
+  if (!directions) return undefined
+  const list = directions.map((id) => t(`home.skills.tabs.${id}`)).join(', ')
+  return t('home.skills.alsoIn', { list })
+}
 
 // While searching the tabs step aside: the results come from all four
 // directions, so one technology is found without knowing where it was filed.
@@ -136,6 +143,14 @@ const found = computed(() => allChips.filter(matches).length)
           </label>
         </div>
 
+        <p class="skills__legend">
+          <span
+            class="skills__legend-dot"
+            aria-hidden="true"
+          ></span>
+          {{ t('home.skills.legend') }}
+        </p>
+
         <p
           v-if="searching"
           class="skills__found"
@@ -168,10 +183,17 @@ const found = computed(() => allChips.filter(matches).length)
                 class="skills__chip"
                 :class="{
                   'skills__chip--strong': strong(chip),
-                  'skills__chip--cross': cross(chip),
+                  'skills__chip--cross': !!cross(chip),
                 }"
-                :title="cross(chip) ? t('home.skills.cross') : undefined"
-                >{{ chip }}</span
+                :tabindex="cross(chip) ? 0 : undefined"
+                :data-tip="alsoIn(chip)"
+                >{{ chip
+                }}<span
+                  v-if="cross(chip)"
+                  class="skills__tip"
+                  role="tooltip"
+                  >{{ alsoIn(chip) }}</span
+                ></span
               >
             </div>
           </div>
@@ -400,6 +422,62 @@ const found = computed(() => allChips.filter(matches).length)
       outline: none;
       border-bottom-color: var(--skills-seal);
     }
+  }
+
+  &__legend {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    max-width: 66ch;
+    margin: 0 0 6px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--skills-ink-soft);
+  }
+
+  &__legend-dot {
+    flex: none;
+    align-self: flex-start;
+    margin-top: 5px;
+    width: 5px;
+    height: 5px;
+    background: var(--skills-seal);
+    border-radius: 50%;
+  }
+
+  // the mark's own words: which other directions this tool also belongs to
+  &__tip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    z-index: 2;
+    width: max-content;
+    max-width: 240px;
+    padding: 6px 9px 5px;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--skills-paper);
+    text-transform: none;
+    letter-spacing: 0.02em;
+    background: var(--skills-ink);
+    border-radius: 3px;
+    opacity: 0;
+    transform: translate(-50%, 4px);
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s ease;
+    pointer-events: none;
+  }
+
+  &__chip:hover &__tip,
+  &__chip:focus-visible &__tip {
+    opacity: 0.96;
+    transform: translate(-50%, 0);
+  }
+
+  &__chip:focus-visible {
+    outline: 2px solid var(--skills-seal);
+    outline-offset: 3px;
   }
 
   &__found {

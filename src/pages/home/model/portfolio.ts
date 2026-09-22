@@ -125,15 +125,16 @@ export const stackGroups: StackGroup[] = [
 
 /**
  * Tools that genuinely work in more than one direction. They keep a single
- * home (so the shelf stays readable) and carry a mark saying so.
+ * home on the shelf (so nothing is listed twice) and name the other
+ * directions they also belong to.
  */
-export const crossChips: string[] = [
-  'TypeScript',
-  'Node',
-  'REST API',
-  'Docker',
-  'Git (GitHub / GitLab)',
-]
+export const crossChips: Record<string, StackId[]> = {
+  TypeScript: ['backend'],
+  Node: ['devops'],
+  'REST API': ['frontend'],
+  Docker: ['backend'],
+  'Git (GitHub / GitLab)': ['frontend', 'backend', 'devops'],
+}
 
 /** Worked with day to day: these are inked solid, the rest are outlines. */
 export const strongChips: string[] = [

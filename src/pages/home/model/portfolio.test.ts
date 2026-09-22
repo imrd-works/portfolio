@@ -53,7 +53,13 @@ describe('portfolio CV data', () => {
       }
     }
     expect(strongChips.every((chip) => chips.includes(chip))).toBe(true)
-    expect(crossChips.every((chip) => chips.includes(chip))).toBe(true)
+    // a cross-cutting tool is listed once and names other directions, never its own
+    for (const [chip, directions] of Object.entries(crossChips)) {
+      expect(chips.filter((x) => x === chip)).toHaveLength(1)
+      const home = stackGroups.find(({ rows }) => rows.some((row) => row.chips.includes(chip)))?.id
+      expect(directions).not.toContain(home)
+      expect(directions.length).toBeGreaterThan(0)
+    }
     expect(new Set(chips).size).toBe(chips.length)
     // Removed on purpose while aligning the site with the CV — putting any of
     // them back means adding it to the CV first.

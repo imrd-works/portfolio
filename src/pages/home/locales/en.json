@@ -77,7 +77,9 @@
       "analytics": "Analytics and services",
       "tools": "Tools"
     },
-    "cross": "Cross-cutting: it works in other directions too"
+    "cross": "Cross-cutting: it works in other directions too",
+    "legend": "A dot means the tool also works in other directions. It is listed once, not duplicated across tabs — hover to see where.",
+    "alsoIn": "Also in: {list}"
   },
   "work": {
     "eyebrow": "Selected work",
