@@ -643,6 +643,8 @@ onBeforeUnmount(() => {
     display: none;
     width: 100%;
     height: 100%;
+    /* the wax stands on the paper, so it casts onto it */
+    filter: drop-shadow(0 1px 1px rgb(36 8 4 / 40%)) drop-shadow(0 6px 10px rgb(36 8 4 / 38%));
   }
 
   &__wax--painted &__wax-art {

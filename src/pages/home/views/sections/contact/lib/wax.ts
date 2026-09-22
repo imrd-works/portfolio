@@ -25,32 +25,20 @@ export interface WaxSeal {
 // lit and tone mapped, this lands on the cinnabar of the other seals (#c23b2a)
 const WAX = 0x7d1f14
 
-/** Six sides, each pressed out of true the way a hand-held stamp leaves them. */
+/** A round seal, pressed by hand, so its edge is never a true circle. */
 function waxShape(radius: number): THREE.Shape {
   const shape = new THREE.Shape()
-  const sides = 6
-  const corners: THREE.Vector2[] = []
-  for (let i = 0; i < sides; i++) {
-    const a = (i / sides) * Math.PI * 2 + Math.PI / 6
-    const r = radius * (1 + 0.03 * Math.sin(i * 2.3 + 1.1))
-    corners.push(new THREE.Vector2(Math.cos(a) * r, Math.sin(a) * r))
-  }
-  const steps = 10
-  for (let i = 0; i < sides; i++) {
-    const a = corners[i]
-    const b = corners[(i + 1) % sides]
-    for (let s = 0; s <= steps; s++) {
-      const t = s / steps
-      // the wax squeezed out sideways, so every side bulges a little
-      const bulge = Math.sin(t * Math.PI) * radius * (0.05 + 0.02 * Math.sin(i * 3.1))
-      const nx = -(b.y - a.y)
-      const ny = b.x - a.x
-      const len = Math.hypot(nx, ny) || 1
-      const x = a.x + (b.x - a.x) * t + (nx / len) * bulge
-      const y = a.y + (b.y - a.y) * t + (ny / len) * bulge
-      if (i === 0 && s === 0) shape.moveTo(x, y)
-      else shape.lineTo(x, y)
-    }
+  const steps = 160
+  for (let i = 0; i <= steps; i++) {
+    const a = (i / steps) * Math.PI * 2
+    // the wax squeezed out unevenly under the stamp
+    const r =
+      radius *
+      (1 + 0.035 * Math.sin(a * 3 + 0.6) + 0.02 * Math.sin(a * 7 + 2.1) + 0.012 * Math.sin(a * 13))
+    const x = Math.cos(a) * r
+    const y = Math.sin(a) * r
+    if (i === 0) shape.moveTo(x, y)
+    else shape.lineTo(x, y)
   }
   shape.closePath()
   return shape
@@ -90,7 +78,7 @@ function studio(renderer: THREE.WebGLRenderer): THREE.Texture {
   return env
 }
 
-/** The initials and the wax's own grain, as the depth of the surface. */
+/** The face of the seal: a pressed ring near the edge and the sunk initials. */
 function bumpMap(text: string, px: number): THREE.CanvasTexture {
   const c = document.createElement('canvas')
   c.width = px
@@ -100,27 +88,28 @@ function bumpMap(text: string, px: number): THREE.CanvasTexture {
   g.fillStyle = '#808080'
   g.fillRect(0, 0, px, px)
 
-  // poured wax is never smooth
-  const grain = g.createImageData(px, px)
-  for (let i = 0; i < grain.data.length; i += 4) {
-    const v = 128 + (Math.random() - 0.5) * 26
-    grain.data[i] = grain.data[i + 1] = grain.data[i + 2] = v
-    grain.data[i + 3] = 40
-  }
-  g.putImageData(grain, 0, 0)
-  g.globalAlpha = 0.5
-  g.drawImage(c, 0, 0)
-  g.globalAlpha = 1
+  // the rim the stamp pushed up, and the shallow bed it pressed inside it
+  g.lineWidth = px * 0.035
+  g.filter = `blur(${px * 0.014}px)`
+  g.strokeStyle = '#a8a8a8'
+  g.beginPath()
+  g.arc(px / 2, px / 2, px * 0.385, 0, Math.PI * 2)
+  g.stroke()
+  g.strokeStyle = '#6a6a6a'
+  g.lineWidth = px * 0.02
+  g.beginPath()
+  g.arc(px / 2, px / 2, px * 0.345, 0, Math.PI * 2)
+  g.stroke()
 
-  // the initials, sunk in, with the wax pushed up around their edges
+  // the initials, sunk in, with the wax pushed up along their edges
   g.textAlign = 'center'
   g.textBaseline = 'middle'
   g.font = `500 ${Math.round(px * 0.2)}px Unbounded, sans-serif`
   g.filter = `blur(${px * 0.012}px)`
-  g.fillStyle = '#e8e8e8'
+  g.fillStyle = '#d8d8d8'
   g.fillText(text, px / 2, px / 2 + px * 0.008)
-  g.filter = `blur(${px * 0.006}px)`
-  g.fillStyle = '#101010'
+  g.filter = `blur(${px * 0.005}px)`
+  g.fillStyle = '#0c0c0c'
   g.fillText(text, px / 2, px / 2 + px * 0.008)
   g.filter = 'none'
 
@@ -173,11 +162,11 @@ export function paintWax({ size, dpr, text, tilt = -5 }: WaxOptions): WaxSeal | 
   const bump = bumpMap(text, Math.round(size * dpr))
   const material = new THREE.MeshPhysicalMaterial({
     color: WAX,
-    roughness: 0.34,
+    roughness: 0.38,
     metalness: 0,
     clearcoat: 0.9,
-    clearcoatRoughness: 0.18,
-    sheen: 0.5,
+    clearcoatRoughness: 0.24,
+    sheen: 0.35,
     sheenColor: new THREE.Color(0xff8d72),
     envMap: studio(renderer),
     envMapIntensity: 0.55,
