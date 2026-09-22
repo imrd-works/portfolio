@@ -79,7 +79,6 @@ export const stackGroups: StackGroup[] = [
         id: 'perf',
         chips: [
           '@nuxt/image',
-          'h3-compression',
           'Lighthouse',
           'PageSpeed Insights',
           'Core Web Vitals',
@@ -107,6 +106,17 @@ export const stackGroups: StackGroup[] = [
   {
     id: 'fullstack',
     rows: [
+      {
+        id: 'server',
+        chips: [
+          'SSR / SSG / ISR',
+          'Nitro',
+          'h3 server routes',
+          'h3-compression',
+          'Next.js API routes',
+          'Server middleware and auth',
+        ],
+      },
       { id: 'architecture', chips: ['DDD', 'FSD', 'Atomic Design', 'Legacy refactoring'] },
       {
         id: 'quality',
@@ -184,6 +194,7 @@ export const allChips: string[] = (
 export const strongChips: string[] = [
   'Vue 3',
   'Nuxt 3 / 4',
+  'SSR / SSG / ISR',
   'TypeScript',
   'Pinia',
   'TanStack Query',

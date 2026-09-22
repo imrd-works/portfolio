@@ -79,7 +79,8 @@
       "services": "Services",
       "tools": "Tools",
       "perf": "Performance and SEO",
-      "teamwork": "Planning and tracking"
+      "teamwork": "Planning and tracking",
+      "server": "Nuxt and Next server side"
     }
   },
   "work": {

@@ -74,6 +74,11 @@ describe('portfolio CV data', () => {
     expect(homeOf('JavaScript ES6+')).toBe('fullstack')
     expect(homeOf('npm / Yarn / PNPM')).toBe('fullstack')
     expect(homeOf('Google Analytics')).toBe('frontend')
+    // the framework is named once, on the frontend tab; the server work it
+    // carries is filed under fullstack by its own names
+    expect(homeOf('Nuxt 3 / 4')).toBe('frontend')
+    expect(homeOf('SSR / SSG / ISR')).toBe('fullstack')
+    expect(homeOf('Next.js API routes')).toBe('fullstack')
     expect(rowsFor('frontend').flatMap(({ chips }) => chips)).not.toContain('TypeScript')
     expect(rowsFor('fullstack').flatMap(({ chips }) => chips)).toEqual(
       expect.arrayContaining(['TypeScript', 'OpenAPI / Swagger', 'Docker'])
