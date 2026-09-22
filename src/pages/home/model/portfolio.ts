@@ -65,6 +65,9 @@ export const stackGroups: StackGroup[] = [
           'Tailwind CSS',
           'Vuetify',
           'vue-sonner',
+          'nuxt-svgo',
+          'nuxt-viewport',
+          'opentype.js',
           'Responsive / Cross-browser',
         ],
       },
@@ -85,7 +88,7 @@ export const stackGroups: StackGroup[] = [
   {
     id: 'devops',
     rows: [
-      { id: 'delivery', chips: ['CI/CD (GitHub Actions / GitLab CI)'] },
+      { id: 'delivery', chips: ['CI/CD (GitHub Actions / GitLab CI)', 'FTP / SFTP deploy'] },
       { id: 'hosting', chips: ['Nginx', 'Traefik', 'Vercel'] },
       { id: 'storage', chips: ['MinIO (S3)'] },
     ],
@@ -99,6 +102,7 @@ export const stackGroups: StackGroup[] = [
         chips: [
           'Vitest',
           'Vue Test Utils / Nuxt Test Utils',
+          'Playwright (E2E)',
           'ESLint / Prettier',
           'Stylelint',
           'Husky / lint-staged',
