@@ -75,10 +75,11 @@
       "api": "APIs and integrations",
       "build": "Build and containers",
       "architecture": "Architecture and refactoring",
-      "quality": "Quality and process",
+      "quality": "Code quality",
       "services": "Services",
       "tools": "Tools",
-      "perf": "Performance and SEO"
+      "perf": "Performance and SEO",
+      "teamwork": "Planning and tracking"
     }
   },
   "work": {

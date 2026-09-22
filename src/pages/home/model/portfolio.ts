@@ -108,8 +108,11 @@ export const stackGroups: StackGroup[] = [
           'Husky / lint-staged',
           'Git (GitHub / GitLab)',
           'Code review',
-          'Agile / Scrum / Kanban',
         ],
+      },
+      {
+        id: 'teamwork',
+        chips: ['Agile / Scrum / Kanban', 'Jira', 'ClickUp', 'Notion', 'Toggl'],
       },
       { id: 'services', chips: ['i18n', 'HubSpot'] },
       {
