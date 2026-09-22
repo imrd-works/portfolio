@@ -1,4 +1,4 @@
-import { createMemoryHistory, createRouter, createWebHistory } from 'vue-router'
+import { createMemoryHistory, createRouter, createWebHistory, START_LOCATION } from 'vue-router'
 import type { Router, RouteRecordRaw } from 'vue-router'
 import { setupRouterMiddleware } from './middleware'
 import { portfolioRoutes, notFoundRoute } from '@/pages'
@@ -15,7 +15,11 @@ export function createAppRouter(ssr = false): Router {
     history: ssr ? createMemoryHistory() : createWebHistory(import.meta.env.BASE_URL),
     routes,
     scrollBehavior(to, from, savedPosition) {
-      if (to.hash) return { el: to.hash, behavior: 'smooth' }
+      // An anchor, not one of the overlay routes the page keeps in the hash.
+      if (/^#[\w-]+$/.test(to.hash)) return { el: to.hash, behavior: 'smooth' }
+      // A fresh load (or a reload) opens the story at the hero; the router
+      // remembers the scroll only for going back and forward.
+      if (from === START_LOCATION) return { top: 0 }
       if (savedPosition) return savedPosition
       // Switching RU <-> EN is the same page in another language: stay put.
       if (to.path !== from.path && to.name === from.name) return false

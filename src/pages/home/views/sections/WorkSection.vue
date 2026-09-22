@@ -1122,13 +1122,17 @@ onBeforeUnmount(() => {
     outline-offset: 4px;
   }
 
-  // the wet switch between tabs
   &__panel {
     min-height: 190px;
     margin-top: 28px;
     font-size: 13.5px;
     line-height: 1.7;
     color: var(--work-text);
+  }
+
+  // the wet switch between tabs; until the painting is drawn the panel waits
+  // with the rest of the text, so the animation must not show it early
+  &__inside--ready &__panel {
     animation: work-wet 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
