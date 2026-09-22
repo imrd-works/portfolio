@@ -7,7 +7,7 @@ vi.mock('vue-i18n', () => ({
 }))
 
 describe('AboutSection', () => {
-  it('renders the portfolio portrait with accessible image metadata', () => {
+  it('renders the ink portrait with accessible image metadata', () => {
     const wrapper = shallowMount(AboutSection, {
       global: {
         renderStubDefaultSlot: true,
@@ -20,10 +20,10 @@ describe('AboutSection', () => {
       },
     })
 
-    const portrait = wrapper.find('.about__portrait-image')
+    const portrait = wrapper.find('.about__art')
 
     expect(portrait.attributes()).toMatchObject({
-      src: '/avatar.webp',
+      src: '/about/portrait.webp',
       alt: 'home.about.photo',
       loading: 'lazy',
       decoding: 'async',

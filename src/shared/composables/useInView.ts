@@ -29,6 +29,11 @@ export function useInView(options: UseInViewOptions = {}): UseInViewReturn {
 
   onMounted(() => {
     if (!target.value) return
+    // No observer (older browsers, jsdom): show the content rather than hide it.
+    if (typeof IntersectionObserver === 'undefined') {
+      inView.value = true
+      return
+    }
 
     observer = new IntersectionObserver(
       (entries) => {

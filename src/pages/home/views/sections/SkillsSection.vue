@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { PageSection, Grid, Motion, Text } from '@/shared/ui'
+import { useInView } from '@/shared/composables/useInView'
 import {
   coreSkills,
   frontendChips,
@@ -8,286 +9,356 @@ import {
   platformChips,
   toolsChips,
 } from '../../model/portfolio'
-import SectionEyebrow from './SectionEyebrow.vue'
 
 const { t } = useI18n()
+const { targetRef: shelf, inView: shown } = useInView({ threshold: 0.1 })
+
+// The brands are grouped the way a client thinks about work, not by kind of
+// technology, so "we need heavy tables and charts" lands in one place.
+const groups = computed(() => [
+  { id: 'frontend', title: t('home.skills.frontendTitle'), chips: frontendChips },
+  { id: 'data', title: t('home.skills.dataTitle'), chips: dataChips },
+  { id: 'platform', title: t('home.skills.platformTitle'), chips: platformChips },
+  { id: 'tools', title: t('home.skills.toolsTitle'), chips: toolsChips },
+])
+
+// Everything stays on the shelf; the search only dims what does not match, so
+// a client looking for one technology finds it without losing the rest.
+const query = ref('')
+const matches = (chip: string) =>
+  !query.value.trim() || chip.toLowerCase().includes(query.value.trim().toLowerCase())
+const found = computed(() => groups.value.flatMap(({ chips }) => chips).filter(matches).length)
 </script>
 
 <template>
-  <PageSection
+  <section
     id="skills"
-    relative
-    padding-top="band-sm"
-    padding-bottom="band"
+    :ref="shelf"
+    class="skills"
+    :class="{ 'skills--shown': shown }"
+    data-ink-surface="paper"
   >
-    <Motion
-      preset="fade-up"
-      trigger="visible"
-      tag="div"
-      class="skills__head"
+    <svg
+      class="skills__defs"
+      width="0"
+      height="0"
+      aria-hidden="true"
     >
-      <SectionEyebrow
-        num="02"
-        :label="t('home.skills.eyebrow')"
-      />
-      <Text
-        tag="h2"
-        variant="display-m"
-        class="skills__title"
-        >{{ t('home.skills.title') }}</Text
+      <filter
+        id="skills-rough"
+        x="-10%"
+        y="-10%"
+        width="120%"
+        height="120%"
       >
-    </Motion>
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency=".9"
+          numOctaves="2"
+          seed="4"
+          result="n"
+        />
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="n"
+          scale="2.6"
+        />
+      </filter>
+    </svg>
 
-    <Grid
-      columns="1fr 1fr"
-      gap="xl"
-      stack="md"
-      align="start"
-    >
-      <Motion
-        preset="fade-up"
-        trigger="visible"
-        tag="div"
-        class="skills__col"
-      >
-        <div class="skills__card skills__card--core skills__card--order-1">
-          <Text
-            tag="h3"
-            variant="heading-m"
-            class="skills__card-title"
-          >
-            <span class="skills__diamond">◆</span> {{ t('home.skills.coreTitle') }}
-          </Text>
-          <dl class="skills__core">
-            <div
-              v-for="skill in coreSkills"
-              :key="skill.id"
-              class="skills__core-item"
-            >
-              <Text
-                tag="dt"
-                variant="body-m"
-                class="skills__core-term"
-                >{{ skill.label }}</Text
-              >
-              <Text
-                tag="dd"
-                variant="body-s"
-                tone="tertiary"
-                class="skills__core-note"
-                >{{ t(`home.skills.core.${skill.id}`) }}</Text
-              >
-            </div>
-          </dl>
-        </div>
-        <div class="skills__card skills__card--order-5">
-          <Text
-            tag="h3"
-            variant="heading-s"
-            tone="secondary"
-            class="skills__group-title"
-          >
-            {{ t('home.skills.toolsTitle') }}
-          </Text>
-          <div class="skills__chips">
-            <span
-              v-for="chip in toolsChips"
-              :key="chip"
-              class="skills__chip"
-              >{{ chip }}</span
-            >
-          </div>
-        </div>
-      </Motion>
+    <div class="skills__inner">
+      <p class="skills__eyebrow">{{ t('home.skills.eyebrow') }}</p>
+      <h2 class="skills__title">{{ t('home.skills.title') }}</h2>
 
-      <Motion
-        preset="fade-up"
-        trigger="visible"
-        :delay="100"
-        tag="div"
-        class="skills__col"
-      >
-        <div class="skills__card skills__card--order-2">
-          <Text
-            tag="h3"
-            variant="heading-s"
-            tone="secondary"
-            class="skills__group-title"
-          >
-            {{ t('home.skills.frontendTitle') }}
-          </Text>
+      <!-- the five brushes: what I work with every day -->
+      <ul class="skills__cores">
+        <li
+          v-for="skill in coreSkills"
+          :key="skill.id"
+          class="skills__core"
+        >
+          <span
+            class="skills__brush"
+            aria-hidden="true"
+          ></span>
+          <span class="skills__core-name">{{ skill.label }}</span>
+          <span class="skills__core-note">{{ t(`home.skills.core.${skill.id}`) }}</span>
+        </li>
+      </ul>
+
+      <div class="skills__shelf">
+        <label
+          class="skills__search"
+          for="skills-search"
+        >
+          <span class="skills__search-label">{{ t('home.skills.searchLabel') }}</span>
+          <input
+            id="skills-search"
+            v-model="query"
+            class="skills__search-input"
+            type="search"
+            :placeholder="t('home.skills.searchHint')"
+          />
+        </label>
+        <p
+          v-if="query.trim()"
+          class="skills__found"
+          role="status"
+        >
+          {{ t('home.skills.found', { n: found }) }}
+        </p>
+
+        <div
+          v-for="group in groups"
+          :key="group.id"
+          class="skills__group"
+        >
+          <h3 class="skills__group-title">{{ group.title }}</h3>
           <div class="skills__chips">
             <span
-              v-for="chip in frontendChips"
+              v-for="chip in group.chips"
               :key="chip"
               class="skills__chip"
+              :class="{ 'skills__chip--dim': !matches(chip) }"
               >{{ chip }}</span
             >
           </div>
         </div>
-        <div class="skills__card skills__card--order-3">
-          <Text
-            tag="h3"
-            variant="heading-s"
-            tone="secondary"
-            class="skills__group-title"
-          >
-            {{ t('home.skills.dataTitle') }}
-          </Text>
-          <div class="skills__chips">
-            <span
-              v-for="chip in dataChips"
-              :key="chip"
-              class="skills__chip"
-              >{{ chip }}</span
-            >
-          </div>
-        </div>
-        <div class="skills__card skills__card--order-4">
-          <Text
-            tag="h3"
-            variant="heading-s"
-            tone="secondary"
-            class="skills__group-title"
-          >
-            {{ t('home.skills.platformTitle') }}
-          </Text>
-          <div class="skills__chips">
-            <span
-              v-for="chip in platformChips"
-              :key="chip"
-              class="skills__chip"
-              >{{ chip }}</span
-            >
-          </div>
-        </div>
-      </Motion>
-    </Grid>
-  </PageSection>
+      </div>
+    </div>
+  </section>
 </template>
 
 <style lang="scss" scoped>
 /** @define skills */
-@use 'assets/styles/mixins' as *;
+.skills {
+  --skills-paper: #ece8e1;
+  --skills-ink: #101214;
+  --skills-ink-soft: #3a4454;
+  --skills-text: #2a2f36;
+  --skills-seal: #c23b2a;
 
-.skills__head {
-  margin-bottom: 48px;
-}
+  position: relative;
+  padding: 0 clamp(20px, 6vw, 96px) 140px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  line-height: normal;
+  color: var(--skills-ink);
+  background-color: var(--skills-paper);
+  -webkit-font-smoothing: antialiased;
 
-.skills__title {
-  max-width: 760px;
-  margin-top: 14px;
-}
-
-.skills__card {
-  padding: 34px;
-  background: var(--color-bg-surface-subtle);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-card);
-
-  &--core {
-    background: linear-gradient(160deg, rgb(99 102 241 / 7%), rgb(255 255 255 / 1.5%));
-  }
-}
-
-.skills__card-title {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin: 0 0 26px;
-}
-
-.skills__diamond {
-  color: var(--color-accent);
-}
-
-.skills__core {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin: 0;
-}
-
-.skills__core-item {
-  padding-left: 16px;
-  border-left: 2px solid var(--color-border-default);
-  transition: border-color 0.3s;
-
-  &:hover {
-    border-left-color: var(--color-accent);
-  }
-}
-
-.skills__core-term {
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.skills__core-note {
-  margin: 4px 0 0;
-}
-
-.skills__col {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-
-  // On mobile the two columns collapse: flatten them so all four cards
-  // become direct grid items and read in a logical order via `order`.
-  @include bp-down(md) {
-    display: contents;
-  }
-}
-
-@include bp-down(md) {
-  .skills__card--order-1 {
-    order: 1;
+  &__defs {
+    position: absolute;
   }
 
-  .skills__card--order-2 {
-    order: 2;
+  &__inner {
+    max-width: 1320px;
+    margin: 0 auto;
   }
 
-  .skills__card--order-3 {
-    order: 3;
+  &__eyebrow {
+    margin: 0;
+    font-size: 12px;
+    color: var(--skills-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
   }
 
-  .skills__card--order-4 {
-    order: 4;
+  &__title {
+    max-width: 38ch;
+    margin: 12px 0 44px;
+    font-family: Unbounded, 'Arial Black', system-ui, sans-serif;
+    font-size: clamp(22px, 2.6vw, 34px);
+    font-weight: 300;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
   }
 
-  .skills__card--order-5 {
-    order: 5;
+  /* ---------- the five brushes ---------- */
+  &__cores {
+    padding: 0;
+    margin: 0 0 64px;
+    list-style: none;
+    border-top: 1px solid rgb(16 18 20 / 15%);
   }
-}
 
-.skills__group-title {
-  margin: 0 0 18px;
-}
+  &__core {
+    display: grid;
+    grid-template-columns: 26px minmax(160px, 260px) minmax(0, 1fr);
+    gap: 18px;
+    align-items: baseline;
+    padding: 16px 0;
+    border-bottom: 1px solid rgb(16 18 20 / 15%);
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.7s ease,
+      transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
 
-.skills__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 9px;
-}
+  &--shown &__core {
+    opacity: 1;
+    transform: none;
+  }
 
-.skills__chip {
-  padding: 8px 14px;
-  font-size: 13px;
-  color: var(--color-text-secondary);
-  cursor: default;
-  background: var(--color-bg-surface-sunken);
-  border: 1px solid var(--color-border-default);
-  border-radius: 30px;
-  transition:
-    transform 0.3s,
-    border-color 0.3s,
-    color 0.3s;
+  @for $i from 1 through 5 {
+    &--shown &__core:nth-child(#{$i}) {
+      transition-delay: ($i - 1) * 0.08s;
+    }
+  }
 
-  &:hover {
-    color: #fff;
-    border-color: rgb(167 139 250 / 60%);
-    transform: translateY(-3px);
+  // a brush laid on the line: ferrule and hair, thicker for the first ones
+  &__brush {
+    position: relative;
+    display: block;
+    width: 22px;
+    height: 10px;
+    background: linear-gradient(to right, #6a4a33 0 40%, #3b2c24 40% 52%, transparent 52%);
+    border-radius: 2px;
+
+    &::after {
+      position: absolute;
+      top: 1px;
+      right: 0;
+      width: 48%;
+      height: 8px;
+      content: '';
+      background: linear-gradient(to right, rgb(16 18 20 / 85%), rgb(16 18 20 / 35%));
+      clip-path: polygon(0 0, 100% 42%, 100% 58%, 0 100%);
+    }
+  }
+
+  &__core:nth-child(2) &__brush,
+  &__core:nth-child(3) &__brush {
+    transform: scale(0.92);
+  }
+
+  &__core:nth-child(4) &__brush,
+  &__core:nth-child(5) &__brush {
+    transform: scale(0.84);
+  }
+
+  &__core-name {
+    font-family: Unbounded, sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  &__core-note {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--skills-text);
+  }
+
+  /* ---------- the shelf of brands ---------- */
+  &__search {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  &__search-label {
+    font-size: 11px;
+    color: var(--skills-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  // the field is a brush stroke: a line of ink, nothing else
+  &__search-input {
+    flex: 1 1 220px;
+    max-width: 320px;
+    padding: 4px 2px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--skills-ink);
+    background: none;
+    border: 0;
+    border-bottom: 1.5px solid rgb(16 18 20 / 45%);
+
+    &::placeholder {
+      color: rgb(16 18 20 / 35%);
+    }
+
+    &:focus {
+      outline: none;
+      border-bottom-color: var(--skills-seal);
+    }
+  }
+
+  &__found {
+    margin: 0 0 22px;
+    font-size: 11.5px;
+    color: var(--skills-seal);
+    letter-spacing: 0.06em;
+  }
+
+  &__group {
+    margin-top: 26px;
+  }
+
+  &__group-title {
+    margin: 0 0 12px;
+    font-size: 11px;
+    color: var(--skills-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  // every technology is a small ink brand; the search only dries the rest out
+  &__chip {
+    position: relative;
+    z-index: 0;
+    padding: 6px 10px 5px;
+    font-size: 11.5px;
+    color: var(--skills-ink);
+    opacity: 0;
+    transition:
+      opacity 0.45s ease,
+      color 0.35s ease;
+
+    &::before {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      content: '';
+      border: 1.5px solid currentcolor;
+      border-radius: 3px;
+      filter: url('#skills-rough');
+    }
+
+    &--dim {
+      color: rgb(16 18 20 / 28%);
+    }
+  }
+
+  &--shown &__chip {
+    opacity: 1;
+  }
+
+  @media (width < 700px) {
+    &__core {
+      grid-template-columns: 26px minmax(0, 1fr);
+      gap: 10px 14px;
+    }
+
+    &__core-note {
+      grid-column: 2;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &__core,
+    &__chip {
+      transition: none;
+    }
   }
 }
 </style>

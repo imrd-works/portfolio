@@ -51,7 +51,10 @@
       "dataviz": "Highcharts and ECharts, interactive SVG schematics, heavy tables and forms",
       "architecture": "3+ years leading teams: decomposition, code review, release cycle",
       "react": "Next.js in production: a financial landing with animation and a headless CMS"
-    }
+    },
+    "searchLabel": "Search the stack",
+    "searchHint": "GraphQL, for example",
+    "found": "Found: {n}"
   },
   "work": {
     "eyebrow": "Selected work",

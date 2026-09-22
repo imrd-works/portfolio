@@ -1,280 +1,345 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { PageSection, Grid, Motion, Text, CountUp } from '@/shared/ui'
+import { useInView } from '@/shared/composables/useInView'
 import { stats } from '../../model/portfolio'
-import SectionEyebrow from './SectionEyebrow.vue'
 
 const { t } = useI18n()
+// The whole spread comes in at once: the sheet unrolls, the text blooms, the
+// counts are stamped.
+const { targetRef: spread, inView: shown } = useInView({ threshold: 0.12 })
 </script>
 
 <template>
-  <PageSection
+  <section
     id="about"
-    relative
-    padding-top="band"
-    padding-bottom="band"
+    :ref="spread"
+    class="about"
+    :class="{ 'about--shown': shown }"
+    data-ink-surface="paper"
   >
-    <Grid
-      columns="1.3fr 0.9fr"
-      gap="5xl"
-      stack="md"
-      align="start"
+    <svg
+      class="about__defs"
+      width="0"
+      height="0"
+      aria-hidden="true"
     >
-      <Motion
-        preset="fade-up"
-        trigger="visible"
-        tag="div"
+      <filter
+        id="about-rough"
+        x="-10%"
+        y="-10%"
+        width="120%"
+        height="120%"
       >
-        <div class="about__eyebrow">
-          <SectionEyebrow
-            num="01"
-            :label="t('home.about.eyebrow')"
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency=".9"
+          numOctaves="2"
+          seed="4"
+          result="n"
+        />
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="n"
+          scale="2.6"
+        />
+      </filter>
+    </svg>
+
+    <div class="about__spread">
+      <!-- the portrait: the wolverine from the path, and the man it walks with -->
+      <div class="about__portrait">
+        <span
+          class="about__nail"
+          aria-hidden="true"
+          >{{ t('home.hero.seal') }}</span
+        >
+        <div class="about__frame">
+          <img
+            class="about__art"
+            src="/about/portrait.webp"
+            :alt="t('home.about.photo')"
+            width="896"
+            height="1344"
+            loading="lazy"
+            decoding="async"
           />
         </div>
+        <span
+          class="about__curl"
+          aria-hidden="true"
+        ></span>
+        <p class="about__badge">{{ t('home.about.badge') }}</p>
+      </div>
 
-        <Text
-          tag="h2"
-          variant="display-m"
-          class="about__title"
-        >
+      <div class="about__body">
+        <p class="about__eyebrow">{{ t('home.about.eyebrow') }}</p>
+        <h2 class="about__title">
           <i18n-t
             keypath="home.about.title"
-            scope="global"
+            tag="span"
           >
             <template #accent>
-              <span class="about__title-accent">{{ t('home.about.titleAccent') }}</span>
+              <em class="about__accent">{{ t('home.about.titleAccent') }}</em>
             </template>
           </i18n-t>
-        </Text>
+        </h2>
+        <p class="about__text">{{ t('home.about.p1') }}</p>
+        <p class="about__text">{{ t('home.about.p2') }}</p>
+        <p class="about__text">{{ t('home.about.p3') }}</p>
 
-        <Text
-          tag="p"
-          variant="body-l"
-          tone="secondary"
-          class="about__text"
-        >
-          {{ t('home.about.p1') }}
-        </Text>
-        <Text
-          tag="p"
-          variant="body-m"
-          tone="tertiary"
-          class="about__text"
-        >
-          {{ t('home.about.p2') }}
-        </Text>
-        <Text
-          tag="p"
-          variant="body-m"
-          tone="tertiary"
-          class="about__text"
-        >
-          {{ t('home.about.p3') }}
-        </Text>
-
-        <Motion
-          preset="fade-up"
-          trigger="visible"
-          target="children"
-          :stagger="80"
-          tag="div"
-          class="about__stats"
-        >
+        <div class="about__stats">
           <div
             v-for="stat in stats"
             :key="stat.id"
             class="about__stat"
           >
-            <div class="about__stat-value">
-              <CountUp
-                :to="stat.value"
-                :suffix="stat.suffix"
-              />
-            </div>
-            <Text
-              tag="div"
-              variant="body-s"
-              tone="tertiary"
-              class="about__stat-label"
-            >
-              {{ t(`home.about.stats.${stat.id}`) }}
-            </Text>
-          </div>
-        </Motion>
-      </Motion>
-
-      <Motion
-        preset="fade-up"
-        trigger="visible"
-        :delay="120"
-        tag="div"
-        class="about__aside"
-      >
-        <div
-          v-tilt
-          class="about__portrait"
-        >
-          <span class="about__portrait-glow"></span>
-          <div class="about__portrait-frame">
-            <img
-              class="about__portrait-image"
-              src="/avatar.webp"
-              :alt="t('home.about.photo')"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <div class="about__portrait-badge">
-            <span class="about__portrait-dot"></span>
-            <Text
-              tag="span"
-              variant="body-s"
-              tone="secondary"
-              class="about__portrait-text"
-            >
-              {{ t('home.about.badge') }}
-            </Text>
+            <span class="about__seal">{{ stat.value }}{{ stat.suffix }}</span>
+            <span class="about__stat-label">{{ t(`home.about.stats.${stat.id}`) }}</span>
           </div>
         </div>
-      </Motion>
-    </Grid>
-  </PageSection>
+      </div>
+    </div>
+  </section>
 </template>
 
 <style lang="scss" scoped>
 /** @define about */
-@use 'assets/styles/mixins' as *;
+.about {
+  // the same paper as the hero, the river and the work wall
+  --about-paper: #ece8e1;
+  --about-sheet: #f4f1ec;
+  --about-ink: #101214;
+  --about-ink-soft: #3a4454;
+  --about-text: #2a2f36;
+  --about-seal: #c23b2a;
 
-.about__eyebrow {
-  margin-bottom: 30px;
-}
-
-.about__title {
-  margin: 0 0 26px;
-
-  &-accent {
-    background: var(--gradient-accent);
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-}
-
-.about__text {
-  max-width: 560px;
-  margin: 0 0 18px;
-
-  &:last-of-type {
-    margin-bottom: 0;
-  }
-}
-
-.about__stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  max-width: 560px;
-  margin-top: 44px;
-
-  // Three columns on a phone leave ~80px per label, so "года как Team Lead"
-  // breaks onto four lines. One card per row instead, with the number and the
-  // label side by side so the block stays compact.
-  @include bp-down(md) {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-  }
-}
-
-.about__stat {
-  padding: 22px 18px;
-  background: var(--color-bg-surface-sunken);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 18px;
-
-  @include bp-down(md) {
-    display: flex;
-    gap: 16px;
-    align-items: baseline;
-    padding: 16px 20px;
-  }
-}
-
-.about__stat-value {
-  font-family: var(--font-family-display);
-  font-size: clamp(30px, 4vw, 46px);
-  font-weight: 800;
-  background: var(--gradient-accent);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.about__stat-label {
-  margin-top: 4px;
-
-  @include bp-down(md) {
-    margin-top: 0;
-  }
-}
-
-.about__aside {
-  display: flex;
-  justify-content: center;
-}
-
-.about__portrait {
   position: relative;
-  width: min(340px, 80vw);
-  aspect-ratio: 4 / 5;
-  will-change: transform;
-}
+  padding: 120px clamp(20px, 6vw, 96px);
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  line-height: normal;
+  color: var(--about-ink);
+  background-color: var(--about-paper);
+  -webkit-font-smoothing: antialiased;
 
-.about__portrait-glow {
-  position: absolute;
-  inset: -14px;
-  background: linear-gradient(135deg, rgb(99 102 241 / 50%), rgb(167 139 250 / 20%), transparent);
-  filter: blur(26px);
-  border-radius: 28px;
-}
+  &__defs {
+    position: absolute;
+  }
 
-.about__portrait-frame {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-card);
-}
+  &__spread {
+    display: grid;
+    grid-template-columns: minmax(260px, 420px) minmax(0, 1fr);
+    gap: clamp(32px, 6vw, 96px);
+    align-items: start;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
 
-.about__portrait-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 42%;
-}
+  /* ---------- the portrait, pinned and rolled ---------- */
+  &__portrait {
+    position: relative;
+    padding-top: 12px;
+    transform: rotate(-1.2deg);
+  }
 
-.about__portrait-badge {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
-  left: 16px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 14px 16px;
-  pointer-events: none;
-  background: var(--color-bg-glass);
-  border: 1px solid var(--color-border-default);
-  border-radius: 14px;
-  backdrop-filter: blur(10px);
-}
+  &__nail {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    margin-left: -13px;
+    font-family: Unbounded, sans-serif;
+    font-size: 8.5px;
+    font-weight: 500;
+    color: var(--about-paper);
+    letter-spacing: -0.04em;
+    background: var(--about-seal);
+    filter: url('#about-rough');
+    border-radius: 50%;
+    box-shadow: 0 3px 4px rgb(0 0 0 / 28%);
+  }
 
-.about__portrait-dot {
-  flex: none;
-  width: 8px;
-  height: 8px;
-  background: var(--color-success);
-  border-radius: 50%;
-  animation: blink 2s infinite;
+  &__frame {
+    position: relative;
+    padding: 12px;
+    overflow: hidden;
+    background: var(--about-sheet);
+    box-shadow:
+      0 12px 24px -10px rgb(0 0 0 / 30%),
+      0 1px 2px rgb(0 0 0 / 8%);
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 1.2s cubic-bezier(0.3, 0.7, 0.2, 1);
+  }
+
+  &--shown &__frame {
+    clip-path: inset(0 0 0 0);
+  }
+
+  &__art {
+    display: block;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    mix-blend-mode: multiply;
+  }
+
+  // the roll of paper that travels down as the sheet unrolls
+  &__curl {
+    position: absolute;
+    top: 0;
+    right: -2px;
+    left: -2px;
+    z-index: 2;
+    height: 16px;
+    margin-top: -8px;
+    background: linear-gradient(to bottom, #d9d4cb 0%, #fbf9f5 38%, #efebe4 60%, #c9c3b8 100%);
+    border-radius: 8px;
+    box-shadow: 0 6px 8px -3px rgb(0 0 0 / 25%);
+    transition:
+      top 1.2s cubic-bezier(0.3, 0.7, 0.2, 1),
+      opacity 0.25s ease 1.15s;
+  }
+
+  &--shown &__curl {
+    top: 100%;
+    opacity: 0;
+  }
+
+  &__badge {
+    margin: 18px 0 0;
+    font-size: 11px;
+    color: var(--about-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* ---------- the text ---------- */
+  &__body > * {
+    filter: blur(10px);
+    opacity: 0;
+    transition:
+      opacity 1s ease,
+      filter 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  &--shown &__body > * {
+    filter: blur(0);
+    opacity: 1;
+  }
+
+  @for $i from 2 through 6 {
+    &--shown &__body > :nth-child(#{$i}) {
+      transition-delay: ($i - 1) * 0.1s;
+    }
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 12px;
+    color: var(--about-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+  }
+
+  &__title {
+    max-width: 18ch;
+    margin: 12px 0 0;
+    font-family: Unbounded, 'Arial Black', system-ui, sans-serif;
+    font-size: clamp(28px, 3.6vw, 54px);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  &__accent {
+    font-style: normal;
+    color: var(--about-seal);
+  }
+
+  &__text {
+    max-width: 62ch;
+    margin: 22px 0 0;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--about-text);
+  }
+
+  /* ---------- the counts, stamped in cinnabar ---------- */
+  &__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    margin-top: 40px;
+  }
+
+  &__stat {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  &__seal {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    font-family: Unbounded, sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--about-paper);
+    letter-spacing: -0.04em;
+    background: var(--about-seal);
+    filter: url('#about-rough');
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(1.5) rotate(-6deg);
+  }
+
+  &--shown &__seal {
+    opacity: 0.94;
+    transform: scale(1) rotate(-6deg);
+    transition:
+      opacity 0.12s linear,
+      transform 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+  }
+
+  &--shown &__stat:nth-child(2) &__seal {
+    transition-delay: 0.12s;
+  }
+
+  &--shown &__stat:nth-child(3) &__seal {
+    transition-delay: 0.24s;
+  }
+
+  &__stat-label {
+    max-width: 14ch;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--about-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  @media (width < 860px) {
+    &__spread {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__portrait {
+      max-width: 320px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &__frame,
+    &__curl,
+    &__body > *,
+    &__seal {
+      transition: none;
+    }
+  }
 }
 </style>

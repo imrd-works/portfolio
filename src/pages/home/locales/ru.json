@@ -51,7 +51,10 @@
       "dataviz": "Highcharts и ECharts, интерактивные SVG-схемы, тяжёлые таблицы и формы",
       "architecture": "3+ года веду команды: декомпозиция, code review, релизный цикл",
       "react": "Next.js в проде: финансовый лендинг с анимацией и headless-CMS"
-    }
+    },
+    "searchLabel": "Поиск по стеку",
+    "searchHint": "например, GraphQL",
+    "found": "Найдено: {n}"
   },
   "work": {
     "eyebrow": "Работы",
