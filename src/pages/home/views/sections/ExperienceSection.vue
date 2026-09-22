@@ -330,7 +330,7 @@ onBeforeUnmount(() => {
 
   .exp__head {
     position: absolute;
-    top: 70px;
+    top: 8px;
     left: clamp(20px, 6vw, 96px);
     z-index: 1;
     margin: 0;

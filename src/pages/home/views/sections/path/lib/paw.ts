@@ -1,7 +1,7 @@
 /**
- * A wolverine's front print, painted in ink: five toes on a wide arc (the
+ * A wolverine's front print, painted in cinnabar (the hero's sun): five toes on a wide arc (the
  * inner one smaller and set back), claw nicks ahead of them, a broad chevron
- * pad. The ink pools at the edges as it dries, and a faint wet halo soaks into
+ * pad. The paint pools at the edges as it dries, and a faint wet halo soaks into
  * the paper around it. Drawn toes-up; the scene turns it to walk downstream.
  */
 export interface PawSprite {
@@ -11,7 +11,9 @@ export interface PawSprite {
   height: number
 }
 
-const INK = '#161719'
+// the hero's sun: vec3(.78, .22, .15) in hero.frag.glsl
+export const CINNABAR = [199, 56, 38] as const
+const FILL = `rgb(${CINNABAR.join(',')})`
 
 function prng(seed: number) {
   return () => {
@@ -45,7 +47,7 @@ export function makePaw(seed: number, mirror: boolean): PawSprite {
     g.translate(width, 0)
     g.scale(-1, 1)
   }
-  g.fillStyle = INK
+  g.fillStyle = FILL
   g.filter = 'blur(.6px)'
   const cx = 46
   const cy = 64
@@ -105,9 +107,9 @@ export function makePaw(seed: number, mirror: boolean): PawSprite {
       } else {
         a = ab * 0.1 // the wet halo soaking into the paper around it
       }
-      d[i] = 22
-      d[i + 1] = 23
-      d[i + 2] = 25
+      d[i] = CINNABAR[0]
+      d[i + 1] = CINNABAR[1]
+      d[i + 2] = CINNABAR[2]
       d[i + 3] = Math.round(Math.min(1, a) * 255)
     }
   }

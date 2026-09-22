@@ -7,17 +7,30 @@ export interface RiverFrame {
   /** How far the ink has run, and how far the paper has dried behind it (0..1 along the river). */
   head: number
   dry: number
+  /** Seconds, for the current. */
+  time: number
 }
 
 export interface RiverRenderer {
-  loadTextures(ink: HTMLImageElement, flow: HTMLImageElement): void
+  loadTextures(ink: HTMLImageElement, flow: HTMLImageElement, water: HTMLImageElement): void
   /** Canvas size, css px. */
   resize(width: number, height: number, dpr: number): void
   draw(f: RiverFrame): void
   dispose(): void
 }
 
-const UNIFORMS = ['uInk', 'uFlow', 'uRect', 'uView', 'uDpr', 'uHead', 'uDry', 'uAspect'] as const
+const UNIFORMS = [
+  'uInk',
+  'uFlow',
+  'uWater',
+  'uRect',
+  'uView',
+  'uDpr',
+  'uHead',
+  'uDry',
+  'uAspect',
+  'uTime',
+] as const
 type UniformName = (typeof UNIFORMS)[number]
 
 /** Returns null when WebGL is unavailable; throws if the shaders fail to compile. */
@@ -68,7 +81,7 @@ export function createRiverRenderer(canvas: HTMLCanvasElement): RiverRenderer | 
   }
 
   return {
-    loadTextures(ink, flow) {
+    loadTextures(ink, flow, water) {
       // The wet look samples the ink blurred, which needs mipmaps, which WebGL1
       // only makes for power-of-two textures: the ink is redrawn onto one.
       const big = gl.getParameter(gl.MAX_TEXTURE_SIZE) >= 4096
@@ -83,8 +96,12 @@ export function createRiverRenderer(canvas: HTMLCanvasElement): RiverRenderer | 
       bind(1)
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, flow)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+      bind(2)
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, water)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
       gl.uniform1i(U.uInk, 0)
       gl.uniform1i(U.uFlow, 1)
+      gl.uniform1i(U.uWater, 2)
       gl.uniform1f(U.uAspect, ink.naturalHeight / ink.naturalWidth)
       ready = true
     },
@@ -106,6 +123,7 @@ export function createRiverRenderer(canvas: HTMLCanvasElement): RiverRenderer | 
       gl.uniform1f(U.uDpr, dpr)
       gl.uniform1f(U.uHead, f.head)
       gl.uniform1f(U.uDry, f.dry)
+      gl.uniform1f(U.uTime, f.time)
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     },
 

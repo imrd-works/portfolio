@@ -9,8 +9,12 @@
 export const RIVER_IMAGE = {
   ink: '/path/river-ink.webp',
   flow: '/path/river-flow.png',
+  /** Along/across the river and a water mask, for the streaks of the current. */
+  water: '/path/river-water.png',
   width: 1280,
   height: 3808,
+  /** The painting's empty sky above the source of the river: not shown, so the river starts by the title. */
+  cropTop: 420,
 } as const
 
 /** Where along the flow (0..1) the river is at a given height of the painting: [y, flow]. */

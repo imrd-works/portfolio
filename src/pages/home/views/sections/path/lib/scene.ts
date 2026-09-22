@@ -16,7 +16,7 @@
  */
 import { RIVER_COURSE, RIVER_FLOW, RIVER_IMAGE, RIVER_SEAL, RIVER_STEPS } from '../config'
 import { createRiverRenderer, type RiverRenderer } from './renderer'
-import { makePaw, type PawSprite } from './paw'
+import { CINNABAR, makePaw, type PawSprite } from './paw'
 
 export interface RiverElements {
   /** The tall scroll track; its height is set here. */
@@ -45,7 +45,7 @@ export interface RiverScene {
 }
 
 const MOBILE = 768 // bp-down(md)
-const INK = '22,23,25'
+const WET = CINNABAR.join(',')
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 const smooth = (x: number) => {
   x = clamp01(x)
@@ -100,6 +100,7 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
   let px0 = 0
   let pw = 0
   let ph = 0
+  /** Where the painting's top edge is in the section (above it: the cropped sky). */
   let padTop = 0
   let H = 0
   /**
@@ -123,7 +124,7 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
     s = pw / RIVER_IMAGE.width
     px0 = (W - pw) / 2
     ph = RIVER_IMAGE.height * s
-    padTop = mobile ? 0 : 20
+    padTop = (mobile ? 0 : 20) - RIVER_IMAGE.cropTop * s
     // on phones the scroll is longer than the painting: it drifts up slower
     H = mobile ? Math.max(ph, N * VH * 0.75 + VH) : ph + padTop + 40
     root.style.height = H + 'px'
@@ -186,7 +187,8 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
   function paintTop(rectTop: number) {
     if (!mobile) return padTop - bandTop
     const p = clamp01(-rectTop / (H - VH))
-    return VH * 0.3 + p * (VH * 0.7 - ph - VH * 0.3)
+    const start = VH * 0.3 - RIVER_IMAGE.cropTop * s // the source of the river at 30% of the screen
+    return start + p * (VH * 0.7 - ph - start)
   }
 
   /* ---------- the flow ---------- */
@@ -201,6 +203,13 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
   let ticking = false
   let destroyed = false
   let ready = false
+
+  // at rest, ~30 fps is plenty for the current
+  let calmTimer = 0
+  function calmLater() {
+    window.clearTimeout(calmTimer)
+    calmTimer = window.setTimeout(schedule, 33)
+  }
 
   function schedule() {
     if (ticking || !visible || !ready || destroyed || document.hidden) return
@@ -245,11 +254,14 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       }
     }
 
-    renderer!.draw({ rect: { left: px0, top, width: pw, height: ph }, head, dry })
+    // the current keeps the water moving; with reduced motion it stands still
+    const time = REDUCED ? 0 : now / 1000
+    renderer!.draw({ rect: { left: px0, top, width: pw, height: ph }, head, dry, time })
     const wet = drawPrints(now, top)
 
     // keep going while the ink moves or dries, or a print is still wet
     if (target > head + 0.0005 || dry < head - 0.0005 || wet) schedule()
+    else if (!REDUCED) calmLater() // the water keeps running, at a calmer frame rate
   }
 
   function drawPrints(now: number, top: number) {
@@ -270,8 +282,8 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       const R = 46 * size * (1 + 0.25 * smooth(age / 1.5))
       const soak = 0.09 * Math.exp(-age * 0.8) + 0.025
       const gr = mg.createRadialGradient(x, y, R * 0.2, x, y, R)
-      gr.addColorStop(0, `rgba(${INK},${soak})`)
-      gr.addColorStop(1, `rgba(${INK},0)`)
+      gr.addColorStop(0, `rgba(${WET},${soak})`)
+      gr.addColorStop(1, `rgba(${WET},0)`)
       mg.fillStyle = gr
       mg.beginPath()
       mg.arc(x, y, R, 0, Math.PI * 2)
@@ -306,10 +318,14 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
   window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('resize', layout)
 
-  Promise.all([loadImage(RIVER_IMAGE.ink), loadImage(RIVER_IMAGE.flow)])
-    .then(([ink, flow]) => {
+  Promise.all([
+    loadImage(RIVER_IMAGE.ink),
+    loadImage(RIVER_IMAGE.flow),
+    loadImage(RIVER_IMAGE.water),
+  ])
+    .then(([ink, flow, water]) => {
       if (destroyed) return
-      renderer!.loadTextures(ink, flow)
+      renderer!.loadTextures(ink, flow, water)
       ready = true
       hooks.live(true)
       layout()
@@ -325,6 +341,7 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
     destroy() {
       destroyed = true
       cancelAnimationFrame(raf)
+      window.clearTimeout(calmTimer)
       io.disconnect()
       document.removeEventListener('visibilitychange', onScroll)
       window.removeEventListener('scroll', onScroll)
