@@ -24,15 +24,12 @@ const section = useTemplateRef<HTMLElement>('section')
 const inner = useTemplateRef<HTMLElement>('inner')
 const gl = useTemplateRef<HTMLCanvasElement>('gl')
 const print = useTemplateRef<HTMLCanvasElement>('print')
-const waxArt = useTemplateRef<HTMLCanvasElement>('waxArt')
 
 // Client-only: the prerendered HTML is the letter on plain paper. The ink
-// pool, the print and the wax seal arrive once the page is live.
+// pool and the print arrive once the page is live.
 const live = ref(false)
 // once the envelope is up the letter is inside it and leaves the flow
 const folded = ref(false)
-// the seal is a lump of wax lit in 3d; until it is rendered the css one shows
-const waxed = ref(false)
 let wash: Wash | null = null
 let fold = 0
 let unmounted = false
@@ -54,32 +51,8 @@ const address = computed(() => [
   { id: 'resume', href: contactChannels.resumeUrl, value: t('home.contact.links.resumeNote') },
 ])
 
-/** Copy a painted sheet onto the canvas that sits in the template. */
-function show(target: HTMLCanvasElement | null, art: HTMLCanvasElement) {
-  if (!target) return
-  target.width = art.width
-  target.height = art.height
-  target.style.height = art.style.height
-  target.getContext('2d')!.drawImage(art, 0, 0)
-}
-
 /** The painted envelope: the fold lines, the flap that swings down, the birds. */
 const ENVELOPE = ['body', 'flap', 'birds'].map((layer) => `/contact/envelope-${layer}.webp`)
-
-/** The wax is rendered, so it is made only once the letter is sealed. */
-async function paintSeal() {
-  const { paintWax } = await import('./contact/lib/wax')
-  // the initials are pressed with the page's own font, so it has to be there
-  await document.fonts?.ready
-  await nextTick()
-  if (unmounted) return
-
-  const seal = paintWax({ size: 84, dpr, text: t('home.contact.seal') })
-  if (!seal) return
-  show(waxArt.value, seal.canvas)
-  waxed.value = true
-  seal.dispose()
-}
 
 onMounted(async () => {
   dpr = Math.min(devicePixelRatio || 1, 2)
@@ -117,9 +90,7 @@ onMounted(async () => {
 watch(sent, (done) => {
   clearTimeout(fold)
   folded.value = false
-  waxed.value = false
   if (!done) return
-  if (live.value) void paintSeal()
   // the letter has gone into the envelope by now, so it stops taking room
   fold = window.setTimeout(() => (folded.value = true), 1000)
 })
@@ -322,16 +293,10 @@ onBeforeUnmount(() => {
               alt=""
             />
             <span
-              class="contact__wax"
-              :class="{ 'contact__wax--painted': waxed }"
+              class="contact__seal"
+              aria-hidden="true"
+              >{{ t('home.contact.seal') }}</span
             >
-              <canvas
-                ref="waxArt"
-                class="contact__wax-art"
-                aria-hidden="true"
-              ></canvas>
-              <span class="contact__wax-mark">{{ t('home.contact.seal') }}</span>
-            </span>
           </div>
 
           <p class="contact__sealed">{{ t('home.contact.success.text') }}</p>
@@ -381,7 +346,7 @@ onBeforeUnmount(() => {
 /** @define contact */
 .contact {
   /* the one sheet where the ink has dried: every tone here is a faded,
-     warm version of the site's ink; only the wax stays fresh */
+     warm version of the site's ink; only the seal stays fresh */
   --contact-paper: #ece8e1;
   --contact-ink: #231d19;
   --contact-ink-soft: #6b5c50;
@@ -574,7 +539,7 @@ onBeforeUnmount(() => {
     letter-spacing: 0.08em;
   }
 
-  /* the letter folds itself into the envelope and the wax closes it */
+  /* the letter folds itself into the envelope and the seal closes it */
   &__fold {
     display: grid;
     gap: 18px;
@@ -624,74 +589,31 @@ onBeforeUnmount(() => {
     animation: contact-fly 1.6s cubic-bezier(0.2, 0.6, 0.3, 1) 2.45s both;
   }
 
-  /* round wax on the apex of the flap: a soft dome, letters sunk into it */
-  &__wax {
+  /* the site's own mark closes the letter: the same cinnabar circle as the
+     hero, the nails on the Work sheets and the send button, on the apex of V */
+  &__seal {
     position: absolute;
     top: 57.1%;
     left: 47.3%;
     display: grid;
-    width: 84px;
-    height: 84px;
-    margin: -42px 0 0 -42px;
-    background: radial-gradient(
-      64% 58% at 40% 32%,
-      #e0664e 0%,
-      #cc4530 42%,
-      #a32e1e 78%,
-      #7e2013 100%
-    );
+    width: 72px;
+    height: 72px;
+    margin: -36px 0 0 -36px;
+    font-family: Unbounded, sans-serif;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--contact-paper);
+    letter-spacing: -0.04em;
+    background: var(--contact-seal);
     border-radius: 50%;
-    box-shadow:
-      inset 0 -7px 14px rgb(70 12 6 / 55%),
-      inset 0 7px 12px rgb(255 190 170 / 35%);
+    box-shadow: 0 4px 8px rgb(0 0 0 / 22%);
     place-items: center;
-    transform: rotate(-5deg);
+    transform: rotate(-6deg);
     animation: contact-press 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) 2s both;
   }
 
-  /* the rendered lump of wax replaces the flat one, letters and all */
-  &__wax--painted {
-    background: none;
-    box-shadow: none;
-    transform: none;
-  }
-
-  &__wax-art {
-    position: absolute;
-    inset: 0;
-    display: none;
-    width: 100%;
-    height: 100%;
-    /* the wax stands on the paper, so it casts onto it */
-    filter: drop-shadow(0 1px 1px rgb(36 8 4 / 40%)) drop-shadow(0 6px 10px rgb(36 8 4 / 38%));
-  }
-
-  &__wax--painted &__wax-art {
-    display: block;
-  }
-
-  &__wax--painted &__wax-mark,
-  &__wax--painted::before {
-    display: none;
-  }
-
-  &__wax::before {
-    position: absolute;
-    inset: 8px;
-    content: '';
-    border-radius: 50%;
-    box-shadow: inset 0 3px 8px rgb(60 10 4 / 45%);
-  }
-
-  &__wax-mark {
-    position: relative;
-    font-family: Unbounded, sans-serif;
-    font-size: 22px;
-    font-style: normal;
-    color: #8d2518;
-    text-shadow:
-      0 -1px 1px rgb(60 10 4 / 70%),
-      0 1.5px 0 rgb(255 186 164 / 55%);
+  &--live &__seal {
+    filter: url('#contact-rough');
   }
 
   &__sealed,
@@ -806,7 +728,7 @@ onBeforeUnmount(() => {
     &__envelope-body,
     &__envelope-flap,
     &__envelope-birds,
-    &__wax,
+    &__seal,
     &__sealed,
     &__again {
       animation: none;
@@ -884,7 +806,7 @@ onBeforeUnmount(() => {
 
   100% {
     opacity: 1;
-    transform: scale(1) rotate(-5deg);
+    transform: scale(1) rotate(-6deg);
   }
 }
 </style>
