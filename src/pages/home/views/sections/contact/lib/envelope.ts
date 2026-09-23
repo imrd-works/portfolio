@@ -48,13 +48,14 @@ const UNIFORMS = [
 // the hero's timings, for a painting a third of its size
 const INK_FALL_MS = 700
 const REVEAL_MS = 3400
-const P0 = 0.035
+// ahead of the hero's start: the envelope comes out of the blot the moment it lands
+const P0 = 0.24
 const P_END = 1.5
 const SUN_AT_MS = 1500 // after the ink hit
 const SUN_FALL_MS = 600
 const SEALED_AT_MS = 800 // after the cinnabar hit
-// blot radius, share of the envelope's height: with its rays it stays under the seal
-const R0 = 0.05
+// blot radius, share of the envelope's height: small, a hit rather than a pool
+const R0 = 0.028
 const SUN_R = 0.125 // seal radius, same unit
 const easeSpread = (t: number) => 1 - Math.pow(1 - t, 1.55)
 

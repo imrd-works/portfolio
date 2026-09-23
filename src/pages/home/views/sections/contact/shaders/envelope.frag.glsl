@@ -103,7 +103,7 @@ void main() {
     // shorter rays than the hero's blot: the seal has to cover them
     float rr = R * (0.92 + 0.34 * n1 + 0.6 * pow(n2, 5.0));
     s = 1.0 - smoothstep(rr * 0.9, rr, dl);
-    float Rh = R * (1.15 + 1.25 * (1.0 - exp(-uT * 0.9))) * (0.85 + 0.4 * n1) + (nf - 0.5) * 0.012;
+    float Rh = R * (1.15 + 0.8 * (1.0 - exp(-uT * 0.9))) * (0.85 + 0.4 * n1) + (nf - 0.5) * 0.008;
     float hin = 1.0 - smoothstep(Rh * 0.86, Rh, dl);
     float ring = smoothstep(Rh * 0.7, Rh * 0.93, dl) * hin;
     halo = hin * 0.13 + ring * 0.12;
