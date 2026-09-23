@@ -53,15 +53,16 @@ const schema = yup.object({
     .test('not-own-contact', 'home.contact.form.errorContactOwn', (value) => !isOwnContact(value)),
   // what the letter is about: the stamps pressed in it
   topics: yup.array().of(yup.string().required()).default([]),
-  // a pressed stamp says enough on its own; without one, a few words are needed
+  // what it is to be built with: tags picked off the technology shelf
+  stack: yup.array().of(yup.string().required()).default([]),
+  // a pressed stamp or a picked tag says enough on its own; without either,
+  // a few words are needed
   message: yup
     .string()
     .trim()
-    .when('topics', {
-      is: (topics?: string[]) => Boolean(topics?.length),
-      then: (text) => text,
-      otherwise: (text) => text.required('home.contact.form.errorAbout'),
-    }),
+    .when(['topics', 'stack'], ([topics, stack], text) =>
+      topics?.length || stack?.length ? text : text.required('home.contact.form.errorAbout')
+    ),
 })
 
 export function useContactForm() {
@@ -69,13 +70,20 @@ export function useContactForm() {
   const sent = ref(false)
   const { defineField, errors, handleSubmit, isSubmitting, resetForm } = useForm({
     validationSchema: schema,
-    initialValues: { name: '', contact: '', message: '', topics: [] as TopicId[] },
+    initialValues: {
+      name: '',
+      contact: '',
+      message: '',
+      topics: [] as TopicId[],
+      stack: [] as string[],
+    },
   })
 
   const [name, nameAttrs] = defineField('name')
   const [contact, contactAttrs] = defineField('contact')
   const [message, messageAttrs] = defineField('message')
   const [topics] = defineField('topics')
+  const [stack] = defineField('stack')
 
   /** Press or lift a stamp. */
   function toggleTopic(id: TopicId) {
@@ -83,11 +91,19 @@ export function useContactForm() {
     topics.value = now.includes(id) ? now.filter((t) => t !== id) : [...now, id]
   }
 
+  /** Pick a technology off the shelf, or put it back. */
+  function toggleStack(chip: string) {
+    const now = stack.value ?? []
+    stack.value = now.includes(chip) ? now.filter((c) => c !== chip) : [...now, chip]
+  }
+
   const submit = handleSubmit(async (values) => {
     // the stamps go first, as one line, so the request says at a glance what it is
     const chosen = (values.topics ?? []).map((id) => t(`home.contact.topics.${id}`))
+    const picked = values.stack ?? []
     const lines = [
       chosen.length ? `${t('home.contact.form.topicsSent')}: ${chosen.join(', ')}` : '',
+      picked.length ? `${t('home.contact.form.stackSent')}: ${picked.join(', ')}` : '',
       (values.message ?? '').trim(),
     ]
     await sendContactRequest(
@@ -115,6 +131,8 @@ export function useContactForm() {
     messageAttrs,
     topics,
     toggleTopic,
+    stack,
+    toggleStack,
     errors,
     loading: isSubmitting,
     sent,

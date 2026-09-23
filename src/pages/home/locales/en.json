@@ -213,7 +213,17 @@
       "errorAbout": "Describe your task",
       "sendError": "Couldn't send your letter. Please try again.",
       "topicsLabel": "What it is about",
-      "topicsSent": "Topic"
+      "topicsSent": "Topic",
+      "stackLabel": "Stack",
+      "stackAdd": "+ pick the stack",
+      "stackMore": "+ more",
+      "stackDone": "done",
+      "stackSearch": "find a technology",
+      "stackSearchLabel": "Search the technologies",
+      "stackEmpty": "Not on the shelf — mention it below",
+      "stackRemove": "Remove {name}",
+      "stackSent": "Stack",
+      "stackPicker": "Technologies for the letter"
     },
     "success": {
       "text": "The letter is sealed · I answer within a day, usually on Telegram",

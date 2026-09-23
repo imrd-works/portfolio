@@ -2,7 +2,13 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useContactForm } from '../../composables/useContactForm'
-import { contactChannels, contactTopics, socials } from '../../model/portfolio'
+import {
+  contactChannels,
+  contactTopics,
+  rowsFor,
+  socials,
+  type StackId,
+} from '../../model/portfolio'
 import type { Paper } from './contact/lib/paper'
 import type { EnvelopeScene } from './contact/lib/envelope'
 
@@ -16,6 +22,8 @@ const {
   messageAttrs,
   topics,
   toggleTopic,
+  stack,
+  toggleStack,
   errors,
   loading,
   sent,
@@ -72,6 +80,25 @@ function brushTip() {
   const box = img.getBoundingClientRect()
   return { x: box.left + box.width * BRUSH_TIP.x, y: box.top + box.height * BRUSH_TIP.y }
 }
+
+/** The technology shelf, opened inside the letter to pick the stack from. */
+const picking = ref(false)
+const stackQuery = ref('')
+const DIRECTIONS: StackId[] = ['frontend', 'backend', 'devops', 'fullstack']
+const pickerGroups = computed(() => {
+  const q = stackQuery.value.trim().toLowerCase()
+  return DIRECTIONS.map((id) => ({
+    id,
+    chips: rowsFor(id)
+      .flatMap(({ chips }) => chips)
+      .filter((chip) => !q || chip.toLowerCase().includes(q)),
+  })).filter(({ chips }) => chips.length)
+})
+const closePicker = () => {
+  picking.value = false
+  stackQuery.value = ''
+}
+watch(sent, (done) => done && closePicker())
 
 /** The painted envelope: the fold lines, the flap that swings down, the birds. */
 const ENVELOPE = ['body', 'flap', 'birds'].map((layer) => `/contact/envelope-${layer}.webp`)
@@ -269,6 +296,93 @@ onBeforeUnmount(() => {
             >
               {{ t(`home.contact.topics.${id}`) }}
             </button>
+          </div>
+
+          <!-- what it is to be built with: tags picked off the technology shelf -->
+          <div class="contact__stack">
+            <span class="contact__stack-label">{{ t('home.contact.form.stackLabel') }}:</span>
+            <button
+              v-for="chip in stack"
+              :key="chip"
+              class="contact__tag"
+              type="button"
+              :aria-label="t('home.contact.form.stackRemove', { name: chip })"
+              @click="toggleStack(chip)"
+            >
+              {{ chip
+              }}<span
+                class="contact__tag-x"
+                aria-hidden="true"
+                >×</span
+              >
+            </button>
+            <button
+              class="contact__stack-add"
+              type="button"
+              :aria-expanded="picking"
+              aria-controls="contact-picker"
+              @click="picking ? closePicker() : (picking = true)"
+            >
+              {{
+                picking
+                  ? t('home.contact.form.stackDone')
+                  : stack?.length
+                    ? t('home.contact.form.stackMore')
+                    : t('home.contact.form.stackAdd')
+              }}
+            </button>
+          </div>
+
+          <div
+            v-if="picking"
+            id="contact-picker"
+            class="contact__picker"
+            role="group"
+            :aria-label="t('home.contact.form.stackPicker')"
+          >
+            <label
+              class="contact__picker-search"
+              for="contact-stack-search"
+            >
+              <span class="contact__sr">{{ t('home.contact.form.stackSearchLabel') }}</span>
+              <input
+                id="contact-stack-search"
+                v-model="stackQuery"
+                class="contact__picker-input"
+                type="search"
+                :placeholder="t('home.contact.form.stackSearch')"
+                @keydown.esc="closePicker"
+              />
+            </label>
+            <div class="contact__picker-list">
+              <div
+                v-for="group in pickerGroups"
+                :key="group.id"
+                class="contact__picker-group"
+              >
+                <h3 class="contact__picker-title">{{ t(`home.skills.tabs.${group.id}`) }}</h3>
+                <div class="contact__picker-chips">
+                  <button
+                    v-for="chip in group.chips"
+                    :key="chip"
+                    class="contact__pick"
+                    :class="{ 'contact__pick--on': stack?.includes(chip) }"
+                    type="button"
+                    :aria-pressed="Boolean(stack?.includes(chip))"
+                    @click="toggleStack(chip)"
+                    @keydown.esc="closePicker"
+                  >
+                    {{ chip }}
+                  </button>
+                </div>
+              </div>
+              <p
+                v-if="!pickerGroups.length"
+                class="contact__picker-empty"
+              >
+                {{ t('home.contact.form.stackEmpty') }}
+              </p>
+            </div>
           </div>
 
           <label for="contact-about">
@@ -579,6 +693,149 @@ onBeforeUnmount(() => {
   &__topic:focus-visible {
     outline: 2px solid var(--contact-sun);
     outline-offset: 3px;
+  }
+
+  /* the stack: picked tags in a line of the letter, and the shelf they come off */
+  &__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    align-items: center;
+    max-width: 42ch;
+    margin-top: 14px;
+  }
+
+  &__stack-label {
+    font-size: 11px;
+    color: var(--contact-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  &__tag,
+  &__pick {
+    padding: 5px 9px 4px;
+    font: inherit;
+    font-size: 12px;
+    color: var(--contact-ink);
+    cursor: pointer;
+    background: none;
+    border: 1px dashed rgb(107 92 80 / 60%);
+    border-radius: 2px;
+  }
+
+  &__tag {
+    color: var(--contact-paper);
+    background: var(--contact-ink);
+    border: 1px solid var(--contact-ink);
+  }
+
+  &__tag-x {
+    margin-left: 6px;
+    opacity: 0.7;
+  }
+
+  &__tag:hover &__tag-x {
+    opacity: 1;
+  }
+
+  &__stack-add {
+    padding: 5px 2px 3px;
+    font: inherit;
+    font-size: 11.5px;
+    color: var(--contact-sun);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid rgb(199 56 38 / 45%);
+  }
+
+  &__stack-add:hover {
+    border-bottom-color: var(--contact-sun);
+  }
+
+  &__picker {
+    max-width: 560px;
+    padding: 14px 0 4px;
+    margin-top: 12px;
+    border-top: 1px dashed rgb(107 92 80 / 40%);
+    border-bottom: 1px dashed rgb(107 92 80 / 40%);
+  }
+
+  &__picker-input {
+    width: 100%;
+    padding: 4px 2px 5px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--contact-ink);
+    background: none;
+    border: 0;
+    border-bottom: 1.5px solid var(--contact-rule);
+    outline: none;
+  }
+
+  &__picker-input:focus {
+    border-bottom-color: var(--contact-ink);
+  }
+
+  &__picker-input::placeholder {
+    color: rgb(107 92 80 / 55%);
+  }
+
+  /* the whole shelf, but no taller than a few rows: it scrolls */
+  &__picker-list {
+    max-height: 300px;
+    padding: 4px 4px 10px 0;
+    margin-top: 10px;
+    overflow-y: auto;
+    scrollbar-color: rgb(107 92 80 / 45%) transparent;
+    scrollbar-width: thin;
+  }
+
+  &__picker-group + &__picker-group {
+    margin-top: 12px;
+  }
+
+  &__picker-title {
+    margin: 0 0 8px;
+    font-size: 10.5px;
+    font-weight: 400;
+    color: var(--contact-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  &__picker-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  &__pick:hover {
+    background: rgb(107 92 80 / 10%);
+  }
+
+  &__pick--on,
+  &__pick--on:hover {
+    color: var(--contact-paper);
+    background: var(--contact-ink);
+    border-style: solid;
+    border-color: var(--contact-ink);
+  }
+
+  &__tag:focus-visible,
+  &__pick:focus-visible,
+  &__stack-add:focus-visible {
+    outline: 2px solid var(--contact-sun);
+    outline-offset: 3px;
+  }
+
+  &__picker-empty {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--contact-ink-soft);
   }
 
   /* the sheet of a letter is ruled, and the lines show through the text */
