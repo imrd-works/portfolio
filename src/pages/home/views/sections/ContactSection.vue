@@ -376,12 +376,14 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 /** @define contact */
 .contact {
+  /* the one sheet where the ink has dried: every tone here is a faded,
+     warm version of the site's ink; only the wax stays fresh */
   --contact-paper: #ece8e1;
-  --contact-ink: #101214;
-  --contact-ink-soft: #3a4454;
-  --contact-text: #2a2f36;
+  --contact-ink: #231d19;
+  --contact-ink-soft: #6b5c50;
+  --contact-text: #3b322b;
   --contact-seal: #c23b2a;
-  --contact-rule: rgb(58 68 84 / 30%);
+  --contact-rule: rgb(107 92 80 / 35%);
 
   position: relative;
   padding: clamp(80px, 9vw, 130px) clamp(20px, 6vw, 96px) clamp(40px, 6vw, 80px);
@@ -490,18 +492,18 @@ onBeforeUnmount(() => {
     line-height: 31px;
     color: var(--contact-ink);
     resize: none;
-    background: repeating-linear-gradient(transparent 0 30px, rgb(58 68 84 / 22%) 30px 31px);
+    background: repeating-linear-gradient(transparent 0 30px, rgb(107 92 80 / 24%) 30px 31px);
     border: 0;
     outline: none;
   }
 
   &__area:focus {
-    background: repeating-linear-gradient(transparent 0 30px, rgb(58 68 84 / 42%) 30px 31px);
+    background: repeating-linear-gradient(transparent 0 30px, rgb(107 92 80 / 45%) 30px 31px);
   }
 
   &__blank-input::placeholder,
   &__area::placeholder {
-    color: rgb(58 68 84 / 42%);
+    color: rgb(107 92 80 / 55%);
   }
 
   &__area--bad {
@@ -711,7 +713,7 @@ onBeforeUnmount(() => {
     align-items: baseline;
     padding: 12px 0;
     margin: 0;
-    border-bottom: 1px solid rgb(58 68 84 / 16%);
+    border-bottom: 1px solid rgb(107 92 80 / 20%);
   }
 
   &__row-key {

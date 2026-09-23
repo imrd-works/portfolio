@@ -3,8 +3,9 @@ import FRAG from '../shaders/blot.frag.glsl?raw'
 
 /**
  * The ink pool behind the letter: a full-section canvas where the paper of
- * the site shows through around the content and the ink runs out to the
- * edges as the section is scrolled into view.
+ * the site shows through around the content. As the section comes up the ink
+ * runs out to the edges, wet; then it dries — the one sheet on the page that
+ * has had time to — fading to warm grey and leaving tide lines behind.
  */
 export interface Wash {
   destroy(): void
@@ -18,7 +19,7 @@ export interface WashParts {
   area: HTMLElement
 }
 
-const UNIFORMS = ['uRes', 'uArea', 'uRadius', 'uSpread'] as const
+const UNIFORMS = ['uRes', 'uArea', 'uRadius', 'uSpread', 'uDry', 'uDpr'] as const
 type UniformName = (typeof UNIFORMS)[number]
 
 function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLShader {
@@ -57,7 +58,12 @@ export function mountWash({ root, canvas, area }: WashParts): Wash | null {
 
   const still = matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false
   let frame = 0
-  let spread = still ? 1 : 0
+  // how far the section has come up: the first part pours, the rest dries
+  let progress = still ? 1 : 0
+  const smooth = (a: number, b: number, x: number) => {
+    const t = Math.min(1, Math.max(0, (x - a) / (b - a)))
+    return t * t * (3 - 2 * t)
+  }
 
   const draw = () => {
     frame = 0
@@ -80,7 +86,9 @@ export function mountWash({ root, canvas, area }: WashParts): Wash | null {
     gl.uniform2f(u.uRes, canvas.width, canvas.height)
     gl.uniform4f(u.uArea, cx, cy, (box.width / 2 + 30) * dpr, (box.height / 2 + 26) * dpr)
     gl.uniform1f(u.uRadius, 120 * dpr)
-    gl.uniform1f(u.uSpread, spread)
+    gl.uniform1f(u.uSpread, smooth(0, 0.55, progress))
+    gl.uniform1f(u.uDry, smooth(0.45, 1, progress))
+    gl.uniform1f(u.uDpr, dpr)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 
@@ -88,14 +96,14 @@ export function mountWash({ root, canvas, area }: WashParts): Wash | null {
     if (!frame) frame = requestAnimationFrame(draw)
   }
 
-  // the ink runs as the section comes up: the page itself pours it
+  // the page itself pours the ink and then lets it dry, as it is scrolled
   const onScroll = () => {
     const host = root.getBoundingClientRect()
     const next = still
       ? 1
-      : Math.min(1, Math.max(0, (innerHeight - host.top) / (innerHeight * 0.7)))
-    if (Math.abs(next - spread) < 0.004 && spread > 0) return
-    spread = next
+      : Math.min(1, Math.max(0, (innerHeight - host.top) / (innerHeight * 1.05)))
+    if (Math.abs(next - progress) < 0.003 && progress > 0) return
+    progress = next
     schedule()
   }
 
