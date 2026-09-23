@@ -1,11 +1,11 @@
-// Ink reveal on paper: wet-in-wet bloom from the blot, splash, cinnabar sun, living fog.
+// Ink reveal on paper: wet-in-wet bloom from the blot, splash, cinnabar sun, drifting mist.
 // Array sizes (26) must match SPLASH_SEGMENTS in ../config.ts.
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTex;
 uniform float uP, uBlotR, uAspect, uMaxD, uT, uSeed, uR0, uWet;
 uniform float uSunT, uSunR;   // красное солнце
-uniform float uTime, uFog, uFogSpeed, uFogLo, uFogHi;   // слой тумана поверх картины
+uniform float uTime, uFog, uFogSpeed;   // банки тумана, плывущие через долину
 uniform vec2 uSun;
 uniform vec2 uBlot;
 uniform vec4 uSeg[26];   // xy - хвост, zw - голова струи или летящей капли
@@ -115,28 +115,26 @@ void main(){
   float conc = max(ink * arrive, s);                       // концентрация туши
   vec3 col = mix(vec3(.21, .26, .35), vec3(.035, .04, .05), pow(conc, .7));
 
-  // ---------- живой туман: полупрозрачная дымка, которая только перераспределяет плотность в долинах ----------
-  // Знакопеременная: где-то чуть светлее, где-то чуть темнее, в сумме ноль - белой пелены и контуров не возникает
-  float fog = 0., show = 0.;
+  // ---------- туман: банки тумана плывут через долину слева направо ----------
+  // Тот же туман, что над рекой в «Пути» (river.frag.glsl): бесконечный шум едет вбок,
+  // банк входит слева, пересекает картину и тает справа, следом идут новые. Над тушью это
+  // вуаль к бумаге, над чистой бумагой бледная дымка. Частоты пересчитаны под широкий кадр:
+  // банки того же размера относительно картины и пересекают ее за те же ~40 с.
   if (uFog > 0.) {
-    float zone = smoothstep(uFogLo, uFogLo + .06, inkB) * (1. - smoothstep(uFogHi, uFogHi + .2, inkB))
-               * (1. - smoothstep(.6, .9, inkS));
-    vec2 fq = q * vec2(2.6, 4.6) - vec2(uTime * uFogSpeed, 0.);
-    vec2 warp = vec2(fbm(fq * .5 + 3.1 + vec2(uTime * uFogSpeed * .3, 0.)), fbm(fq * .5 + 9.4)) - .5;
-    float f = fbm(fq + warp * 1.2);                          // ~0.5 в среднем, без резких границ
-    float fr = clamp((f - .5) * 3.2, -1., 1.) * uFog * settle;    // -1..1, с запасом по контрасту
-    fog = fr * zone;
-    // полосы тумана (почти чистая бумага): когда дымка редеет, сквозь нее проступает лес, который там едва намечен
-    float pale = smoothstep(.012, .05, inkB) * (1. - smoothstep(.11, .22, inkB));
-    show = max(-fr, 0.) * pale;
+    vec2 mq = q * vec2(1.24, 2.6) - vec2(uTime * uFogSpeed, 0.);
+    vec2 warp = vec2(fbm(mq * .6 + 3.1), fbm(mq * .6 + 9.4)) - .5;
+    float f = fbm(mq + warp * 1.1);
+    float bank = smoothstep(.45, .66, f);
+    // живет в долине: тает у боковых краев, над лесом не поднимается в небо
+    float frame = smoothstep(0., .18, vUv.x) * smoothstep(1., .82, vUv.x)
+                * smoothstep(.08, .2, vUv.y) * smoothstep(.72, .5, vUv.y);
+    // приходит мягко, когда рисунок уже просох
+    float mist = bank * frame * uFog * settle;
+    // лес здесь почти сплошь черный, поэтому вуаль щадит темные штрихи лишь наполовину,
+    // иначе туман виден только над светлыми склонами
+    a *= 1. - mist * .65 * (1. - .5 * smoothstep(.7, .95, inkS));
+    a = a + mist * .14 * (1. - a) * (1. - smoothstep(.05, .3, inkS));   // дымка над чистой бумагой
   }
-  float hint = inkAt(uv, 1.5);                                 // мягкие следы деревьев внутри тумана
-  a = a + show * (hint * 1.6 + .05) * (1. - a);                // лес просвечивает сквозь поредевшую дымку
-  // осветление ограничено и почти не трогает плотные штрихи (деревья), затемнение свободнее:
-  // так дымка плывет между деревьями, а не закрашивает их
-  float lighten = max(fog, 0.) * (1. - smoothstep(.25, .75, inkS));
-  float darken  = max(-fog, 0.);
-  a *= (1. - lighten * .38) * (1. + darken * .75);
   // ---------- красное солнце: капля киновари расплывается по мокрому ----------
   float sa = 0.;
   if (uSunT > 0.) {

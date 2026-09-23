@@ -20,8 +20,6 @@ export interface InkUniforms {
   time: number
   fog: number
   fogSpeed: number
-  fogLo: number
-  fogHi: number
   seg: Float32Array
   rad: Float32Array
 }

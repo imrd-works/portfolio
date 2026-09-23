@@ -98,8 +98,6 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
       time: state.time,
       fog: FOG.on ? FOG.strength * state.fogIn : 0,
       fogSpeed: FOG.speed,
-      fogLo: FOG.lo,
-      fogHi: FOG.hi,
       seg: state.seg,
       rad: state.rad,
     })

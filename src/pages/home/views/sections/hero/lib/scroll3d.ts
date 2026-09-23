@@ -206,8 +206,6 @@ export function createScroll3D(canvas: HTMLCanvasElement): Scroll3D | null {
     uTime: { value: 0 },
     uFog: { value: 0 },
     uFogSpeed: { value: 0 },
-    uFogLo: { value: 0 },
-    uFogHi: { value: 0 },
   }
   const inkMat = new THREE.ShaderMaterial({
     vertexShader: INK_VERT,
@@ -431,8 +429,6 @@ export function createScroll3D(canvas: HTMLCanvasElement): Scroll3D | null {
         iu.uTime.value = u.time
         iu.uFog.value = u.fog
         iu.uFogSpeed.value = u.fogSpeed
-        iu.uFogLo.value = u.fogLo
-        iu.uFogHi.value = u.fogHi
         iu.uSeg.value = u.seg
         iu.uRad.value = u.rad
         renderer.setRenderTarget(rt)

@@ -61,20 +61,14 @@ export const CAPTION_TIMING = {
 /** `__fog` in the prototype. Mutable: the toggle button and the dev console change it live. */
 export interface FogConfig {
   on: boolean
-  /** Haze amplitude, 0..1.5. */
+  /** How thick the banks are, 0..1.5. */
   strength: number
-  /** Left-to-right drift, noise units per second. */
+  /** Left-to-right drift, noise units per second: 0.055 crosses the painting in ~40 s, as over the river. */
   speed: number
-  /** Lowest tone the mist lives in (0 is paper, 1 is solid ink). */
-  lo: number
-  /** Highest tone: darker ridges count as near and get no mist. */
-  hi: number
 }
 
 export const FOG_DEFAULTS: Readonly<FogConfig> = {
   on: true,
   strength: 1.0,
-  speed: 0.07,
-  lo: 0.1,
-  hi: 0.7,
+  speed: 0.055,
 }
