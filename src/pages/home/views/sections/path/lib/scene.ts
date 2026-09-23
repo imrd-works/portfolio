@@ -95,6 +95,8 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
   }
   const mg = marks.getContext('2d')!
   const paws: PawSprite[] = RIVER_STEPS.map((_, i) => makePaw(11 + i * 7, i % 2 === 1))
+  // the small prints of the trail: a left paw and a right one, taken in turn
+  const small: PawSprite[] = [makePaw(101, false), makePaw(113, true)]
   /* ---------- layout ---------- */
   let W = 0
   let VH = 0
@@ -203,6 +205,56 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
     return start + p * (VH * 0.7 - ph - start)
   }
 
+  /* ---------- the trail ---------- */
+  /** Where the reader is, in steps through the section (phones and tablets). */
+  let readAt = 0
+  const TRAIL = 5
+  const PACE = 0.16 // s between two prints of a trail on desktop
+  const LAND = TRAIL * PACE + 0.1 // the step's own print lands after its trail
+
+  /** The river is seen from above its mouth: prints far upstream are smaller. */
+  const depth = (i: number) => 0.6 + 0.4 * (i / Math.max(1, N - 1))
+
+  /**
+   * The prints walking to step `i`, in painting px: from the step before (for
+   * the first, from upstream on the left) along a gentle arc, a left paw and
+   * a right one in turn, toes the way it walks, each a little larger.
+   */
+  function trailTo(i: number) {
+    const b = prints[i]
+    const a = i > 0 ? prints[i - 1] : { x: b.x - 170, y: b.y - 320 }
+    const dx = b.x - a.x
+    const dy = b.y - a.y
+    const len = Math.hypot(dx, dy) || 1
+    const nx = -dy / len
+    const ny = dx / len
+    const bend = len * 0.16 * (i % 2 ? 1 : -1)
+    const cx = (a.x + b.x) / 2 + nx * bend
+    const cy = (a.y + b.y) / 2 + ny * bend
+    const from = i > 0 ? depth(i - 1) * 0.42 : depth(0) * 0.3
+    const to = depth(i) * 0.62
+    return Array.from({ length: TRAIL }, (_, k) => {
+      // stop short of both ends: the steps' own prints are there
+      const t = 0.14 + (0.72 * k) / (TRAIL - 1)
+      const u = 1 - t
+      const x = u * u * a.x + 2 * u * t * cx + t * t * b.x
+      const y = u * u * a.y + 2 * u * t * cy + t * t * b.y
+      // the direction of travel along the arc, and the side the paw falls on
+      const tx = 2 * u * (cx - a.x) + 2 * t * (b.x - cx)
+      const ty = 2 * u * (cy - a.y) + 2 * t * (b.y - cy)
+      const tl = Math.hypot(tx, ty) || 1
+      const side = k % 2 ? 1 : -1
+      const size = from + (to - from) * (k / (TRAIL - 1))
+      return {
+        x: x + (-ty / tl) * side * 16 * size,
+        y: y + (tx / tl) * side * 16 * size,
+        rot: Math.atan2(ty, tx) + Math.PI / 2,
+        size,
+        paw: small[k % 2],
+      }
+    })
+  }
+
   /* ---------- the flow ---------- */
   let head = REDUCED ? 1 : 0
   let dry = REDUCED ? 1 : 0
@@ -258,6 +310,9 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       sealed = true
       hooks.seal()
     }
+    // how far through the section the reader is, in steps (phones and tablets)
+    const pr01 = clamp01(-r.top / Math.max(1, H - VH))
+    readAt = r.top > 0 ? 0 : pr01 * N
     if (mobile) {
       // the caption follows the reader, not the ink: the ink never runs back,
       // but scrolling up brings the earlier steps back. Each step holds an
@@ -283,23 +338,74 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
     else if (!REDUCED) calmLater() // the water keeps running, at a calmer frame rate
   }
 
+  function drawPaw(paw: PawSprite, x: number, y: number, rot: number, sc: number, alpha: number) {
+    mg.save()
+    mg.translate(x, y)
+    mg.rotate(rot)
+    mg.scale(sc, sc)
+    mg.globalAlpha = alpha
+    mg.drawImage(paw.canvas, -paw.width / 2, -paw.height * 0.58, paw.width, paw.height)
+    mg.restore()
+  }
+
   function drawPrints(now: number, top: number) {
     mg.setTransform(DPR, 0, 0, DPR, 0, 0)
     mg.clearRect(0, 0, W, bandH)
     let wet = false
+    const scale = Math.max(0.55, Math.min(1, s * 1.35))
+    const toScreen = (x: number, y: number) => [px0 + x * s, top + y * s] as const
+    // phones and tablets: the step being read, and how far towards the next
+    const here = Math.min(N - 1, Math.floor(readAt))
+
+    /* the trails: on desktop each one walks in when its step is reached and
+       fades when the next begins; on phones it is laid down by the scroll */
+    for (let i = 0; i < N; i++) {
+      let shown = 0 // how many of the prints are down, fractional
+      let fade = 1
+      if (mobile) {
+        // the trail to the step after the one being read
+        if (i !== here + 1 || !reached[here]) continue
+        shown = (readAt - here) * (TRAIL + 1)
+      } else {
+        const t0 = reached[i]
+        if (!t0 || REDUCED) continue
+        shown = (now - t0) / 1000 / PACE
+        if (shown < TRAIL + 2) wet = true
+        const next = reached[i + 1]
+        if (next) {
+          fade = 1 - (now - next) / 1000 / 0.5
+          if (fade <= 0) continue
+          wet = true
+        }
+      }
+      trailTo(i).forEach((st, k) => {
+        const on = clamp01(shown - k)
+        if (on <= 0) return
+        const [x, y] = toScreen(st.x, st.y)
+        if (y < -60 || y > bandH + 60) return
+        // it is pressed down, a touch large, and the paint settles
+        const sc = scale * st.size * (1 + 0.25 * (1 - on))
+        drawPaw(st.paw, x, y - 4 * (1 - on), st.rot, sc, on * fade * 0.85)
+      })
+    }
+
+    /* the steps' own prints, full size by their descriptions */
     RIVER_STEPS.forEach((st, i) => {
       const t0 = reached[i]
       if (!t0) return
-      const age = REDUCED ? 30 : (now - t0) / 1000
+      // on desktop the print lands once its trail has walked up to it
+      const age = REDUCED ? 30 : (now - t0) / 1000 - (mobile ? 0 : LAND)
       if (age < 6) wet = true
-      const x = px0 + prints[i].x * s
-      const y = top + prints[i].y * s
+      if (age < 0) return
+      const [x, y] = toScreen(prints[i].x, prints[i].y)
       if (y < -120 || y > bandH + 120) return
-      const size = Math.max(0.55, Math.min(1, s * 1.35))
+      const size = scale * depth(i)
+      // phones: the step being read stands out, the ones passed step back
+      const dim = mobile && i !== here ? 0.4 : 1
 
       // the wet ring soaking into the paper
       const R = 46 * size * (1 + 0.25 * smooth(age / 1.5))
-      const soak = 0.09 * Math.exp(-age * 0.8) + 0.025
+      const soak = (0.09 * Math.exp(-age * 0.8) + 0.025) * dim
       const gr = mg.createRadialGradient(x, y, R * 0.2, x, y, R)
       gr.addColorStop(0, `rgba(${WET},${soak})`)
       gr.addColorStop(1, `rgba(${WET},0)`)
@@ -309,16 +415,9 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       mg.fill()
 
       // the print, painted on: a touch large at first, then settles
-      const paw = paws[i]
       const rot = Math.PI + (st.side === 'left' ? 0.35 : -0.35) // toes downstream
       const sc = size * (1 + 0.18 * Math.exp(-age * 10))
-      mg.save()
-      mg.translate(x, y)
-      mg.rotate(rot)
-      mg.scale(sc, sc)
-      mg.globalAlpha = Math.min(1, age * 6) * 0.95
-      mg.drawImage(paw.canvas, -paw.width / 2, -paw.height * 0.58, paw.width, paw.height)
-      mg.restore()
+      drawPaw(paws[i], x, y, rot, sc, Math.min(1, age * 6) * 0.95 * dim)
     })
     return wet
   }
