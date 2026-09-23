@@ -1,14 +1,13 @@
-// The last sheet of the page is an old one, left to dry. It comes up soaked:
-// darker, with a dull sheen of water on it. As it is scrolled it dries the way
-// paper does — from its edges in, unevenly, the letter in the middle last —
-// and as each part dries the marks of age creep across it: a web of fine
-// lines where the paper has cracked and water has dried before, growing out
-// from a few random spots like a spider's thread. What is left is yellowed,
-// faded paper.
+// The last sheet of the page is an old one: yellowed, faded, browner at its
+// edges. As it is scrolled it dries the way paper does — from its edges in,
+// unevenly, the letter in the middle last — and the marks of age creep across
+// the parts that have dried: a web of fine cracks growing out of a few random
+// spots like a spider's thread. The drying itself is never drawn, only what
+// it leaves behind.
 precision highp float;
 
 uniform vec2 uRes; // canvas size, device px
-uniform float uDry; // 0 soaked, 1 dry
+uniform float uDry; // 0 still wet, 1 dry
 uniform float uDpr;
 uniform float uSeed; // a new web every visit
 
@@ -93,11 +92,7 @@ void main() {
   float top = size.y - q.y + (fbm(vec2(q.x * 0.01, 1.0) + s) - 0.5) * 70.0;
   dry = mix(fresh, dry, smoothstep(20.0, 220.0, top));
 
-  // soaked, the paper is darker and cooler, with a dull sheen of water
-  vec3 soaked = dry * vec3(0.87, 0.88, 0.9);
-  float sheen = smoothstep(0.55, 0.9, fbm(q * 0.0026 + 9.0)) * 0.05;
-  vec3 col = mix(dry, soaked + sheen, wet);
-  col -= vec3(0.05, 0.045, 0.035) * exp(-abs(T - front - 0.02) / 0.012) * (1.0 - uDry);
+  vec3 col = dry;
 
   // the web grows out of a few random spots, reaching further as it dries
   float reach = 10.0;
@@ -109,7 +104,7 @@ void main() {
   // it starts once the sheet is half dry and is done when it is dry
   float spread = clamp((uDry - 0.3) / 0.7, 0.0, 1.0) * 0.5;
   float grown = 1.0 - smoothstep(spread - 0.05, spread, reach);
-  grown *= 1.0 - wet; // only on paper that has dried
+  grown *= 1.0 - wet; // only where the paper has dried
 
   // its threads: a coarse web and a finer one inside it, both bent by the grain
   vec2 warp = vec2(fbm(q * 0.004 + s), fbm(q * 0.004 - s + 5.0)) - 0.5;

@@ -2,10 +2,10 @@ import VERT from '../shaders/drying.vert.glsl?raw'
 import FRAG from '../shaders/drying.frag.glsl?raw'
 
 /**
- * The drying sheet behind the letter: a full-section canvas where old,
- * yellowed paper comes up soaked and dries from its edges in as the section is
- * scrolled, a web of age growing over it as it goes. It reports how dry it
- * is, so the text on it can settle at the same pace.
+ * The drying sheet behind the letter: a full-section canvas of old, yellowed
+ * paper that dries from its edges in as the section is scrolled, a web of age
+ * growing over it as it goes. It reports how dry it is, so the text on it can
+ * settle at the same pace.
  */
 export interface Drying {
   destroy(): void
