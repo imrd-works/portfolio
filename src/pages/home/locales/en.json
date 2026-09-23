@@ -34,7 +34,7 @@
       "launches": "products from scratch",
       "lead": "years as team lead"
     },
-    "badge": "Novorossiysk · hybrid / remote",
+    "badge": "Worldwide · hybrid / remote",
     "photo": "Daniel Rassomakhin"
   },
   "skills": {
@@ -191,13 +191,13 @@
     "letter": "Hello, Daniil. My name is {name}, you can reach me at {contact}. I need help with:",
     "seal": "DR",
     "sealHint": "Press the seal to send",
-    "lead": "Open to frontend and team lead roles, project work and complex product challenges. I answer within a day, usually on Telegram.",
+    "lead": "Open to any role, project work and complex product challenges. I answer within a day; for a quick reply, message me on Telegram or leave a request through the form.",
     "links": {
       "telegram": "Telegram",
       "email": "Email",
       "github": "GitHub",
       "resume": "CV",
-      "resumeNote": "PDF, one page"
+      "resumeNote": "view PDF"
     },
     "form": {
       "name": "Your name",
