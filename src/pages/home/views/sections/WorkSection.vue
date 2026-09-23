@@ -968,7 +968,8 @@ onBeforeUnmount(() => {
   &__inside {
     position: fixed;
     inset: 0;
-    z-index: 50;
+    /* over the page's header: a painting takes the whole screen */
+    z-index: 7100;
     display: none;
     overflow: hidden;
 
@@ -1032,8 +1033,15 @@ onBeforeUnmount(() => {
     overscroll-behavior: contain;
   }
 
+  /* the text stands level with the painting: centred on the screen's height,
+     and only scrolls when it is taller than the screen */
   &__body {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 100%;
     max-width: min(720px, calc(100vw - 2 * var(--work-inset) - var(--work-scene)));
     padding: 90px 0 80px clamp(20px, 2.5vw, 40px);
     margin-left: calc(var(--work-inset) + var(--work-scene));
@@ -1347,6 +1355,7 @@ onBeforeUnmount(() => {
     }
 
     &__body {
+      justify-content: flex-start;
       max-width: none;
       padding: calc(52vh - 30px) var(--work-inset) 60px;
       margin-left: 0;
