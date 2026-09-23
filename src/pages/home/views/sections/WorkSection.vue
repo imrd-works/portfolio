@@ -673,7 +673,10 @@ onBeforeUnmount(() => {
   --work-ink-soft: #3a4454;
   --work-text: #2a2f36;
   --work-seal: #c23b2a;
-  --work-scene: min(58vw, 820px);
+  /* inside a painting the scene and the text sit in the page's column too:
+     the margin of the column, and the painting's share of it */
+  --work-inset: max(var(--page-gutter), calc((100vw - var(--page-width)) / 2));
+  --work-scene: min(calc((100vw - 2 * var(--work-inset)) * 0.56), 820px);
 
   position: relative;
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -1000,16 +1003,18 @@ onBeforeUnmount(() => {
   &__scene {
     position: absolute;
     top: 0;
-    left: 0;
+    left: var(--work-inset);
     width: var(--work-scene);
     height: 100%;
+    /* its paper meets the page's paper without a seam on the column side */
+    mask-image: linear-gradient(to right, transparent, #000 140px);
   }
 
   &__fade {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: calc(var(--work-scene) - 140px);
+    left: calc(var(--work-inset) + var(--work-scene) - 140px);
     width: 142px;
     pointer-events: none;
     background: linear-gradient(to right, rgb(236 232 225 / 0%), var(--work-paper));
@@ -1029,9 +1034,9 @@ onBeforeUnmount(() => {
 
   &__body {
     position: relative;
-    max-width: 720px;
-    padding: 90px clamp(24px, 5vw, 80px) 80px 20px;
-    margin-left: var(--work-scene);
+    max-width: min(720px, calc(100vw - 2 * var(--work-inset) - var(--work-scene)));
+    padding: 90px 0 80px clamp(20px, 2.5vw, 40px);
+    margin-left: calc(var(--work-inset) + var(--work-scene));
 
     > * {
       filter: blur(10px);
@@ -1271,7 +1276,7 @@ onBeforeUnmount(() => {
   &__close {
     position: absolute;
     top: 26px;
-    right: clamp(20px, 3vw, 44px);
+    right: var(--work-inset);
     z-index: 2;
     display: grid;
     place-items: center;
@@ -1326,8 +1331,10 @@ onBeforeUnmount(() => {
 
   @media (width < 900px) {
     &__scene {
+      left: 0;
       width: 100%;
       height: 52vh;
+      mask-image: none;
     }
 
     &__fade {
@@ -1340,7 +1347,8 @@ onBeforeUnmount(() => {
     }
 
     &__body {
-      padding: calc(52vh - 30px) 20px 60px;
+      max-width: none;
+      padding: calc(52vh - 30px) var(--work-inset) 60px;
       margin-left: 0;
     }
 
