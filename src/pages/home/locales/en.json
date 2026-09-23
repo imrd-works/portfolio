@@ -212,8 +212,6 @@
       "errorContactOwn": "Those are my contacts — please leave your own",
       "errorAbout": "Describe your task",
       "sendError": "Couldn't send your letter. Please try again.",
-      "topicsLabel": "What it is about",
-      "topicsSent": "Topic",
       "stackLabel": "Stack",
       "stackAdd": "+ pick the stack",
       "stackMore": "+ more",
@@ -228,14 +226,6 @@
     "success": {
       "text": "The letter is sealed · I answer within a day, usually on Telegram",
       "again": "Write another one"
-    },
-    "topics": {
-      "vue": "Vue / Nuxt",
-      "systems": "complex system",
-      "landing": "landing page",
-      "product": "product from scratch",
-      "integrations": "integrations",
-      "leadership": "team lead"
     }
   },
   "footer": {

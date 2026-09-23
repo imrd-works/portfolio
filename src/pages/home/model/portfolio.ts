@@ -322,21 +322,6 @@ export const timeline: TimelineEntry[] = [
   { id: 'commercialStart', dot: '#46427e' },
 ]
 
-/**
- * What a letter can be about: the services, offered as stamps to press in the
- * contact letter rather than as a section of their own — everything they name
- * is already shown in Work, Path and Skills.
- */
-export type TopicId = 'vue' | 'systems' | 'landing' | 'product' | 'integrations' | 'leadership'
-export const contactTopics: TopicId[] = [
-  'vue',
-  'systems',
-  'landing',
-  'product',
-  'integrations',
-  'leadership',
-]
-
 // Contacts live in `shared/config` — the app-level SEO layer reads them too.
 export { contactChannels, socials, sameAs } from '@/shared/config/contacts'
 export type { SocialLink } from '@/shared/config/contacts'

@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
-import { contactChannels, type TopicId } from '../model/portfolio'
+import { contactChannels } from '../model/portfolio'
 import { sendContactRequest } from '../api'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -51,17 +51,14 @@ const schema = yup.object({
     .required('home.contact.form.errorContact')
     .test('email-or-telegram', 'home.contact.form.errorContact', isEmailOrTelegram)
     .test('not-own-contact', 'home.contact.form.errorContactOwn', (value) => !isOwnContact(value)),
-  // what the letter is about: the stamps pressed in it
-  topics: yup.array().of(yup.string().required()).default([]),
   // what it is to be built with: tags picked off the technology shelf
   stack: yup.array().of(yup.string().required()).default([]),
-  // a pressed stamp or a picked tag says enough on its own; without either,
-  // a few words are needed
+  // a picked tag says enough on its own; without one, a few words are needed
   message: yup
     .string()
     .trim()
-    .when(['topics', 'stack'], ([topics, stack], text) =>
-      topics?.length || stack?.length ? text : text.required('home.contact.form.errorAbout')
+    .when('stack', ([stack], text) =>
+      stack?.length ? text : text.required('home.contact.form.errorAbout')
     ),
 })
 
@@ -74,7 +71,6 @@ export function useContactForm() {
       name: '',
       contact: '',
       message: '',
-      topics: [] as TopicId[],
       stack: [] as string[],
     },
   })
@@ -82,14 +78,7 @@ export function useContactForm() {
   const [name, nameAttrs] = defineField('name')
   const [contact, contactAttrs] = defineField('contact')
   const [message, messageAttrs] = defineField('message')
-  const [topics] = defineField('topics')
   const [stack] = defineField('stack')
-
-  /** Press or lift a stamp. */
-  function toggleTopic(id: TopicId) {
-    const now = topics.value ?? []
-    topics.value = now.includes(id) ? now.filter((t) => t !== id) : [...now, id]
-  }
 
   /** Pick a technology off the shelf, or put it back. */
   function toggleStack(chip: string) {
@@ -98,11 +87,9 @@ export function useContactForm() {
   }
 
   const submit = handleSubmit(async (values) => {
-    // the stamps go first, as one line, so the request says at a glance what it is
-    const chosen = (values.topics ?? []).map((id) => t(`home.contact.topics.${id}`))
+    // the stack goes first, as one line, so the request says at a glance what it is
     const picked = values.stack ?? []
     const lines = [
-      chosen.length ? `${t('home.contact.form.topicsSent')}: ${chosen.join(', ')}` : '',
       picked.length ? `${t('home.contact.form.stackSent')}: ${picked.join(', ')}` : '',
       (values.message ?? '').trim(),
     ]
@@ -129,8 +116,6 @@ export function useContactForm() {
     contactAttrs,
     message,
     messageAttrs,
-    topics,
-    toggleTopic,
     stack,
     toggleStack,
     errors,
