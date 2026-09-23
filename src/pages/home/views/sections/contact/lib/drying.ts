@@ -1,25 +1,22 @@
-import VERT from '../shaders/blot.vert.glsl?raw'
-import FRAG from '../shaders/blot.frag.glsl?raw'
+import VERT from '../shaders/drying.vert.glsl?raw'
+import FRAG from '../shaders/drying.frag.glsl?raw'
 
 /**
- * The ink pool behind the letter: a full-section canvas where the paper of
- * the site shows through around the content. As the section comes up the ink
- * runs out to the edges, wet; then it dries — the one sheet on the page that
- * has had time to — fading to warm grey and leaving tide lines behind.
+ * The drying sheet behind the letter: a full-section canvas where the paper
+ * comes up soaked and dries from its edges in as the section is scrolled. It
+ * reports how dry it is, so the text on it can settle at the same pace.
  */
-export interface Wash {
+export interface Drying {
   destroy(): void
 }
 
-export interface WashParts {
+export interface DryingParts {
   /** The section, which the canvas covers. */
   root: HTMLElement
   canvas: HTMLCanvasElement
-  /** The block the water keeps clean: heading, letter and contacts. */
-  area: HTMLElement
 }
 
-const UNIFORMS = ['uRes', 'uArea', 'uRadius', 'uSpread', 'uDry', 'uDpr'] as const
+const UNIFORMS = ['uRes', 'uDry', 'uDpr'] as const
 type UniformName = (typeof UNIFORMS)[number]
 
 function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLShader {
@@ -32,8 +29,11 @@ function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLSha
   return shader
 }
 
-/** Returns null when WebGL is unavailable: the section then stays plain paper. */
-export function mountWash({ root, canvas, area }: WashParts): Wash | null {
+/** Returns null when WebGL is unavailable: the section then stays dry paper. */
+export function mountDrying(
+  { root, canvas }: DryingParts,
+  onDry: (dry: number) => void
+): Drying | null {
   const gl = canvas.getContext('webgl', { antialias: false, alpha: false })
   if (!gl) return null
 
@@ -58,12 +58,8 @@ export function mountWash({ root, canvas, area }: WashParts): Wash | null {
 
   const still = matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false
   let frame = 0
-  // how far the section has come up: the first part pours, the rest dries
-  let progress = still ? 1 : 0
-  const smooth = (a: number, b: number, x: number) => {
-    const t = Math.min(1, Math.max(0, (x - a) / (b - a)))
-    return t * t * (3 - 2 * t)
-  }
+  let dry = still ? 1 : 0
+  let reported = false
 
   const draw = () => {
     frame = 0
@@ -75,19 +71,9 @@ export function mountWash({ root, canvas, area }: WashParts): Wash | null {
       canvas.width = Math.round(width * dpr)
       canvas.height = Math.round(height * dpr)
     }
-
-    const box = area.getBoundingClientRect()
-    const host = root.getBoundingClientRect()
-    // gl_FragCoord counts up from the bottom left, the DOM down from the top
-    const cx = (box.left - host.left + box.width / 2) * dpr
-    const cy = (host.bottom - box.bottom + box.height / 2) * dpr
-
     gl.viewport(0, 0, canvas.width, canvas.height)
     gl.uniform2f(u.uRes, canvas.width, canvas.height)
-    gl.uniform4f(u.uArea, cx, cy, (box.width / 2 + 30) * dpr, (box.height / 2 + 26) * dpr)
-    gl.uniform1f(u.uRadius, 120 * dpr)
-    gl.uniform1f(u.uSpread, smooth(0, 0.55, progress))
-    gl.uniform1f(u.uDry, smooth(0.45, 1, progress))
+    gl.uniform1f(u.uDry, dry)
     gl.uniform1f(u.uDpr, dpr)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
@@ -96,14 +82,16 @@ export function mountWash({ root, canvas, area }: WashParts): Wash | null {
     if (!frame) frame = requestAnimationFrame(draw)
   }
 
-  // the page itself pours the ink and then lets it dry, as it is scrolled
+  // the sheet dries as it comes up: soaked as it enters, dry once it fills
+  // the screen and the letter can be written on it
   const onScroll = () => {
-    const host = root.getBoundingClientRect()
-    const next = still
-      ? 1
-      : Math.min(1, Math.max(0, (innerHeight - host.top) / (innerHeight * 1.05)))
-    if (Math.abs(next - progress) < 0.003 && progress > 0) return
-    progress = next
+    const top = root.getBoundingClientRect().top
+    const t = Math.min(1, Math.max(0, (innerHeight * 0.95 - top) / (innerHeight * 0.95)))
+    const next = still ? 1 : t * t * (3 - 2 * t)
+    if (reported && Math.abs(next - dry) < 0.003) return
+    reported = true
+    dry = next
+    onDry(dry)
     schedule()
   }
 

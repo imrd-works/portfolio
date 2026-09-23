@@ -3,7 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, wa
 import { useI18n } from 'vue-i18n'
 import { useContactForm } from '../../composables/useContactForm'
 import { contactChannels, socials } from '../../model/portfolio'
-import type { Wash } from './contact/lib/wash'
+import type { Drying } from './contact/lib/drying'
 
 const { t } = useI18n()
 const {
@@ -21,16 +21,17 @@ const {
 } = useContactForm()
 
 const section = useTemplateRef<HTMLElement>('section')
-const inner = useTemplateRef<HTMLElement>('inner')
 const gl = useTemplateRef<HTMLCanvasElement>('gl')
 const print = useTemplateRef<HTMLCanvasElement>('print')
 
-// Client-only: the prerendered HTML is the letter on plain paper. The ink
-// pool and the print arrive once the page is live.
+// Client-only: the prerendered HTML is the letter on dry paper. The drying
+// sheet and the print arrive once the page is live.
 const live = ref(false)
+// while the sheet is still wet the text on it is soft; dry, it is plain text
+const wet = ref(false)
 // once the envelope is up the letter is inside it and leaves the flow
 const folded = ref(false)
-let wash: Wash | null = null
+let drying: Drying | null = null
 let fold = 0
 let unmounted = false
 let dpr = 2
@@ -60,16 +61,20 @@ onMounted(async () => {
   await nextTick()
   if (unmounted) return
 
-  const [{ mountWash }, { makePaw }] = await Promise.all([
-    import('./contact/lib/wash'),
+  const [{ mountDrying }, { makePaw }] = await Promise.all([
+    import('./contact/lib/drying'),
     import('./path/lib/paw'),
   ])
   if (unmounted) return
 
   try {
-    wash = mountWash({ root: section.value!, canvas: gl.value!, area: inner.value! })
+    // the text settles into the paper at the pace the paper dries
+    drying = mountDrying({ root: section.value!, canvas: gl.value! }, (dry) => {
+      section.value?.style.setProperty('--contact-dry', dry.toFixed(3))
+      wet.value = dry < 0.999
+    })
   } catch {
-    // no ink pool: the section stays the paper it is prerendered on
+    // no drying sheet: the section stays the dry paper it is prerendered on
     live.value = false
   }
 
@@ -98,8 +103,8 @@ watch(sent, (done) => {
 onBeforeUnmount(() => {
   unmounted = true
   clearTimeout(fold)
-  wash?.destroy()
-  wash = null
+  drying?.destroy()
+  drying = null
 })
 </script>
 
@@ -108,7 +113,7 @@ onBeforeUnmount(() => {
     id="contact"
     ref="section"
     class="contact"
-    :class="{ 'contact--live': live }"
+    :class="{ 'contact--live': live, 'contact--wet': live && wet }"
     data-ink-surface="paper"
   >
     <svg
@@ -142,14 +147,11 @@ onBeforeUnmount(() => {
     <canvas
       v-if="live"
       ref="gl"
-      class="contact__wash"
+      class="contact__sheet"
       aria-hidden="true"
     ></canvas>
 
-    <div
-      ref="inner"
-      class="contact__inner"
-    >
+    <div class="contact__inner">
       <p class="contact__eyebrow">{{ t('home.contact.eyebrow') }}</p>
       <h2 class="contact__title">{{ t('home.contact.title') }}</h2>
 
@@ -353,6 +355,7 @@ onBeforeUnmount(() => {
   --contact-text: #3b322b;
   --contact-seal: #c23b2a;
   --contact-rule: rgb(107 92 80 / 35%);
+  --contact-dry: 1;
 
   position: relative;
   padding: clamp(80px, 9vw, 130px) clamp(20px, 6vw, 96px) clamp(40px, 6vw, 80px);
@@ -367,7 +370,7 @@ onBeforeUnmount(() => {
     position: absolute;
   }
 
-  &__wash {
+  &__sheet {
     position: absolute;
     inset: 0;
     z-index: 0;
@@ -376,10 +379,14 @@ onBeforeUnmount(() => {
     height: 100%;
   }
 
+  /* one column down the middle of the sheet: the heading, the letter, and
+     the addresses under it */
   &__inner {
     position: relative;
     z-index: 1;
-    max-width: 1120px;
+    max-width: 880px;
+    margin: 0 auto;
+    text-align: center;
   }
 
   &__eyebrow {
@@ -392,7 +399,7 @@ onBeforeUnmount(() => {
 
   &__title {
     max-width: 20ch;
-    margin: 0 0 clamp(28px, 4vw, 48px);
+    margin: 0 auto clamp(32px, 4.4vw, 56px);
     font-family: Unbounded, 'Arial Black', system-ui, sans-serif;
     font-size: clamp(28px, 3.6vw, 46px);
     font-weight: 400;
@@ -402,8 +409,28 @@ onBeforeUnmount(() => {
 
   &__spread {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    gap: clamp(28px, 4vw, 64px);
+    gap: clamp(40px, 5vw, 64px);
+    justify-items: center;
+  }
+
+  &__letter,
+  &__fold {
+    width: min(560px, 100%);
+    text-align: left;
+  }
+
+  /* on a wet sheet ink is soft: the heavy title settles into the paper
+     first, the thin text after it, both at the pace the sheet dries */
+  &--wet &__title {
+    opacity: calc(0.45 + 0.55 * min(1, var(--contact-dry) * 1.6));
+    filter: blur(calc(max(0, 1 - var(--contact-dry) * 1.6) * 6px));
+  }
+
+  &--wet &__eyebrow,
+  &--wet &__spread,
+  &--wet &__sign {
+    opacity: calc(0.35 + 0.65 * min(1, max(0, var(--contact-dry) * 1.5 - 0.3)));
+    filter: blur(calc(max(0, 1.3 - var(--contact-dry) * 1.5) * 3px));
   }
 
   /* the letter: one paragraph whose blanks are the fields */
@@ -543,7 +570,8 @@ onBeforeUnmount(() => {
   &__fold {
     display: grid;
     gap: 18px;
-    justify-items: start;
+    justify-items: center;
+    text-align: center;
   }
 
   &__written {
@@ -640,19 +668,20 @@ onBeforeUnmount(() => {
     border-bottom-color: var(--contact-seal);
   }
 
-  /* the address block, written left to right */
+  /* the addresses, in a row under the letter */
   &__address {
     position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    border-top: 1px solid rgb(107 92 80 / 20%);
   }
 
   &__row {
     display: grid;
-    grid-template-columns: 8ch minmax(0, 1fr);
-    gap: 14px;
-    align-items: baseline;
-    padding: 12px 0;
+    gap: 6px;
+    padding: 18px 8px 0;
     margin: 0;
-    border-bottom: 1px solid rgb(107 92 80 / 20%);
   }
 
   &__row-key {
@@ -674,8 +703,9 @@ onBeforeUnmount(() => {
   }
 
   &__note {
-    max-width: 34ch;
-    margin: 26px 0 0;
+    grid-column: 1 / -1;
+    max-width: 52ch;
+    margin: 28px auto 0;
     font-size: 12.5px;
     line-height: 1.75;
     color: var(--contact-ink-soft);
@@ -684,8 +714,8 @@ onBeforeUnmount(() => {
   /* the print the wolverine left on the corner of the letter */
   &__print {
     position: absolute;
-    right: 0;
-    bottom: -18px;
+    top: -96px;
+    right: 4px;
     width: 61px;
     height: 69px;
     opacity: 0.55;
@@ -713,9 +743,9 @@ onBeforeUnmount(() => {
     white-space: nowrap;
   }
 
-  @media (width < 900px) {
-    &__spread {
-      grid-template-columns: minmax(0, 1fr);
+  @media (width < 700px) {
+    &__address {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     &__envelope--over {
