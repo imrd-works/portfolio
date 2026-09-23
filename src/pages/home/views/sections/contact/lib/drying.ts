@@ -4,8 +4,7 @@ import FRAG from '../shaders/drying.frag.glsl?raw'
 /**
  * The drying sheet behind the letter: a full-section canvas of old, yellowed
  * paper that dries from its edges in as the section is scrolled, a web of age
- * growing over it as it goes. It reports how dry it is, so the text on it can
- * settle at the same pace.
+ * growing over it as it goes.
  */
 export interface Drying {
   destroy(): void
@@ -31,10 +30,7 @@ function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLSha
 }
 
 /** Returns null when WebGL is unavailable: the section then stays dry paper. */
-export function mountDrying(
-  { root, canvas }: DryingParts,
-  onDry: (dry: number) => void
-): Drying | null {
+export function mountDrying({ root, canvas }: DryingParts): Drying | null {
   const gl = canvas.getContext('webgl', { antialias: false, alpha: false })
   if (!gl) return null
 
@@ -60,7 +56,7 @@ export function mountDrying(
   const still = matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false
   let frame = 0
   let dry = still ? 1 : 0
-  let reported = false
+  let started = false
   // the web of age grows from different spots on every visit
   const seed = Math.random() * 97
 
@@ -86,16 +82,15 @@ export function mountDrying(
     if (!frame) frame = requestAnimationFrame(draw)
   }
 
-  // the sheet dries as it comes up: soaked as it enters, dry once it fills
-  // the screen and the letter can be written on it
+  // the sheet dries as it comes up: the web starts as it enters and is
+  // grown by the time it fills the screen
   const onScroll = () => {
     const top = root.getBoundingClientRect().top
     const t = Math.min(1, Math.max(0, (innerHeight * 0.95 - top) / (innerHeight * 0.95)))
     const next = still ? 1 : t * t * (3 - 2 * t)
-    if (reported && Math.abs(next - dry) < 0.003) return
-    reported = true
+    if (started && Math.abs(next - dry) < 0.003) return
+    started = true
     dry = next
-    onDry(dry)
     schedule()
   }
 

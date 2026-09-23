@@ -27,8 +27,6 @@ const print = useTemplateRef<HTMLCanvasElement>('print')
 // Client-only: the prerendered HTML is the letter on dry paper. The drying
 // sheet and the print arrive once the page is live.
 const live = ref(false)
-// while the sheet is still wet the text on it is soft; dry, it is plain text
-const wet = ref(false)
 // once the envelope is up the letter is inside it and leaves the flow
 const folded = ref(false)
 let drying: Drying | null = null
@@ -68,11 +66,7 @@ onMounted(async () => {
   if (unmounted) return
 
   try {
-    // the text settles into the paper at the pace the paper dries
-    drying = mountDrying({ root: section.value!, canvas: gl.value! }, (dry) => {
-      section.value?.style.setProperty('--contact-dry', dry.toFixed(3))
-      wet.value = dry < 0.999
-    })
+    drying = mountDrying({ root: section.value!, canvas: gl.value! })
   } catch {
     // no drying sheet: the section stays the dry paper it is prerendered on
     live.value = false
@@ -113,7 +107,7 @@ onBeforeUnmount(() => {
     id="contact"
     ref="section"
     class="contact"
-    :class="{ 'contact--live': live, 'contact--wet': live && wet }"
+    :class="{ 'contact--live': live }"
     data-ink-surface="paper"
   >
     <svg
@@ -356,7 +350,6 @@ onBeforeUnmount(() => {
   --contact-text: #3b322b;
   --contact-seal: #c23b2a;
   --contact-rule: rgb(107 92 80 / 35%);
-  --contact-dry: 1;
 
   position: relative;
   padding: clamp(80px, 9vw, 130px) clamp(20px, 6vw, 96px) clamp(40px, 6vw, 80px);
@@ -420,20 +413,6 @@ onBeforeUnmount(() => {
   &__fold {
     width: min(560px, 100%);
     text-align: left;
-  }
-
-  /* on a wet sheet ink is soft: the heavy title settles into the paper
-     first, the thin text after it, both at the pace the sheet dries */
-  &--wet &__title {
-    opacity: calc(0.45 + 0.55 * min(1, var(--contact-dry) * 1.6));
-    filter: blur(calc(max(0, 1 - var(--contact-dry) * 1.6) * 6px));
-  }
-
-  &--wet &__eyebrow,
-  &--wet &__spread,
-  &--wet &__sign {
-    opacity: calc(0.35 + 0.65 * min(1, max(0, var(--contact-dry) * 1.5 - 0.3)));
-    filter: blur(calc(max(0, 1.3 - var(--contact-dry) * 1.5) * 3px));
   }
 
   /* the letter: one paragraph whose blanks are the fields */
