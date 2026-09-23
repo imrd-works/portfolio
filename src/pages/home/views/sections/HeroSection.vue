@@ -424,10 +424,13 @@ function toggleFog() {
     }
   }
 
+  /* the hero keeps its own margins rather than the page column: the name, the
+     seal and the controls are placed on the full-screen painting, around the
+     sun and the valley, not on the text column of the sections below */
   &__title {
     position: absolute;
     top: clamp(28px, 9vh, 110px);
-    left: var(--page-pad);
+    left: clamp(20px, 5.5vw, 96px);
     z-index: 2;
     max-width: min(86%, 760px);
   }
@@ -477,7 +480,7 @@ function toggleFog() {
 
   &__seal {
     position: absolute;
-    right: var(--page-pad);
+    right: clamp(20px, 5vw, 84px);
     bottom: clamp(64px, 11vh, 120px);
     z-index: 2;
     display: grid;
@@ -508,7 +511,7 @@ function toggleFog() {
   &__control {
     position: absolute;
     top: clamp(30px, 9.4vh, 114px);
-    right: var(--page-pad);
+    right: clamp(20px, 5vw, 84px);
     z-index: 2;
     padding: 4px 0;
     font: inherit;
@@ -570,7 +573,7 @@ function toggleFog() {
       top: auto;
       right: auto;
       bottom: 52px;
-      left: var(--page-pad);
+      left: clamp(20px, 5.5vw, 96px);
 
       &--fog {
         top: auto;
