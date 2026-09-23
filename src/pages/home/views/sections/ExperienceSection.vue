@@ -285,7 +285,15 @@ onBeforeUnmount(() => {
   .exp__step {
     position: absolute;
     z-index: 1;
+    // where a step lies over the river, the paper under its text stays clean:
+    // a soft patch of paper, no edge, so the words never sit on dark water
+    background: rgb(236 232 225 / 0%);
+    border-radius: 14px;
+    box-shadow: 0 0 26px 20px rgb(236 232 225 / 0%);
     transform: translateY(-50%);
+    transition:
+      background-color 1.2s ease,
+      box-shadow 1.2s ease;
 
     > * {
       filter: blur(12px);
@@ -297,6 +305,11 @@ onBeforeUnmount(() => {
 
     &--left {
       text-align: right;
+    }
+
+    &--shown {
+      background: rgb(236 232 225 / 80%);
+      box-shadow: 0 0 26px 20px rgb(236 232 225 / 80%);
     }
 
     &--shown > * {
@@ -346,8 +359,9 @@ onBeforeUnmount(() => {
     }
   }
 
-  @include bp-down(md) {
-    // phones: the painting drifts under a fixed screen, with the caption on it
+  // phones and tablets: the painting drifts under a fixed screen, with the
+  // caption on it (the threshold is MOBILE in path/lib/scene.ts)
+  @media (width < 1100px) {
     .exp__view {
       position: sticky;
       height: 100vh;

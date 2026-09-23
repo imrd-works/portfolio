@@ -44,7 +44,11 @@ export interface RiverScene {
   destroy(): void
 }
 
-const MOBILE = 768 // bp-down(md)
+// Below this the steps beside the river get too narrow to read: their text
+// runs tall into the next step and over the painting. Tablets get the phone
+// layout, a caption at a time over the drifting painting. Keep it in step
+// with the media query in ExperienceSection.vue.
+const MOBILE = 1100
 const WET = CINNABAR.join(',')
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 const smooth = (x: number) => {
