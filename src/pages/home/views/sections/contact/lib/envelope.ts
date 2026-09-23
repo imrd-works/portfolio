@@ -19,6 +19,11 @@ export interface EnvelopeParts {
   /** The ink drop and the cinnabar drop, parked on the apex. */
   inkDrop: HTMLElement
   sunDrop: HTMLElement
+  /**
+   * Where the ink drop comes from, in viewport px: the tip of the brush on the
+   * sheet. When the brush is not beside the envelope the drop falls from above.
+   */
+  inkFrom?: () => { x: number; y: number } | null
   /** The three layers of the painted envelope, drawn as one. */
   layers: string[]
 }
@@ -69,7 +74,7 @@ const load = (src: string) =>
 
 /** Resolves to null when WebGL is unavailable: the flat envelope stays. */
 export async function mountEnvelope(
-  { canvas, inkDrop, sunDrop, layers }: EnvelopeParts,
+  { canvas, inkDrop, sunDrop, layers, inkFrom }: EnvelopeParts,
   hooks: EnvelopeHooks
 ): Promise<EnvelopeScene | null> {
   const images = await Promise.all(layers.map(load))
@@ -165,6 +170,38 @@ export async function mountEnvelope(
       ],
       { duration: ms, fill: 'forwards' }
     )
+    land(el, anim, onHit)
+  }
+
+  /**
+   * A drop flicked off the brush: it leaves the tip, flies in an arc over the
+   * sheet and stretches as it comes down on the apex.
+   */
+  const flick = (el: HTMLElement, at: { x: number; y: number }, ms: number, onHit: () => void) => {
+    const box = el.getBoundingClientRect()
+    const dx = at.x - (box.left + box.width / 2)
+    const dy = at.y - box.bottom
+    const lift = Math.min(120, Math.abs(dx) * 0.35)
+    const frames: Keyframe[] = []
+    for (let i = 0; i <= 10; i++) {
+      const t = i / 10
+      const x = dx * (1 - t)
+      const y = dy * (1 - t) * (1 - t) - lift * 4 * t * (1 - t)
+      const stretch = t < 0.9 ? 0.4 + 0.6 * Math.min(1, t * 2) : 1
+      const sy = t === 1 ? 2.3 : stretch * (1 + 0.3 * t)
+      const sx = t === 1 ? 0.8 : stretch
+      frames.push({ transform: `translate(${x}px, ${y}px) scale(${sx}, ${sy})`, offset: t })
+    }
+    el.style.opacity = '1'
+    const anim = el.animate(frames, {
+      duration: ms,
+      easing: 'cubic-bezier(.35,0,.9,.55)',
+      fill: 'forwards',
+    })
+    land(el, anim, onHit)
+  }
+
+  const land = (el: HTMLElement, anim: Animation, onHit: () => void) => {
     falls.push(anim)
     anim.onfinish = () => {
       el.style.opacity = '0'
@@ -180,7 +217,14 @@ export async function mountEnvelope(
 
   return {
     play() {
-      fall(inkDrop, INK_FALL_MS, () => {
+      const tip = inkFrom?.()
+      const at = inkDrop.getBoundingClientRect()
+      // flicked off the brush when it lies beside the envelope; when the page
+      // is too narrow for that and it lies below, the drop falls from above
+      const beside = tip && Math.abs(tip.x - at.left) > 60 && tip.y < at.bottom + 120
+      const drop = (onHit: () => void) =>
+        beside ? flick(inkDrop, tip, 900, onHit) : fall(inkDrop, INK_FALL_MS, onHit)
+      drop(() => {
         inkAt = performance.now()
         if (!raf) raf = requestAnimationFrame(tick)
         timers.push(

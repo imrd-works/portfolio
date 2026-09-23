@@ -27,6 +27,7 @@ const print = useTemplateRef<HTMLCanvasElement>('print')
 const envCanvas = useTemplateRef<HTMLCanvasElement>('envCanvas')
 const inkDrop = useTemplateRef<HTMLElement>('inkDrop')
 const sunDrop = useTemplateRef<HTMLElement>('sunDrop')
+const tools = useTemplateRef<HTMLImageElement>('tools')
 
 // Client-only: the prerendered HTML is the letter on css paper. The old
 // cracked sheet and the print arrive once the page is live.
@@ -42,7 +43,19 @@ let unmounted = false
 let dpr = 2
 
 /** The blanks of the letter grow with what is written into them. */
-const fit = (value: string, hint: string) => Math.max(3, value.length || hint.length)
+// …up to the width of a line of the letter: past that the field keeps the width
+// of the line and the text scrolls inside it, instead of pushing out of the page
+const fit = (value: string, hint: string) => Math.min(30, Math.max(3, value.length || hint.length))
+
+/** The note about the task grows down the ruled lines instead of scrolling. */
+const about = useTemplateRef<HTMLTextAreaElement>('about')
+watch(message, async () => {
+  await nextTick()
+  const el = about.value
+  if (!el) return
+  el.style.height = 'auto'
+  el.style.height = `${el.scrollHeight}px`
+})
 
 const address = computed(() => [
   { id: 'telegram', href: contactChannels.telegramUrl, value: contactChannels.telegramHandle },
@@ -56,6 +69,17 @@ const address = computed(() => [
     })),
   { id: 'resume', href: contactChannels.resumeUrl, value: t('home.contact.links.resumeNote') },
 ])
+
+/** The tip of the brush on the sheet, where the ink drop leaves from, as a share of the picture. */
+const BRUSH_TIP = { x: 0.119, y: 0.515 }
+
+/** Where the tip of the brush is now, if the picture is on screen. */
+function brushTip() {
+  const img = tools.value
+  if (!img || !img.offsetParent) return null
+  const box = img.getBoundingClientRect()
+  return { x: box.left + box.width * BRUSH_TIP.x, y: box.top + box.height * BRUSH_TIP.y }
+}
 
 /** The painted envelope: the fold lines, the flap that swings down, the birds. */
 const ENVELOPE = ['body', 'flap', 'birds'].map((layer) => `/contact/envelope-${layer}.webp`)
@@ -110,6 +134,7 @@ watch(sent, async (done) => {
         inkDrop: inkDrop.value!,
         sunDrop: sunDrop.value!,
         layers: ENVELOPE,
+        inkFrom: brushTip,
       },
       { sealed: () => (sealUp.value = true) }
     )
@@ -239,6 +264,7 @@ onBeforeUnmount(() => {
             <span class="contact__sr">{{ t('home.contact.form.about') }}</span>
             <textarea
               id="contact-about"
+              ref="about"
               v-model="message"
               v-bind="messageAttrs"
               class="contact__area"
@@ -360,6 +386,18 @@ onBeforeUnmount(() => {
         </aside>
       </div>
 
+      <!-- the brush and the inkstone the letter is written with: the ink that
+           draws the envelope is flicked off this brush -->
+      <img
+        ref="tools"
+        class="contact__tools"
+        src="/contact/brush.webp"
+        alt=""
+        width="1003"
+        height="775"
+        loading="lazy"
+      />
+
       <footer class="contact__sign">
         <span>{{ t('home.footer.name') }}</span>
         <span>{{ t('home.footer.note') }}</span>
@@ -459,12 +497,15 @@ onBeforeUnmount(() => {
 
   &__blank {
     display: inline-block;
+    max-width: 100%;
     margin: 0 1px;
   }
 
   &__blank-input {
     width: auto;
     min-width: 3ch;
+    max-width: 100%;
+    text-overflow: ellipsis;
     padding: 0 4px 3px;
     font: inherit;
     color: var(--contact-ink);
@@ -495,7 +536,9 @@ onBeforeUnmount(() => {
     font-size: clamp(16px, 1.3vw, 19px);
     line-height: 31px;
     color: var(--contact-ink);
+    overflow-wrap: anywhere;
     resize: none;
+    overflow: hidden;
     background: repeating-linear-gradient(transparent 0 30px, rgb(107 92 80 / 24%) 30px 31px);
     border: 0;
     outline: none;
@@ -775,6 +818,18 @@ onBeforeUnmount(() => {
     transform: rotate(18deg);
   }
 
+  /* beside the letter, in the margin of the sheet, its tip towards it */
+  &__tools {
+    position: absolute;
+    top: 176px;
+    left: calc(50% + 236px);
+    width: clamp(260px, 24vw, 360px);
+    max-width: none;
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+  }
+
   &__sign {
     display: flex;
     gap: 16px;
@@ -794,6 +849,16 @@ onBeforeUnmount(() => {
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
+  }
+
+  /* no margin to lie in: it goes under the letter, smaller */
+  @media (width < 1100px) {
+    &__tools {
+      position: static;
+      display: block;
+      width: min(260px, 70%);
+      margin: 32px 0 0 auto;
+    }
   }
 
   @media (width < 700px) {
