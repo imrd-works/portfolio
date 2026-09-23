@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
-import { contactChannels } from '../model/portfolio'
+import { contactChannels, type TopicId } from '../model/portfolio'
 import { sendContactRequest } from '../api'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -51,7 +51,17 @@ const schema = yup.object({
     .required('home.contact.form.errorContact')
     .test('email-or-telegram', 'home.contact.form.errorContact', isEmailOrTelegram)
     .test('not-own-contact', 'home.contact.form.errorContactOwn', (value) => !isOwnContact(value)),
-  message: yup.string().trim().required('home.contact.form.errorAbout'),
+  // what the letter is about: the stamps pressed in it
+  topics: yup.array().of(yup.string().required()).default([]),
+  // a pressed stamp says enough on its own; without one, a few words are needed
+  message: yup
+    .string()
+    .trim()
+    .when('topics', {
+      is: (topics?: string[]) => Boolean(topics?.length),
+      then: (text) => text,
+      otherwise: (text) => text.required('home.contact.form.errorAbout'),
+    }),
 })
 
 export function useContactForm() {
@@ -59,19 +69,32 @@ export function useContactForm() {
   const sent = ref(false)
   const { defineField, errors, handleSubmit, isSubmitting, resetForm } = useForm({
     validationSchema: schema,
-    initialValues: { name: '', contact: '', message: '' },
+    initialValues: { name: '', contact: '', message: '', topics: [] as TopicId[] },
   })
 
   const [name, nameAttrs] = defineField('name')
   const [contact, contactAttrs] = defineField('contact')
   const [message, messageAttrs] = defineField('message')
+  const [topics] = defineField('topics')
+
+  /** Press or lift a stamp. */
+  function toggleTopic(id: TopicId) {
+    const now = topics.value ?? []
+    topics.value = now.includes(id) ? now.filter((t) => t !== id) : [...now, id]
+  }
 
   const submit = handleSubmit(async (values) => {
+    // the stamps go first, as one line, so the request says at a glance what it is
+    const chosen = (values.topics ?? []).map((id) => t(`home.contact.topics.${id}`))
+    const lines = [
+      chosen.length ? `${t('home.contact.form.topicsSent')}: ${chosen.join(', ')}` : '',
+      (values.message ?? '').trim(),
+    ]
     await sendContactRequest(
       {
         name: values.name.trim(),
         contact: values.contact.trim(),
-        message: values.message.trim(),
+        message: lines.filter(Boolean).join('\n\n'),
       },
       t('home.contact.form.sendError')
     )
@@ -90,6 +113,8 @@ export function useContactForm() {
     contactAttrs,
     message,
     messageAttrs,
+    topics,
+    toggleTopic,
     errors,
     loading: isSubmitting,
     sent,

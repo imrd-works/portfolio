@@ -3,6 +3,7 @@ import en from '../locales/en.json'
 import ru from '../locales/ru.json'
 import {
   contactChannels,
+  contactTopics,
   allChips,
   coreSkills,
   homeOf,
@@ -25,6 +26,16 @@ describe('portfolio CV data', () => {
       resumeUrl: '/Rassomakhin_CV.pdf',
     })
     expect(socials).toEqual([{ label: 'GitHub', href: 'https://github.com/imrd-works' }])
+  })
+
+  it('offers the services as stamps in the letter, named in both locales', () => {
+    expect(contactTopics).toHaveLength(6)
+    for (const id of contactTopics) {
+      expect((ru.contact.topics as Record<string, string>)[id]).toBeTruthy()
+      expect((en.contact.topics as Record<string, string>)[id]).toBeTruthy()
+    }
+    // no services section any more: its copy is gone with it
+    expect('services' in ru).toBe(false)
   })
 
   it('states core skills without unverifiable percentage bars', () => {

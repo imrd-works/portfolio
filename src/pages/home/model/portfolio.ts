@@ -212,17 +212,6 @@ export const strongChips: string[] = [
   'Code review',
 ]
 
-export const techMarquee: string[] = [
-  'Vue 3',
-  'Nuxt 4',
-  'TypeScript',
-  'Pinia',
-  'TanStack Query',
-  'Highcharts',
-  'Docker',
-  'CI/CD (GitHub Actions / GitLab CI)',
-]
-
 export interface StatItem {
   id: 'systems' | 'launches' | 'lead'
   value: number
@@ -333,8 +322,13 @@ export const timeline: TimelineEntry[] = [
   { id: 'commercialStart', dot: '#46427e' },
 ]
 
-export type ServiceId = 'vue' | 'systems' | 'landing' | 'product' | 'integrations' | 'leadership'
-export const services: ServiceId[] = [
+/**
+ * What a letter can be about: the services, offered as stamps to press in the
+ * contact letter rather than as a section of their own — everything they name
+ * is already shown in Work, Path and Skills.
+ */
+export type TopicId = 'vue' | 'systems' | 'landing' | 'product' | 'integrations' | 'leadership'
+export const contactTopics: TopicId[] = [
   'vue',
   'systems',
   'landing',

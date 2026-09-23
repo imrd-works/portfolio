@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { Ticker } from '@/shared/ui'
 import { usePageSeo } from '../seo/usePageSeo'
-import { techMarquee } from '../model/portfolio'
 import HeroSection from './sections/HeroSection.vue'
 import AboutSection from './sections/AboutSection.vue'
 import SkillsSection from './sections/SkillsSection.vue'
@@ -18,7 +16,6 @@ usePageSeo()
     <ExperienceSection>
       <WorkSection />
     </ExperienceSection>
-    <Ticker :items="techMarquee" />
     <AboutSection />
     <SkillsSection />
     <ContactSection />

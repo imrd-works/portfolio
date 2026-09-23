@@ -2,7 +2,6 @@
 export { default as AuroraBackdrop } from './AuroraBackdrop/AuroraBackdrop.vue'
 export { default as CustomCursor } from './CustomCursor/CustomCursor.vue'
 export { default as ScrollProgress } from './ScrollProgress/ScrollProgress.vue'
-export { default as Ticker } from './Ticker/Ticker.vue'
 export { default as CountUp } from './CountUp/CountUp.vue'
 
 // Layout primitives

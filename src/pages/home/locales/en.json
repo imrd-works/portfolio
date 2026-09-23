@@ -185,36 +185,6 @@
       }
     }
   },
-  "services": {
-    "eyebrow": "Services",
-    "title": "How I help",
-    "items": {
-      "vue": {
-        "title": "Vue / Nuxt development",
-        "desc": "Vue 3, Nuxt 3/4, TypeScript, Pinia and TanStack Query: architecture, performance and long-term product development."
-      },
-      "systems": {
-        "title": "Complex business systems",
-        "desc": "Dashboards, SVG and charts, large data tables, multi-step forms, roles, REST / GraphQL and digital signatures."
-      },
-      "landing": {
-        "title": "Landing pages, animation & SEO",
-        "desc": "Landing pages that convert: smooth animation (GSAP, Lottie), fast load times and SEO built in. Manage content yourself via headless CMS, with deployment automated."
-      },
-      "product": {
-        "title": "Product launch from scratch",
-        "desc": "I turn an idea into a working product — from analysis to release. I lay down scalable architecture (DDD / FSD) that holds up as you grow."
-      },
-      "integrations": {
-        "title": "Integrations: API, realtime, e-signature",
-        "desc": "I connect your frontend to any backend: REST, GraphQL, type-safe codegen from OpenAPI, real-time chat and legally binding e-signatures (CryptoPro)."
-      },
-      "leadership": {
-        "title": "Team Lead & processes",
-        "desc": "Decomposition, planning, code review, mentoring, release workflows, Docker and CI/CD."
-      }
-    }
-  },
   "contact": {
     "eyebrow": "Contact",
     "title": "Write me a letter",
@@ -241,11 +211,21 @@
       "errorContact": "Enter a valid email or Telegram — e.g. {email} or {handle}",
       "errorContactOwn": "Those are my contacts — please leave your own",
       "errorAbout": "Describe your task",
-      "sendError": "Couldn't send your letter. Please try again."
+      "sendError": "Couldn't send your letter. Please try again.",
+      "topicsLabel": "What it is about",
+      "topicsSent": "Topic"
     },
     "success": {
       "text": "The letter is sealed · I answer within a day, usually on Telegram",
       "again": "Write another one"
+    },
+    "topics": {
+      "vue": "Vue / Nuxt",
+      "systems": "complex system",
+      "landing": "landing page",
+      "product": "product from scratch",
+      "integrations": "integrations",
+      "leadership": "team lead"
     }
   },
   "footer": {

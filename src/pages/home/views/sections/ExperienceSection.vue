@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { PageSection, Motion, Text } from '@/shared/ui'
-import { timeline, services } from '../../model/portfolio'
-import SectionEyebrow from './SectionEyebrow.vue'
+import { timeline } from '../../model/portfolio'
 import { RIVER_STEPS } from './path/config'
 import type { RiverScene } from './path/lib/scene'
 
@@ -134,69 +132,8 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
-    <!-- what comes right after the river (the work wall), before the services -->
+    <!-- what comes right after the river: the work wall -->
     <slot />
-
-    <PageSection
-      relative
-      padding-top="band"
-      padding-bottom="band"
-    >
-      <div>
-        <Motion
-          preset="fade-up"
-          trigger="visible"
-          tag="div"
-          class="exp__head exp__head--services"
-        >
-          <SectionEyebrow
-            num="05"
-            :label="t('home.services.eyebrow')"
-          />
-          <Text
-            tag="h2"
-            variant="display-s"
-            class="exp__title"
-          >
-            {{ t('home.services.title') }}
-          </Text>
-        </Motion>
-
-        <Motion
-          preset="fade-up"
-          trigger="visible"
-          target="children"
-          :stagger="60"
-          tag="div"
-          class="exp__services"
-        >
-          <div
-            v-for="id in services"
-            :key="id"
-            class="exp__service"
-          >
-            <div class="exp__service-head">
-              <span class="exp__service-mark">↳</span>
-              <Text
-                tag="h4"
-                variant="heading-m"
-                class="exp__service-title"
-              >
-                {{ t(`home.services.items.${id}.title`) }}
-              </Text>
-            </div>
-            <Text
-              tag="p"
-              variant="body-s"
-              tone="tertiary"
-              class="exp__service-desc"
-            >
-              {{ t(`home.services.items.${id}.desc`) }}
-            </Text>
-          </div>
-        </Motion>
-      </div>
-    </PageSection>
   </div>
 </template>
 
@@ -430,55 +367,5 @@ onBeforeUnmount(() => {
   .exp__path--live .exp__step > * {
     transition: none;
   }
-}
-
-.exp__head--services {
-  margin-bottom: 40px;
-}
-
-.exp__services {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 14px;
-
-  @include bp-down(sm) {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.exp__service {
-  padding: 24px;
-  background: var(--color-bg-surface-subtle);
-  border: 1px solid var(--color-border-default);
-  border-radius: 20px;
-  transition:
-    border-color 0.4s,
-    background 0.4s;
-
-  &:hover {
-    background: rgb(167 139 250 / 6%);
-    border-color: rgb(167 139 250 / 45%);
-  }
-}
-
-.exp__service-head {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.exp__service-mark {
-  font-family: var(--font-family-display);
-  font-size: 15px;
-  color: var(--color-accent);
-}
-
-.exp__service-title {
-  margin: 0;
-}
-
-.exp__service-desc {
-  margin: 0;
 }
 </style>

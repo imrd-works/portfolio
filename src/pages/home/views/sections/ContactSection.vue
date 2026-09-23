@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useContactForm } from '../../composables/useContactForm'
-import { contactChannels, socials } from '../../model/portfolio'
+import { contactChannels, contactTopics, socials } from '../../model/portfolio'
 import type { Paper } from './contact/lib/paper'
 import type { EnvelopeScene } from './contact/lib/envelope'
 
@@ -14,6 +14,8 @@ const {
   contactAttrs,
   message,
   messageAttrs,
+  topics,
+  toggleTopic,
   errors,
   loading,
   sent,
@@ -249,6 +251,25 @@ onBeforeUnmount(() => {
               </template>
             </i18n-t>
           </p>
+
+          <!-- what the letter is about: the services, as stamps to press -->
+          <div
+            class="contact__topics"
+            role="group"
+            :aria-label="t('home.contact.form.topicsLabel')"
+          >
+            <button
+              v-for="id in contactTopics"
+              :key="id"
+              class="contact__topic"
+              :class="{ 'contact__topic--on': topics?.includes(id) }"
+              type="button"
+              :aria-pressed="Boolean(topics?.includes(id))"
+              @click="toggleTopic(id)"
+            >
+              {{ t(`home.contact.topics.${id}`) }}
+            </button>
+          </div>
 
           <label for="contact-about">
             <span class="contact__sr">{{ t('home.contact.form.about') }}</span>
@@ -512,6 +533,52 @@ onBeforeUnmount(() => {
 
   &__blank-input--bad {
     border-bottom-color: var(--contact-seal);
+  }
+
+  /* the services, as stamps in the letter: pressed, they are inked in */
+  &__topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: 42ch;
+    margin-top: 12px;
+  }
+
+  &__topic {
+    padding: 6px 10px 5px;
+    font: inherit;
+    font-size: 11.5px;
+    color: var(--contact-sun);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    background: none;
+    border: 1px solid rgb(199 56 38 / 55%);
+    border-radius: 2px;
+    transition:
+      color 0.2s,
+      background-color 0.2s,
+      transform 0.18s cubic-bezier(0.2, 1.4, 0.4, 1);
+  }
+
+  &__topic:hover {
+    background: rgb(199 56 38 / 8%);
+  }
+
+  &__topic:active {
+    transform: scale(0.95);
+  }
+
+  &__topic--on,
+  &__topic--on:hover {
+    color: var(--contact-paper);
+    background: var(--contact-sun);
+    border-color: var(--contact-sun);
+  }
+
+  &__topic:focus-visible {
+    outline: 2px solid var(--contact-sun);
+    outline-offset: 3px;
   }
 
   /* the sheet of a letter is ruled, and the lines show through the text */
