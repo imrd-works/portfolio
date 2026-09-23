@@ -102,7 +102,7 @@ const { targetRef: spread, inView: shown } = useInView({ threshold: 0.12 })
   --about-seal: #c23b2a;
 
   position: relative;
-  padding: 120px clamp(20px, 6vw, 96px);
+  padding: 120px var(--page-pad);
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   line-height: normal;
   color: var(--about-ink);
@@ -122,8 +122,6 @@ const { targetRef: spread, inView: shown } = useInView({ threshold: 0.12 })
     grid-template-rows: auto 1fr;
     gap: 18px clamp(24px, 4vw, 64px);
     align-items: start;
-    max-width: 1320px;
-    margin: 0 auto;
   }
 
   /* ---------- the painting, soaked into the paper ---------- */

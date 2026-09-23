@@ -137,6 +137,14 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
     marks.width = Math.round(W * DPR)
     marks.height = Math.round(bandH * DPR)
 
+    // the steps stay inside the page's content column, however wide the river:
+    // the same column as --page-pad in _portfolio.scss (the river itself runs
+    // edge to edge while it is live, so its own padding is zero)
+    const colWidth = parseFloat(getComputedStyle(root).getPropertyValue('--page-width')) || 1280
+    const gutter = Math.min(96, Math.max(20, W * 0.06))
+    const colLeft = Math.max(gutter, (W - colWidth) / 2)
+    const colRight = W - colLeft
+
     RIVER_STEPS.forEach((st, i) => {
       const el = steps[i]
       if (!el) return
@@ -145,11 +153,11 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       let width: number
       if (st.side === 'left') {
         const right = inner - 20
-        width = Math.min(400, right - 24)
+        width = Math.min(400, right - colLeft)
         left = right - width
       } else {
         left = inner + 20
-        width = Math.min(400, W - 24 - left)
+        width = Math.min(400, colRight - left)
       }
       const cy = padTop + st.cy * s
       Object.assign(el.style, {

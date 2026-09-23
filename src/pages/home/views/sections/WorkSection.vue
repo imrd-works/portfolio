@@ -687,7 +687,7 @@ onBeforeUnmount(() => {
   }
 
   &__inner {
-    padding: 120px clamp(20px, 6vw, 96px) 120px;
+    padding: 120px var(--page-pad) 120px;
   }
 
   &__eyebrow {

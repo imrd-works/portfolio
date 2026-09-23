@@ -190,7 +190,7 @@ const found = computed(() => allChips.filter(matches).length)
   --skills-seal: #c23b2a;
 
   position: relative;
-  padding: 0 clamp(20px, 6vw, 96px) 140px;
+  padding: 0 var(--page-pad) 140px;
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   line-height: normal;
   color: var(--skills-ink);
@@ -199,11 +199,6 @@ const found = computed(() => allChips.filter(matches).length)
 
   &__defs {
     position: absolute;
-  }
-
-  &__inner {
-    max-width: 1320px;
-    margin: 0 auto;
   }
 
   &__eyebrow {

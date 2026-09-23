@@ -221,7 +221,7 @@ onBeforeUnmount(() => {
 
 .exp__river {
   position: relative;
-  padding: 140px clamp(20px, 6vw, 96px) 120px;
+  padding: 140px var(--page-pad) 120px;
 }
 
 // the canvases stay on screen while the river scrolls past (once it is live)
@@ -334,7 +334,7 @@ onBeforeUnmount(() => {
   .exp__head {
     position: absolute;
     top: 8px;
-    left: clamp(20px, 6vw, 96px);
+    left: var(--page-pad);
     z-index: 1;
     margin: 0;
   }

@@ -412,7 +412,7 @@ onBeforeUnmount(() => {
   --contact-rule: rgb(107 92 80 / 35%);
 
   position: relative;
-  padding: clamp(80px, 9vw, 130px) clamp(20px, 6vw, 96px) clamp(40px, 6vw, 80px);
+  padding: clamp(80px, 9vw, 130px) var(--page-pad) clamp(40px, 6vw, 80px);
   overflow: hidden;
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   line-height: normal;
@@ -782,6 +782,7 @@ onBeforeUnmount(() => {
 
   &__row-value {
     font-size: 15px;
+    overflow-wrap: anywhere;
     color: var(--contact-ink);
     text-decoration: none;
     border-bottom: 1px solid transparent;
@@ -857,6 +858,10 @@ onBeforeUnmount(() => {
   @media (width < 700px) {
     &__address {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    &__row-value {
+      font-size: 13px;
     }
   }
 
