@@ -9,10 +9,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* selected text is marked the way the seals are: paper on the hero's sun */
+/* selected text is marked like the hero's sun: thinned cinnabar the paper and
+   the ink show through; the text keeps its own colour */
 ::selection {
-  color: #f2efe9;
-  background: #c73826;
+  background: rgb(199 56 38 / 32%);
 }
 
 ::-webkit-scrollbar {
