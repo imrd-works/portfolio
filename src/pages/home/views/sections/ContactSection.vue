@@ -350,6 +350,7 @@ onBeforeUnmount(() => {
   /* the one sheet where the ink has dried: every tone here is a faded,
      warm version of the site's ink; only the seal stays fresh */
   --contact-paper: #ece8e1;
+  --contact-aged: #eae1cc;
   --contact-ink: #231d19;
   --contact-ink-soft: #6b5c50;
   --contact-text: #3b322b;
@@ -364,6 +365,8 @@ onBeforeUnmount(() => {
   line-height: normal;
   color: var(--contact-ink);
   background-color: var(--contact-paper);
+  /* without the drying sheet it is still the old, yellowed page */
+  background-image: linear-gradient(var(--contact-paper), var(--contact-aged) 220px);
   -webkit-font-smoothing: antialiased;
 
   &__defs {

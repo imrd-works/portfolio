@@ -2,9 +2,10 @@ import VERT from '../shaders/drying.vert.glsl?raw'
 import FRAG from '../shaders/drying.frag.glsl?raw'
 
 /**
- * The drying sheet behind the letter: a full-section canvas where the paper
- * comes up soaked and dries from its edges in as the section is scrolled. It
- * reports how dry it is, so the text on it can settle at the same pace.
+ * The drying sheet behind the letter: a full-section canvas where old,
+ * yellowed paper comes up soaked and dries from its edges in as the section is
+ * scrolled, a web of age growing over it as it goes. It reports how dry it
+ * is, so the text on it can settle at the same pace.
  */
 export interface Drying {
   destroy(): void
@@ -16,7 +17,7 @@ export interface DryingParts {
   canvas: HTMLCanvasElement
 }
 
-const UNIFORMS = ['uRes', 'uDry', 'uDpr'] as const
+const UNIFORMS = ['uRes', 'uDry', 'uDpr', 'uSeed'] as const
 type UniformName = (typeof UNIFORMS)[number]
 
 function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLShader {
@@ -60,6 +61,8 @@ export function mountDrying(
   let frame = 0
   let dry = still ? 1 : 0
   let reported = false
+  // the web of age grows from different spots on every visit
+  const seed = Math.random() * 97
 
   const draw = () => {
     frame = 0
@@ -75,6 +78,7 @@ export function mountDrying(
     gl.uniform2f(u.uRes, canvas.width, canvas.height)
     gl.uniform1f(u.uDry, dry)
     gl.uniform1f(u.uDpr, dpr)
+    gl.uniform1f(u.uSeed, seed)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 
