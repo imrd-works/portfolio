@@ -259,8 +259,15 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       hooks.seal()
     }
     if (mobile) {
-      const cur = reached.reduce((m, v, i) => (v ? i : m), -1)
-      if (cur !== shown && cur >= 0) {
+      // the caption follows the reader, not the ink: the ink never runs back,
+      // but scrolling up brings the earlier steps back. Each step holds an
+      // equal share of the section's scroll (the section is sized for that),
+      // so the first one is read too instead of flashing past on the way in
+      const p = clamp01(-r.top / Math.max(1, H - VH))
+      const at = r.top > 0 ? 0 : Math.min(N - 1, Math.floor(p * N))
+      let cur = at
+      while (cur >= 0 && !reached[cur]) cur--
+      if (cur !== shown) {
         shown = cur
         hooks.current(cur)
       }
