@@ -5,6 +5,7 @@ import { useContactForm } from '../../composables/useContactForm'
 import { contactChannels, rowsFor, socials, type StackId } from '../../model/portfolio'
 import type { Paper } from './contact/lib/paper'
 import type { EnvelopeScene } from './contact/lib/envelope'
+import { useInkBloom } from '../../composables/useInkBloom'
 
 const { t } = useI18n()
 const {
@@ -30,6 +31,8 @@ const envCanvas = useTemplateRef<HTMLCanvasElement>('envCanvas')
 const inkDrop = useTemplateRef<HTMLElement>('inkDrop')
 const sunDrop = useTemplateRef<HTMLElement>('sunDrop')
 const tools = useTemplateRef<HTMLImageElement>('tools')
+// the brush and the inkstone come in the way the hero's painting does
+useInkBloom(tools, { from: { x: 0.48, y: 0.5 }, ms: 5200 })
 
 // Client-only: the prerendered HTML is the letter on css paper. The old
 // cracked sheet and the print arrive once the page is live.

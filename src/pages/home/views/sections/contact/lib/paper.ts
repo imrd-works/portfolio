@@ -1,5 +1,5 @@
 import FRAG from '../shaders/paper.frag.glsl?raw'
-import { createQuad } from './quad'
+import { createQuad } from '../../ink/lib/quad'
 
 /**
  * The old sheet the letter is written on: a full-section canvas of yellowed

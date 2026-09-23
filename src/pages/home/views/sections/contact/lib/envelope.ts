@@ -1,5 +1,5 @@
 import FRAG from '../shaders/envelope.frag.glsl?raw'
-import { createQuad } from './quad'
+import { createQuad } from '../../ink/lib/quad'
 
 /**
  * The envelope, drawn onto the letter the way the hero's painting is drawn:

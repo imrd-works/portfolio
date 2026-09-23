@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { useTemplateRef } from 'vue'
 import { useInView } from '@/shared/composables/useInView'
+import { useInkBloom } from '../../composables/useInkBloom'
 import { stats } from '../../model/portfolio'
 
 const { t } = useI18n()
 // The whole spread comes in at once: the painting soaks into the paper, the
 // text blooms, the counts are stamped.
 const { targetRef: spread, inView: shown } = useInView({ threshold: 0.12 })
+// the painting itself comes in the way the hero's does: ink on wet paper,
+// starting from the two of them on the rock
+const art = useTemplateRef<HTMLImageElement>('art')
+useInkBloom(art, { from: { x: 0.45, y: 0.62 } })
 </script>
 
 <template>
@@ -49,6 +55,7 @@ const { targetRef: spread, inView: shown } = useInView({ threshold: 0.12 })
       <!-- the painting is the ground the text lies on: the wolverine from the
            path and the man it walks with, soaked into the paper -->
       <img
+        ref="art"
         class="about__art"
         src="/about/portrait.webp"
         :alt="t('home.about.photo')"
