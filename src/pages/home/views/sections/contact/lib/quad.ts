@@ -2,7 +2,7 @@ import VERT from '../shaders/quad.vert.glsl?raw'
 
 /**
  * A fragment shader over the whole canvas: the one piece of WebGL both the
- * drying sheet and the seal need. Throws if the shader does not compile.
+ * old paper and the envelope need. Throws if the shader does not compile.
  */
 export interface Quad<U extends string> {
   gl: WebGLRenderingContext

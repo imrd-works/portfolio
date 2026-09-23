@@ -1,13 +1,11 @@
-// The last sheet of the page is an old one: yellowed, faded, browner at its
-// edges. As it is scrolled it dries the way paper does — from its edges in,
-// unevenly, the letter in the middle last — and the marks of age creep across
-// the parts that have dried: a web of fine cracks growing out of a few random
-// spots like a spider's thread. The drying itself is never drawn, only what
-// it leaves behind.
+// The last sheet of the page is an old one: faded yellow paper, browner at
+// its edges and in soft patches, with a web of fine cracks across it where
+// the paper has aged — a coarse web and a finer one inside it, thinning and
+// breaking along their length. The web is laid out from a new seed on every
+// visit, so no two letters are written on quite the same sheet.
 precision highp float;
 
 uniform vec2 uRes; // canvas size, device px
-uniform float uDry; // 0 still wet, 1 dry
 uniform float uDpr;
 uniform float uSeed; // a new web every visit
 
@@ -70,15 +68,8 @@ void main() {
   vec2 size = uRes / uDpr;
   vec2 s = vec2(uSeed, uSeed * 1.37);
 
-  // when this spot dries, 0..1: the edges first, the middle last, never evenly
   vec2 c = (q - size * 0.5) / (size * 0.5);
   float r = length(c * vec2(0.8, 1.0));
-  float T = 1.0 - r * 0.85 + (fbm(q * 0.004 + 3.0 + s) - 0.5) * 0.55 + (fbm(q * 0.018) - 0.5) * 0.08;
-  float edge = min(min(q.x, size.x - q.x), min(q.y, size.y - q.y));
-  T *= smoothstep(0.0, 90.0, edge);
-
-  float front = uDry * 1.45 - 0.2;
-  float wet = smoothstep(front - 0.015, front + 0.07, T);
 
   // the age of the paper: faded yellow, browner towards its edges and in
   // soft patches where it caught more light over the years
@@ -94,18 +85,6 @@ void main() {
 
   vec3 col = dry;
 
-  // the web grows out of a few random spots, reaching further as it dries
-  float reach = 10.0;
-  for (int i = 0; i < 6; i++) {
-    vec2 at = (0.08 + 0.84 * hash2(vec2(float(i) * 1.7, 3.1) + s)) * size;
-    reach = min(reach, length(q - at) / max(size.x, size.y));
-  }
-  reach += (fbm(q * 0.006 - s) - 0.5) * 0.14;
-  // it starts once the sheet is half dry and is done when it is dry
-  float spread = clamp((uDry - 0.3) / 0.7, 0.0, 1.0) * 0.5;
-  float grown = 1.0 - smoothstep(spread - 0.05, spread, reach);
-  grown *= 1.0 - wet; // only where the paper has dried
-
   // its threads: a coarse web and a finer one inside it, both bent by the grain
   vec2 warp = vec2(fbm(q * 0.004 + s), fbm(q * 0.004 - s + 5.0)) - 0.5;
   float coarse = 1.0 - smoothstep(0.0, 0.016, threads(q * 0.0045 + warp * 1.4 + s));
@@ -113,7 +92,7 @@ void main() {
   // a thread is never even: it thins out and breaks along its length
   float breaks = smoothstep(0.38, 0.72, fbm(q * 0.02 + s * 3.0));
   float web = (coarse * 0.8 + fine * 0.35 * smoothstep(0.45, 0.7, fbm(q * 0.006 + s))) * breaks;
-  col = mix(col, vec3(0.5, 0.41, 0.29), web * grown * 0.3);
+  col = mix(col, vec3(0.5, 0.41, 0.29), web * 0.3);
 
   // and the paper keeps its fibres through all of it
   col += (vnoise(q * 1.7) - 0.5) * 0.014;

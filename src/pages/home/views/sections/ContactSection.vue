@@ -3,8 +3,8 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, wa
 import { useI18n } from 'vue-i18n'
 import { useContactForm } from '../../composables/useContactForm'
 import { contactChannels, socials } from '../../model/portfolio'
-import type { Drying } from './contact/lib/drying'
-import type { SunSeal } from './contact/lib/sun'
+import type { Paper } from './contact/lib/paper'
+import type { EnvelopeScene } from './contact/lib/envelope'
 
 const { t } = useI18n()
 const {
@@ -24,16 +24,20 @@ const {
 const section = useTemplateRef<HTMLElement>('section')
 const gl = useTemplateRef<HTMLCanvasElement>('gl')
 const print = useTemplateRef<HTMLCanvasElement>('print')
-const sunCanvas = useTemplateRef<HTMLCanvasElement>('sunCanvas')
+const envCanvas = useTemplateRef<HTMLCanvasElement>('envCanvas')
+const inkDrop = useTemplateRef<HTMLElement>('inkDrop')
+const sunDrop = useTemplateRef<HTMLElement>('sunDrop')
 
-// Client-only: the prerendered HTML is the letter on dry paper. The drying
-// sheet and the print arrive once the page is live.
+// Client-only: the prerendered HTML is the letter on css paper. The old
+// cracked sheet and the print arrive once the page is live.
 const live = ref(false)
-// the seal lands as a drop of cinnabar; until it can, the flat mark stands in
-const sunLive = ref(false)
-let drying: Drying | null = null
-let sun: SunSeal | null = null
-let landing = 0
+// the envelope is drawn by drops of ink and cinnabar; until it can be, the
+// flat painting and the flat mark stand in
+const envLive = ref(false)
+// the cinnabar has spread and the initials have come up in it
+const sealUp = ref(false)
+let paper: Paper | null = null
+let envelope: EnvelopeScene | null = null
 let unmounted = false
 let dpr = 2
 
@@ -55,11 +59,6 @@ const address = computed(() => [
 
 /** The painted envelope: the fold lines, the flap that swings down, the birds. */
 const ENVELOPE = ['body', 'flap', 'birds'].map((layer) => `/contact/envelope-${layer}.webp`)
-// the drop hits the apex of the envelope this long after it appears (css: the
-// flap closes by 1.2 s, the drop falls for 0.6 s)
-const LAND_MS = 1800
-// the sun's canvas is wider than the seal: the disc spreads to 0.72 of it
-const SUN_PX = 100
 
 onMounted(async () => {
   dpr = Math.min(devicePixelRatio || 1, 2)
@@ -67,16 +66,16 @@ onMounted(async () => {
   await nextTick()
   if (unmounted) return
 
-  const [{ mountDrying }, { makePaw }] = await Promise.all([
-    import('./contact/lib/drying'),
+  const [{ mountPaper }, { makePaw }] = await Promise.all([
+    import('./contact/lib/paper'),
     import('./path/lib/paw'),
   ])
   if (unmounted) return
 
   try {
-    drying = mountDrying({ root: section.value!, canvas: gl.value! })
+    paper = mountPaper(section.value!, gl.value!)
   } catch {
-    // no drying sheet: the section stays the dry paper it is prerendered on
+    // no cracked sheet: the section keeps the yellowed css paper
     live.value = false
   }
 
@@ -95,33 +94,43 @@ onMounted(async () => {
 })
 
 watch(sent, async (done) => {
-  clearTimeout(landing)
-  sun?.destroy()
-  sun = null
-  sunLive.value = false
-  if (!done || !live.value) return
+  envelope?.destroy()
+  envelope = null
+  sealUp.value = false
+  envLive.value = done && live.value
+  if (!envLive.value) return
 
-  const { mountSun } = await import('./contact/lib/sun')
+  const { mountEnvelope } = await import('./contact/lib/envelope')
   await nextTick()
-  if (unmounted || !sunCanvas.value) return
+  if (unmounted || !envCanvas.value) return
   try {
-    sun = mountSun(sunCanvas.value, SUN_PX)
+    envelope = await mountEnvelope(
+      {
+        canvas: envCanvas.value,
+        inkDrop: inkDrop.value!,
+        sunDrop: sunDrop.value!,
+        layers: ENVELOPE,
+      },
+      { sealed: () => (sealUp.value = true) }
+    )
   } catch {
-    sun = null
+    envelope = null
   }
-  if (!sun) return
-  sunLive.value = true
-  // the drop spreads the moment it lands, as the hero's sun does
-  if (matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) sun.settle()
-  else landing = window.setTimeout(() => sun?.play(), LAND_MS)
+  if (unmounted || !sent.value) return envelope?.destroy()
+  if (!envelope) {
+    // no WebGL after all: the flat envelope and mark take over
+    envLive.value = false
+    return
+  }
+  if (matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) envelope.settle()
+  else envelope.play()
 })
 
 onBeforeUnmount(() => {
   unmounted = true
-  clearTimeout(landing)
-  sun?.destroy()
-  drying?.destroy()
-  drying = null
+  envelope?.destroy()
+  paper?.destroy()
+  paper = null
 })
 </script>
 
@@ -273,7 +282,10 @@ onBeforeUnmount(() => {
           v-else
           class="contact__fold"
         >
-          <div class="contact__envelope">
+          <div
+            class="contact__envelope"
+            :class="{ 'contact__envelope--live': envLive }"
+          >
             <img
               class="contact__envelope-body"
               :src="ENVELOPE[0]"
@@ -289,18 +301,28 @@ onBeforeUnmount(() => {
               :src="ENVELOPE[2]"
               alt=""
             />
+            <canvas
+              v-if="envLive"
+              ref="envCanvas"
+              class="contact__envelope-ink"
+              aria-hidden="true"
+            ></canvas>
+            <span
+              ref="inkDrop"
+              class="contact__drop"
+              aria-hidden="true"
+            ></span>
+            <span
+              ref="sunDrop"
+              class="contact__drop contact__drop--sun"
+              aria-hidden="true"
+            ></span>
             <span
               class="contact__seal"
-              :class="{ 'contact__seal--sun': sunLive }"
+              :class="{ 'contact__seal--sun': envLive, 'contact__seal--up': sealUp }"
               aria-hidden="true"
+              >{{ t('home.contact.seal') }}</span
             >
-              <span class="contact__seal-drop"></span>
-              <canvas
-                ref="sunCanvas"
-                class="contact__seal-sun"
-              ></canvas>
-              <span class="contact__seal-mark">{{ t('home.contact.seal') }}</span>
-            </span>
           </div>
 
           <p class="contact__sealed">{{ t('home.contact.success.text') }}</p>
@@ -359,6 +381,7 @@ onBeforeUnmount(() => {
   --contact-seal: #c23b2a;
   /* the hero's sun: vec3(.78, .22, .15) */
   --contact-sun: #c73826;
+  --contact-drop-ink: #101214;
   --contact-rule: rgb(107 92 80 / 35%);
 
   position: relative;
@@ -368,7 +391,7 @@ onBeforeUnmount(() => {
   line-height: normal;
   color: var(--contact-ink);
   background-color: var(--contact-paper);
-  /* without the drying sheet it is still the old, yellowed page */
+  /* without the cracked sheet it is still the old, yellowed page */
   background-image: linear-gradient(var(--contact-paper), var(--contact-aged) 220px);
   -webkit-font-smoothing: antialiased;
 
@@ -569,45 +592,78 @@ onBeforeUnmount(() => {
 
   &__envelope-body,
   &__envelope-flap,
-  &__envelope-birds {
+  &__envelope-birds,
+  &__envelope-ink {
     position: absolute;
     inset: 0;
     width: 100%;
+    max-width: none;
     height: 100%;
     pointer-events: none;
   }
 
-  /* the fold lines are laid down first, wet */
+  /* live, the envelope is drawn by the drops onto the canvas instead */
+  &__envelope--live &__envelope-body,
+  &__envelope--live &__envelope-flap,
+  &__envelope--live &__envelope-birds {
+    display: none;
+  }
+
+  /* without WebGL: the fold lines laid down wet, the flap swinging down from
+     its hinge, and the birds taking off once it is sealed */
   &__envelope-body {
     animation: contact-bloom 0.7s ease 0.1s both;
   }
 
-  /* then the flap with its mountains swings down from its hinge */
   &__envelope-flap {
     transform-origin: 50% 18%;
     backface-visibility: hidden;
     animation: contact-close 0.85s cubic-bezier(0.3, 0.1, 0.2, 1) 0.35s both;
   }
 
-  /* and once it is sealed the birds take off */
   &__envelope-birds {
     animation: contact-fly 1.6s cubic-bezier(0.2, 0.6, 0.3, 1) 2.5s both;
   }
 
-  /* the site's own mark closes the letter, on the apex of the V. Live, it
-     lands the way the hero's sun does — a drop of cinnabar falls and spreads
-     on the paper — and the initials come up inside it; without WebGL it is
-     the flat circle of the hero, the Work nails and the send button */
+  /* a drop, as in the hero: it leaves the brush small above the apex,
+     stretches as it falls, and is gone the moment it touches the paper */
+  &__drop {
+    position: absolute;
+    top: 57.1%;
+    left: 47.3%;
+    z-index: 1;
+    width: 13px;
+    height: 19px;
+    margin: -19px 0 0 -6.5px;
+    pointer-events: none;
+    background: radial-gradient(circle at 35% 70%, #3a3f48 0 8%, var(--contact-drop-ink) 30%);
+    border-radius: 50% 50% 50% 50% / 72% 72% 34% 34%;
+    opacity: 0;
+    transform-origin: 50% 100%;
+  }
+
+  &__drop--sun {
+    width: 11px;
+    height: 16px;
+    margin: -16px 0 0 -5.5px;
+    background: radial-gradient(circle at 35% 70%, #e0604e 0 10%, var(--contact-sun) 34%);
+  }
+
+  /* the site's own mark closes the letter, on the apex of the V. Live, the
+     cinnabar is drawn on the canvas and only the initials are here, coming
+     up once it has spread; without WebGL it is the flat circle of the hero,
+     the Work nails and the send button */
   &__seal {
     position: absolute;
     top: 57.1%;
     left: 47.3%;
+    z-index: 2;
     display: grid;
     width: 72px;
     height: 72px;
     margin: -36px 0 0 -36px;
     font-family: Unbounded, sans-serif;
-    font-size: 24px;
+    font-size: 17px;
     font-weight: 500;
     color: var(--contact-paper);
     letter-spacing: -0.04em;
@@ -623,58 +679,22 @@ onBeforeUnmount(() => {
     filter: url('#contact-rough');
   }
 
-  &__seal-drop,
-  &__seal-sun {
-    display: none;
-  }
-
-  &__seal-mark {
-    position: relative;
-  }
-
   &__seal--sun {
     background: none;
     box-shadow: none;
-    filter: none;
+    opacity: 0;
     animation: none;
+    transition:
+      opacity 0.6s ease,
+      transform 0.6s ease;
   }
 
   &--live &__seal--sun {
     filter: none;
   }
 
-  /* the drop, as in the hero: it leaves the brush small, stretches as it
-     falls, and is gone the moment it touches the paper */
-  &__seal--sun &__seal-drop {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    display: block;
-    width: 11px;
-    height: 16px;
-    margin: -16px 0 0 -5.5px;
-    background: radial-gradient(circle at 35% 70%, #e0604e 0 10%, var(--contact-sun) 34%);
-    border-radius: 50% 50% 50% 50% / 72% 72% 34% 34%;
-    opacity: 0;
-    transform-origin: 50% 100%;
-    animation: contact-drop 0.6s linear 1.2s both;
-  }
-
-  &__seal--sun &__seal-sun {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    display: block;
-    width: 100px;
-    /* the page caps canvases at their container; this one is meant to spill */
-    max-width: none;
-    height: 100px;
-    margin: -50px 0 0 -50px;
-  }
-
-  /* the initials come up in the paper's colour once the cinnabar has spread */
-  &__seal--sun &__seal-mark {
-    animation: contact-mark 0.6s ease 2.25s both;
+  &__seal--up {
+    opacity: 1;
   }
 
   &__sealed,
@@ -684,7 +704,7 @@ onBeforeUnmount(() => {
     color: var(--contact-ink-soft);
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    animation: contact-settle 0.5s ease 2.8s both;
+    animation: contact-settle 0.5s ease 3.4s both;
   }
 
   &__again {
@@ -787,46 +807,10 @@ onBeforeUnmount(() => {
     &__envelope-flap,
     &__envelope-birds,
     &__seal,
-    &__seal-drop,
-    &__seal-mark,
     &__sealed,
     &__again {
       animation: none;
     }
-  }
-}
-
-@keyframes contact-drop {
-  0% {
-    opacity: 1;
-    transform: translateY(-160px) scale(0.1, 0.1);
-  }
-
-  45% {
-    transform: translateY(-140px) scale(1, 1.15);
-    animation-timing-function: cubic-bezier(0.6, 0, 1, 0.6);
-  }
-
-  99% {
-    opacity: 1;
-    transform: translateY(0) scale(0.8, 1.9);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translateY(0) scale(0.8, 1.9);
-  }
-}
-
-@keyframes contact-mark {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
   }
 }
 
