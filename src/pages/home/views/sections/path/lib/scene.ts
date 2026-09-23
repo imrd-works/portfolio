@@ -212,9 +212,22 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
    * being walked to, `walked` how much of the way to it is done (0..1).
    */
   let next = 0
+  /** The trail's position in steps, easing towards where it should be. */
+  let trail = 0
   /** How strong a trail or a step already passed stays. */
   const PASSED = 0.35
   let walked = 0
+
+  /**
+   * How many steps along `v` is, as a fraction: the steps sit at `marks`
+   * (increasing), the way to the first begins at `start`.
+   */
+  function stepsAlong(marks: number[], start: number, v: number) {
+    const j = marks.findIndex((m) => m > v)
+    if (j < 0) return N
+    const from = j > 0 ? marks[j - 1] : start
+    return j + clamp01((v - from) / Math.max(1e-6, marks[j] - from))
+  }
 
   /** The river is seen from above its mouth: prints far upstream are smaller. */
   const depth = (i: number) => 0.6 + 0.4 * (i / Math.max(1, N - 1))
@@ -350,22 +363,34 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       sealed = true
       hooks.seal()
     }
-    // how far the reader has walked towards the next step
+    // how far along the way the trail should be: `goal` counts steps, so
+    // 2.4 is four tenths of the way from the second step to the third
+    let goal: number
     if (mobile) {
       // phones and tablets: each step holds an equal share of the scroll
-      const readAt = r.top > 0 ? 0 : clamp01(-r.top / Math.max(1, H - VH)) * N
-      const here = Math.min(N - 1, Math.floor(readAt))
-      next = here + 1
-      walked = readAt - here
+      goal = (r.top > 0 ? 0 : clamp01(-r.top / Math.max(1, H - VH)) * N) + 1
     } else {
-      // desktop: by the reading line, the line the ink runs to
+      // desktop: the reader's line, but never ahead of the ink — on a fast
+      // scroll the trail waits for the step it walks to to be painted
       const readY = (VH * RIVER_FLOW.lead - screenTop) / s
-      next = prints.findIndex((pr) => pr.y > readY)
-      if (next < 0) next = N
-      const fromY = next > 0 ? prints[next - 1].y : source().y
-      const toY = next < N ? prints[next].y : fromY + 1
-      walked = clamp01((readY - fromY) / Math.max(1, toY - fromY))
+      const byReader = stepsAlong(
+        prints.map((pr) => pr.y),
+        source().y,
+        readY
+      )
+      const byInk = stepsAlong(
+        prints.map((pr) => pr.at),
+        0,
+        head
+      )
+      goal = Math.min(byReader, byInk)
     }
+    // the trail catches up gently instead of jumping with the scroll
+    trail += (goal - trail) * (1 - Math.exp(-dt * 4))
+    if (Math.abs(goal - trail) < 0.002) trail = goal
+    next = Math.min(N, Math.floor(trail))
+    walked = trail - next
+    const trailMoving = trail !== goal
     if (mobile) {
       // the caption follows the reader, not the ink: the ink never runs back,
       // but scrolling up brings the earlier steps back. Each step holds an
@@ -387,7 +412,7 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
     const wet = drawPrints(now, top)
 
     // keep going while the ink moves or dries, or a print is still wet
-    if (target > head + 0.0005 || dry < head - 0.0005 || wet) schedule()
+    if (target > head + 0.0005 || dry < head - 0.0005 || wet || trailMoving) schedule()
     else if (!REDUCED) calmLater() // the water keeps running, at a calmer frame rate
   }
 
@@ -418,7 +443,8 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
     const drawTrail = (i: number, shown: number, alpha: number) => {
       if (i < 0 || i >= N || alpha <= 0) return
       trails[i].forEach((st, k) => {
-        const on = clamp01(shown - k)
+        // each print comes in over the time of two, so none of them pops
+        const on = clamp01((shown - k) / 2)
         if (on <= 0) return
         const [x, y] = toScreen(st.x, st.y)
         if (y < -60 || y > bandH + 60) return
