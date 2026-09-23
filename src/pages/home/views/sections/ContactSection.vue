@@ -1008,6 +1008,15 @@ onBeforeUnmount(() => {
     animation: contact-settle 0.5s ease 3.4s both;
   }
 
+  /* two sentences read as a note, not as a label */
+  &__sealed {
+    max-width: 46ch;
+    font-size: 13px;
+    line-height: 1.7;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
   &__again {
     padding: 0;
     font-family: inherit;
