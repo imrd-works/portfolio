@@ -212,6 +212,8 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
    * being walked to, `walked` how much of the way to it is done (0..1).
    */
   let next = 0
+  /** How strong a trail or a step already passed stays. */
+  const PASSED = 0.35
   let walked = 0
 
   /** The river is seen from above its mouth: prints far upstream are smaller. */
@@ -412,7 +414,7 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
     }
 
     /* the trails, laid down by the scroll: the one to the step being walked
-       to, and the one just walked, fading as the next is begun */
+       to in full, the ones walked before it paler */
     const drawTrail = (i: number, shown: number, alpha: number) => {
       if (i < 0 || i >= N || alpha <= 0) return
       trails[i].forEach((st, k) => {
@@ -428,7 +430,10 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
     if (next < N && (next === 0 || reached[next - 1])) {
       drawTrail(next, walked * (trails[next].length + 1), 1)
     }
-    if (here >= 0) drawTrail(here, trails[here].length + 1, 1 - walked * 3)
+    // the trails already walked stay on the paper, paler, so the one being
+    // walked stands out; the last one pales as the next is begun
+    for (let i = 0; i < here; i++) drawTrail(i, trails[i].length + 1, PASSED)
+    if (here >= 0) drawTrail(here, trails[here].length + 1, Math.max(PASSED, 1 - walked * 3))
 
     /* the steps' own prints, full size by their descriptions */
     RIVER_STEPS.forEach((st, i) => {
@@ -441,7 +446,7 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       if (y < -120 || y > bandH + 120) return
       const size = scale * depth(i)
       // the step being read stands out, the others step back
-      const dim = i === here || (here < 0 && i === 0) ? 1 : 0.4
+      const dim = i === here || (here < 0 && i === 0) ? 1 : PASSED
 
       // the wet ring soaking into the paper
       const R = 46 * size * (1 + 0.25 * smooth(age / 1.5))
