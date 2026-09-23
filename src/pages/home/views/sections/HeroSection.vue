@@ -231,7 +231,8 @@ function toggleFog() {
 
   position: relative;
   z-index: 2;
-  height: 300vh;
+  // the unrolling needs a track, not a hold: see onScroll in hero/lib/scene.ts
+  height: 220vh;
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   // The site body sets its own line-height; the prototype's geometry is built on `normal`.
   line-height: normal;

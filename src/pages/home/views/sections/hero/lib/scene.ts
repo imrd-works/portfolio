@@ -120,12 +120,18 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     sheetH = fallback ? stageH - top - 34 : stageH // room for the roller at the bottom
     setVar('--hero-sheet-h', sheetH + 'px')
 
-    // the painting: "cover" anchored to the bottom on wide screens; wider than
-    // the sheet on narrow ones so the forest still reads
+    // the painting: "cover" anchored to the bottom on wide screens. On tall
+    // ones it is scaled up to fill well over half of the sheet — shown at the
+    // sheet's width it was a strip under an empty page — and cropped at the
+    // sides around the valley, where the forests meet
     const portrait = sheetW / sheetH < 1.05
-    const w = portrait ? sheetW * 1.9 : Math.max(sheetW, sheetH * RATIO)
+    const w = portrait
+      ? Math.max(sheetW * 1.9, sheetH * 0.6 * RATIO)
+      : Math.max(sheetW, sheetH * RATIO)
     const h = w / RATIO
-    const left = (sheetW - w) / 2
+    const left = portrait
+      ? Math.min(0, Math.max(sheetW - w, sheetW * 0.5 - w * 0.42))
+      : (sheetW - w) / 2
     const bottom = portrait ? sheetH * 0.06 : 0
     if (fallback) {
       Object.assign(art.style, {
@@ -154,7 +160,8 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     // the sun: in the empty sky between the middle mountain and the peak;
     // if the top of the painting is cropped, lower it into view
     const topPx = sheetH - bottom - h
-    const sx = 0.64
+    // …and within the part of it that is on screen, like the blot
+    const sx = vx0 + 0.64 * (vx1 - vx0)
     const sy = Math.max(0.15, (-topPx + SUN_R * h * 1.6 + 18) / h)
     state.sun = [sx, 1 - sy]
     sunTarget = [left + sx * w, topPx + sy * h]
@@ -339,7 +346,9 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
   function onScroll() {
     const range = root.offsetHeight - stage.clientHeight
     const s = Math.min(1, Math.max(0, -root.getBoundingClientRect().top / range))
-    const u = Math.min(1, s / 0.55) // the first 55% of the track unrolls the paper
+    // the paper unrolls over most of the track: a long stretch where the
+    // scroll moved and nothing on screen did read as the page being stuck
+    const u = Math.min(1, s / 0.85)
     setVar('--hero-u', u.toFixed(4))
     if (renderer) {
       // captions and drops live on the paper overlay, cut where the 3D sheet ends
