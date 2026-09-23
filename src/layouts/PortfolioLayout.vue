@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { AuroraBackdrop, CustomCursor, ScrollProgress } from '@/shared/ui'
+import { AuroraBackdrop, CustomCursor } from '@/shared/ui'
 
 const { t } = useI18n()
 </script>
@@ -16,7 +16,6 @@ const { t } = useI18n()
       {{ t('home.a11y.skip') }}
     </a>
 
-    <ScrollProgress />
     <AuroraBackdrop />
     <CustomCursor />
     <main
