@@ -116,7 +116,6 @@ const found = computed(() => allChips.filter(matches).length)
               role="tab"
               type="button"
               :aria-selected="!searching && tab === group.id"
-              :tabindex="tab === group.id ? 0 : -1"
               @click="((tab = group.id), (query = ''))"
             >
               {{ t(`home.skills.tabs.${group.id}`) }}
@@ -393,6 +392,7 @@ const found = computed(() => allChips.filter(matches).length)
     &:focus {
       outline: none;
       border-bottom-color: var(--skills-seal);
+      box-shadow: 0 1.5px 0 var(--skills-seal);
     }
   }
 

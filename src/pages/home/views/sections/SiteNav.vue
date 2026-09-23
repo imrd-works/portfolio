@@ -161,7 +161,8 @@ function go() {
   transform: translateY(-110%);
   transition: transform 0.45s cubic-bezier(0.3, 0.7, 0.2, 1);
 
-  &--shown {
+  &--shown,
+  &:focus-within {
     pointer-events: auto;
     transform: none;
   }

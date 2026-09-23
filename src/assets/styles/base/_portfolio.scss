@@ -30,21 +30,27 @@ body {
   background: rgb(199 56 38 / 32%);
 }
 
+/* the page's scrollbar is the paper and a stroke of thinned ink on it */
+html {
+  scrollbar-color: rgb(58 68 84 / 45%) #ece8e1;
+}
+
 ::-webkit-scrollbar {
-  width: 9px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-canvas);
+  background: #ece8e1;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #241f47;
+  background: rgb(58 68 84 / 42%);
+  border: 2px solid #ece8e1;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a3270;
+  background: rgb(16 18 20 / 62%);
 }
 
 // The ink-brush cursor replaces the native pointer (the class is set by

@@ -52,11 +52,15 @@ const { t } = useI18n()
     top: 12px;
     left: 12px;
     z-index: 9500;
-    padding: 12px 20px;
-    color: var(--color-on-accent);
+    padding: 10px 16px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    color: #ece8e1;
     text-decoration: none;
-    background: var(--gradient-primary);
-    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: #101214;
+    border-radius: 2px;
     transform: translateY(-200%);
     transition: transform 0.2s ease;
 

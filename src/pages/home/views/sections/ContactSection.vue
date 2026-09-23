@@ -618,6 +618,17 @@ onBeforeUnmount(() => {
     border-bottom-color: var(--contact-ink);
   }
 
+  &__blank-input:focus-visible,
+  &__picker-input:focus-visible {
+    border-bottom-color: var(--contact-sun);
+    box-shadow: 0 1.5px 0 var(--contact-sun);
+  }
+
+  &__area:focus-visible {
+    background: repeating-linear-gradient(transparent 0 30px, rgb(199 56 38 / 55%) 30px 31px);
+    background-attachment: local;
+  }
+
   &__blank-input--bad {
     border-bottom-color: var(--contact-seal);
   }
