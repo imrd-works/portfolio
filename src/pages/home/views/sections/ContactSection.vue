@@ -95,6 +95,9 @@ const closePicker = () => {
 }
 watch(sent, (done) => done && closePicker())
 
+/** Other sites and the CV open in a new tab; mail stays with the mail app. */
+const opensTab = (href: string) => href.startsWith('http') || href.endsWith('.pdf')
+
 /** The painted envelope: the fold lines, the flap that swings down, the birds. */
 const ENVELOPE = ['body', 'flap', 'birds'].map((layer) => `/contact/envelope-${layer}.webp`)
 
@@ -471,8 +474,8 @@ onBeforeUnmount(() => {
             <a
               class="contact__row-value"
               :href="row.href"
-              :target="row.href.startsWith('http') ? '_blank' : undefined"
-              :rel="row.href.startsWith('http') ? 'noopener' : undefined"
+              :target="opensTab(row.href) ? '_blank' : undefined"
+              :rel="opensTab(row.href) ? 'noopener' : undefined"
               >{{ row.value }}</a
             >
           </p>
