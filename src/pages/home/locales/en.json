@@ -191,7 +191,7 @@
     "letter": "Hello, Daniil. My name is {name}, you can reach me at {contact}. I need help with:",
     "seal": "DR",
     "sealHint": "Press the seal to send",
-    "lead": "Open to any role, project work and complex product challenges. I answer within a day; for a quick reply, message me on Telegram or leave a request through the form.",
+    "lead": "Open to any role, project work and complex product challenges. I answer within a day or two; the quickest way is Telegram or the letter on this page.",
     "links": {
       "telegram": "Telegram",
       "email": "Email",
@@ -207,7 +207,7 @@
       "phContact": "email or telegram",
       "phAbout": "a few lines about the project",
       "sending": "Sending…",
-      "errorName": "Name — at least 3 characters, letters only",
+      "errorName": "Name — at least 2 characters, letters only",
       "errorContact": "Enter a valid email or Telegram — e.g. {email} or {handle}",
       "errorContactOwn": "Those are my contacts — please leave your own",
       "errorAbout": "Describe your task",
