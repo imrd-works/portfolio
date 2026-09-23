@@ -24,12 +24,10 @@ const section = useTemplateRef<HTMLElement>('section')
 const inner = useTemplateRef<HTMLElement>('inner')
 const gl = useTemplateRef<HTMLCanvasElement>('gl')
 const print = useTemplateRef<HTMLCanvasElement>('print')
-const envBody = useTemplateRef<HTMLCanvasElement>('envBody')
-const envFlap = useTemplateRef<HTMLCanvasElement>('envFlap')
 const waxArt = useTemplateRef<HTMLCanvasElement>('waxArt')
 
 // Client-only: the prerendered HTML is the letter on plain paper. The ink
-// pool, the print and the painted envelope arrive once the page is live.
+// pool, the print and the wax seal arrive once the page is live.
 const live = ref(false)
 // once the envelope is up the letter is inside it and leaves the flow
 const folded = ref(false)
@@ -65,20 +63,18 @@ function show(target: HTMLCanvasElement | null, art: HTMLCanvasElement) {
   target.getContext('2d')!.drawImage(art, 0, 0)
 }
 
-/** The envelope is painted, so it is drawn only once the letter is sealed. */
-async function paintEnvelope() {
-  const [{ envelopeBody, envelopeFlap }, { paintWax }] = await Promise.all([
-    import('./contact/lib/envelope'),
-    import('./contact/lib/wax'),
-  ])
+/** The painted envelope: the fold lines, the flap that swings down, the birds. */
+const ENVELOPE = ['body', 'flap', 'birds'].map((layer) => `/contact/envelope-${layer}.webp`)
+
+/** The wax is rendered, so it is made only once the letter is sealed. */
+async function paintSeal() {
+  const { paintWax } = await import('./contact/lib/wax')
   // the initials are pressed with the page's own font, so it has to be there
   await document.fonts?.ready
   await nextTick()
   if (unmounted) return
-  show(envBody.value, envelopeBody(dpr))
-  show(envFlap.value, envelopeFlap(dpr))
 
-  const seal = paintWax({ size: 92, dpr, text: t('home.contact.seal') })
+  const seal = paintWax({ size: 84, dpr, text: t('home.contact.seal') })
   if (!seal) return
   show(waxArt.value, seal.canvas)
   waxed.value = true
@@ -104,6 +100,9 @@ onMounted(async () => {
     live.value = false
   }
 
+  // the envelope is fetched now, so it is there the moment the seal is pressed
+  for (const src of ENVELOPE) new Image().src = src
+
   // one print: the wolverine walked across the letter on its way out
   const paw = makePaw(23, true)
   const host = print.value
@@ -120,7 +119,7 @@ watch(sent, (done) => {
   folded.value = false
   waxed.value = false
   if (!done) return
-  if (live.value) void paintEnvelope()
+  if (live.value) void paintSeal()
   // the letter has gone into the envelope by now, so it stops taking room
   fold = window.setTimeout(() => (folded.value = true), 1000)
 })
@@ -307,16 +306,21 @@ onBeforeUnmount(() => {
             class="contact__envelope"
             :class="{ 'contact__envelope--over': !folded }"
           >
-            <canvas
-              ref="envBody"
+            <img
               class="contact__envelope-body"
-              aria-hidden="true"
-            ></canvas>
-            <canvas
-              ref="envFlap"
+              :src="ENVELOPE[0]"
+              alt=""
+            />
+            <img
               class="contact__envelope-flap"
-              aria-hidden="true"
-            ></canvas>
+              :src="ENVELOPE[1]"
+              alt=""
+            />
+            <img
+              class="contact__envelope-birds"
+              :src="ENVELOPE[2]"
+              alt=""
+            />
             <span
               class="contact__wax"
               :class="{ 'contact__wax--painted': waxed }"
@@ -581,12 +585,12 @@ onBeforeUnmount(() => {
     animation: contact-away 0.8s ease 0.8s both;
   }
 
+  /* the painted envelope: layers cut from one sheet, so they stack exactly */
   &__envelope {
     position: relative;
-    width: min(420px, 100%);
-    height: 248px;
-    perspective: 1000px;
-    animation: contact-settle 0.5s ease 1s both;
+    width: min(540px, 100%);
+    aspect-ratio: 1200 / 635;
+    perspective: 1200px;
   }
 
   &__envelope--over {
@@ -594,27 +598,41 @@ onBeforeUnmount(() => {
   }
 
   &__envelope-body,
-  &__envelope-flap {
+  &__envelope-flap,
+  &__envelope-birds {
     position: absolute;
-    inset: 0 0 auto;
+    inset: 0;
     width: 100%;
+    height: 100%;
+    pointer-events: none;
   }
 
+  /* the fold lines are laid down first, wet */
+  &__envelope-body {
+    animation: contact-bloom 0.7s ease 1s both;
+  }
+
+  /* then the flap with its mountains swings down from its hinge */
   &__envelope-flap {
-    transform-origin: top center;
-    transform: rotateX(178deg);
-    animation: contact-close 0.8s cubic-bezier(0.4, 0.05, 0.2, 1) 1.15s both;
+    transform-origin: 50% 18%;
+    backface-visibility: hidden;
+    animation: contact-close 0.85s cubic-bezier(0.3, 0.1, 0.2, 1) 1.25s both;
   }
 
-  /* six-sided wax: a raised rim, a soft dome, letters sunk into it */
+  /* and once it is sealed the birds take off */
+  &__envelope-birds {
+    animation: contact-fly 1.6s cubic-bezier(0.2, 0.6, 0.3, 1) 2.45s both;
+  }
+
+  /* round wax on the apex of the flap: a soft dome, letters sunk into it */
   &__wax {
     position: absolute;
-    top: 92px;
-    left: 50%;
+    top: 57.1%;
+    left: 47.3%;
     display: grid;
-    width: 92px;
-    height: 92px;
-    margin-left: -46px;
+    width: 84px;
+    height: 84px;
+    margin: -42px 0 0 -42px;
     background: radial-gradient(
       64% 58% at 40% 32%,
       #e0664e 0%,
@@ -622,19 +640,18 @@ onBeforeUnmount(() => {
       #a32e1e 78%,
       #7e2013 100%
     );
-    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+    border-radius: 50%;
     box-shadow:
       inset 0 -7px 14px rgb(70 12 6 / 55%),
       inset 0 7px 12px rgb(255 190 170 / 35%);
     place-items: center;
     transform: rotate(-5deg);
-    animation: contact-press 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) 1.9s both;
+    animation: contact-press 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) 2s both;
   }
 
   /* the rendered lump of wax replaces the flat one, letters and all */
   &__wax--painted {
     background: none;
-    clip-path: none;
     box-shadow: none;
     transform: none;
   }
@@ -660,9 +677,9 @@ onBeforeUnmount(() => {
 
   &__wax::before {
     position: absolute;
-    inset: 7px;
+    inset: 8px;
     content: '';
-    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+    border-radius: 50%;
     box-shadow: inset 0 3px 8px rgb(60 10 4 / 45%);
   }
 
@@ -779,10 +796,6 @@ onBeforeUnmount(() => {
       grid-template-columns: minmax(0, 1fr);
     }
 
-    &__envelope {
-      height: 210px;
-    }
-
     &__envelope--over {
       margin-top: -120px;
     }
@@ -790,8 +803,9 @@ onBeforeUnmount(() => {
 
   @media (prefers-reduced-motion: reduce) {
     &__written,
-    &__envelope,
+    &__envelope-body,
     &__envelope-flap,
+    &__envelope-birds,
     &__wax,
     &__sealed,
     &__again {
@@ -819,13 +833,42 @@ onBeforeUnmount(() => {
   }
 }
 
+@keyframes contact-bloom {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+    filter: none;
+  }
+}
+
 @keyframes contact-close {
   from {
-    transform: rotateX(178deg);
+    opacity: 0;
+    transform: rotateX(96deg);
+  }
+
+  30% {
+    opacity: 1;
   }
 
   to {
     transform: rotateX(0deg);
+  }
+}
+
+@keyframes contact-fly {
+  from {
+    opacity: 0;
+    transform: translate(-18px, 22px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
