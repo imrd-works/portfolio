@@ -187,20 +187,20 @@ const { targetRef: spread, inView: shown } = useInView({ threshold: 0.12 })
 
   &__eyebrow {
     margin: 0;
-    font-size: 12px;
+    font-size: var(--type-eyebrow-size);
     color: var(--about-ink-soft);
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: var(--type-eyebrow-tracking);
   }
 
   &__title {
     max-width: 18ch;
     margin: 12px 0 0;
-    font-family: Unbounded, 'Arial Black', system-ui, sans-serif;
-    font-size: clamp(28px, 3.6vw, 54px);
-    font-weight: 300;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
+    font-family: var(--type-display);
+    font-size: var(--type-title-size);
+    font-weight: var(--type-title-weight);
+    line-height: var(--type-title-leading);
+    letter-spacing: var(--type-title-tracking);
   }
 
   &__accent {

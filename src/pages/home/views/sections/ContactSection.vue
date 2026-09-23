@@ -555,20 +555,20 @@ onBeforeUnmount(() => {
 
   &__eyebrow {
     margin: 0 0 10px;
-    font-size: 11.5px;
+    font-size: var(--type-eyebrow-size);
     color: var(--contact-ink-soft);
     text-transform: uppercase;
-    letter-spacing: 0.22em;
+    letter-spacing: var(--type-eyebrow-tracking);
   }
 
   &__title {
     max-width: 20ch;
     margin: 0 auto clamp(32px, 4.4vw, 56px);
-    font-family: Unbounded, 'Arial Black', system-ui, sans-serif;
-    font-size: clamp(28px, 3.6vw, 46px);
-    font-weight: 400;
-    line-height: 1.08;
-    letter-spacing: -0.03em;
+    font-family: var(--type-display);
+    font-size: var(--type-title-size);
+    font-weight: var(--type-title-weight);
+    line-height: var(--type-title-leading);
+    letter-spacing: var(--type-title-tracking);
   }
 
   &__spread {

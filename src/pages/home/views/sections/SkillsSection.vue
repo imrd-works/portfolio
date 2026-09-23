@@ -202,20 +202,20 @@ const found = computed(() => allChips.filter(matches).length)
 
   &__eyebrow {
     margin: 0;
-    font-size: 12px;
+    font-size: var(--type-eyebrow-size);
     color: var(--skills-ink-soft);
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: var(--type-eyebrow-tracking);
   }
 
   &__title {
     max-width: 38ch;
     margin: 12px 0 44px;
-    font-family: Unbounded, 'Arial Black', system-ui, sans-serif;
-    font-size: clamp(22px, 2.6vw, 34px);
-    font-weight: 300;
-    line-height: 1.25;
-    letter-spacing: -0.01em;
+    font-family: var(--type-display);
+    font-size: var(--type-title-size);
+    font-weight: var(--type-title-weight);
+    line-height: var(--type-title-leading);
+    letter-spacing: var(--type-title-tracking);
   }
 
   /* ---------- the five brushes ---------- */

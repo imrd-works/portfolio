@@ -178,18 +178,19 @@ onBeforeUnmount(() => {
 }
 
 .exp__eyebrow {
-  font-size: 12px;
+  font-size: var(--type-eyebrow-size);
   color: var(--exp-ink-soft);
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--type-eyebrow-tracking);
 }
 
 .exp__title {
   margin: 10px 0 0;
-  font-family: Unbounded, 'Arial Black', system-ui, sans-serif;
-  font-size: clamp(34px, 5vw, 72px);
-  font-weight: 300;
-  letter-spacing: -0.02em;
+  font-family: var(--type-display);
+  font-size: var(--type-title-size);
+  font-weight: var(--type-title-weight);
+  line-height: var(--type-title-leading);
+  letter-spacing: var(--type-title-tracking);
 }
 
 .exp__steps {

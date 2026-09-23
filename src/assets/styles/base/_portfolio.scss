@@ -6,6 +6,15 @@
   /* the side padding that centres that column in a full-width block: the
      percentage resolves against the block it is used on */
   --page-pad: max(var(--page-gutter), calc((100% - var(--page-width)) / 2));
+
+  /* one type scale for every section: they used to set their own */
+  --type-display: Unbounded, 'Arial Black', system-ui, sans-serif;
+  --type-title-size: clamp(32px, 4vw, 56px);
+  --type-title-weight: 300;
+  --type-title-leading: 1.08;
+  --type-title-tracking: -0.02em;
+  --type-eyebrow-size: 12px;
+  --type-eyebrow-tracking: 0.14em;
 }
 
 html {
