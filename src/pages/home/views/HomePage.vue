@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { usePageSeo } from '../seo/usePageSeo'
+import SiteNav from './sections/SiteNav.vue'
 import HeroSection from './sections/HeroSection.vue'
 import AboutSection from './sections/AboutSection.vue'
 import SkillsSection from './sections/SkillsSection.vue'
@@ -12,6 +13,7 @@ usePageSeo()
 
 <template>
   <div class="home-page">
+    <SiteNav />
     <HeroSection />
     <ExperienceSection>
       <WorkSection />

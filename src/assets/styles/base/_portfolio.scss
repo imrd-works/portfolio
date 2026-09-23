@@ -12,6 +12,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* a jump to a section leaves room for the bar that comes down on the way up */
+section[id] {
+  scroll-margin-top: 60px;
+}
+
 body {
   font-family: var(--font-family-sans);
   color: var(--color-text-primary);
