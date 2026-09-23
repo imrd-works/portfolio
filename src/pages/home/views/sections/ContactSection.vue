@@ -17,6 +17,7 @@ const {
   messageAttrs,
   stack,
   toggleStack,
+  ready,
   errors,
   loading,
   sent,
@@ -396,6 +397,7 @@ onBeforeUnmount(() => {
           <div class="contact__send">
             <button
               class="contact__stamp"
+              :class="{ 'contact__stamp--waiting': !ready }"
               type="submit"
               :disabled="loading"
             >
@@ -836,24 +838,39 @@ onBeforeUnmount(() => {
   }
 
   /* the seal that sends the letter */
+  /* the seal that sends the letter looks like the one that closes it: the
+     sun's cinnabar spread on wet paper, a darker rim where it dried, a soft
+     edge, the initials in the paper's colour */
   &__stamp {
     display: grid;
-    width: 80px;
-    height: 80px;
+    width: 84px;
+    height: 84px;
     font-family: Unbounded, sans-serif;
-    font-size: 21px;
+    font-size: 17px;
+    font-weight: 500;
     color: var(--contact-paper);
+    letter-spacing: -0.04em;
     cursor: pointer;
-    background: var(--contact-seal);
+    background: radial-gradient(
+      circle closest-side,
+      rgb(199 56 38 / 92%) 0%,
+      rgb(199 56 38 / 86%) 62%,
+      rgb(176 46 31 / 95%) 80%,
+      rgb(199 56 38 / 55%) 90%,
+      rgb(199 56 38 / 0%) 100%
+    );
     border: 0;
     border-radius: 50%;
     place-items: center;
     transform: rotate(-6deg);
-    transition: transform 0.18s cubic-bezier(0.2, 1.4, 0.4, 1);
+    transition:
+      opacity 0.3s ease,
+      transform 0.18s cubic-bezier(0.2, 1.4, 0.4, 1);
   }
 
-  &--live &__stamp {
-    filter: url('#contact-rough');
+  /* until the letter has all it needs, the seal waits, pale */
+  &__stamp--waiting {
+    opacity: 0.45;
   }
 
   &__stamp:hover:not(:disabled) {

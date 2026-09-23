@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
@@ -40,7 +40,7 @@ const schema = yup.object({
     .string()
     .trim()
     .required('home.contact.form.errorName')
-    .min(3, 'home.contact.form.errorName')
+    .min(2, 'home.contact.form.errorName')
     .matches(NAME_RE, {
       message: 'home.contact.form.errorName',
       excludeEmptyString: true,
@@ -80,6 +80,16 @@ export function useContactForm() {
   const [message, messageAttrs] = defineField('message')
   const [stack] = defineField('stack')
 
+  /** Everything the letter needs is there: the seal can be pressed. */
+  const ready = computed(() =>
+    schema.isValidSync({
+      name: name.value,
+      contact: contact.value,
+      message: message.value,
+      stack: stack.value,
+    })
+  )
+
   /** Pick a technology off the shelf, or put it back. */
   function toggleStack(chip: string) {
     const now = stack.value ?? []
@@ -118,6 +128,7 @@ export function useContactForm() {
     messageAttrs,
     stack,
     toggleStack,
+    ready,
     errors,
     loading: isSubmitting,
     sent,
