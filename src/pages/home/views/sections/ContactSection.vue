@@ -47,16 +47,6 @@ let dpr = 2
 // of the line and the text scrolls inside it, instead of pushing out of the page
 const fit = (value: string, hint: string) => Math.min(30, Math.max(3, value.length || hint.length))
 
-/** The note about the task grows down the ruled lines instead of scrolling. */
-const about = useTemplateRef<HTMLTextAreaElement>('about')
-watch(message, async () => {
-  await nextTick()
-  const el = about.value
-  if (!el) return
-  el.style.height = 'auto'
-  el.style.height = `${el.scrollHeight}px`
-})
-
 const address = computed(() => [
   { id: 'telegram', href: contactChannels.telegramUrl, value: contactChannels.telegramHandle },
   { id: 'email', href: `mailto:${contactChannels.email}`, value: contactChannels.email },
@@ -264,7 +254,6 @@ onBeforeUnmount(() => {
             <span class="contact__sr">{{ t('home.contact.form.about') }}</span>
             <textarea
               id="contact-about"
-              ref="about"
               v-model="message"
               v-bind="messageAttrs"
               class="contact__area"
@@ -538,7 +527,11 @@ onBeforeUnmount(() => {
     color: var(--contact-ink);
     overflow-wrap: anywhere;
     resize: none;
-    overflow: hidden;
+    /* four ruled lines tall; a longer note scrolls, the lines scrolling with it */
+    overflow-y: auto;
+    scrollbar-color: rgb(107 92 80 / 45%) transparent;
+    scrollbar-width: thin;
+    background-attachment: local;
     background: repeating-linear-gradient(transparent 0 30px, rgb(107 92 80 / 24%) 30px 31px);
     border: 0;
     outline: none;
