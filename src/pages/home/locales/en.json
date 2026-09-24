@@ -156,32 +156,32 @@
       "current": {
         "period": "March 2026 — present",
         "role": "Fullstack / DevOps Developer",
-        "desc": "Closed the loop: I take a product from the idea to production. The frontend on Nuxt and Next, the backend and a headless CMS, Docker, CI/CD and deployments to several environments. In the team I answer for the technical decisions and the release cycle — from the first line of code to a running service."
+        "desc": "Closed the loop: I take a product from the idea to production — the frontend, the backend and a CMS, Docker, CI/CD and deployments. In the team I answer for the technical decisions and the release cycle, from the first line of code to a running service."
       },
       "energyLead": {
         "period": "December 2025 — February 2026",
         "role": "Senior Frontend Developer / Team Lead",
-        "desc": "Led the frontend of an energy trading platform: the architecture of its key processes, CryptoPro electronic signatures, complex tables and ECharts. In parallel kept developing the education platform — through code review, mentoring and release control I kept the quality up in both teams."
+        "desc": "I led two teams at once: launching a new platform while still developing the earlier one. I answered for the architecture of the key processes, the deadlines and the quality of releases, and through code review and mentoring kept one level of code across both teams."
       },
       "educationLead": {
         "period": "June — November 2024, March — November 2025",
         "role": "Senior Frontend Developer / Team Lead",
-        "desc": "Built an education platform from scratch on a DDD architecture: tests, analytics, a content editor, purchases and roles. Broke work down, ran code review and did the mentoring of junior developers — that is how the team arrived at the shared rules the project still stands on."
+        "desc": "Now I answered not for modules but for a whole product: I built the architecture from scratch on DDD and laid down the tests and the rules the team writes code by. I broke the work down, ran code review and did the mentoring of junior developers — that is how the shared standards formed that projects stand on for years."
       },
       "complexSystems": {
         "period": "February 2022 — February 2023",
         "role": "Middle Frontend Developer",
-        "desc": "Stopped waiting for tasks and started to own whole modules: a financial monitoring portal, a transport system, document flow and business processes, SVG visualisations, GraphQL and dashboards. From here on I often worked as an outstaffed developer — joining other teams and heavy legacy code. On 1C-Bitrix, where there is next to no flexibility, I took part of the server logic onto the frontend and built a reliable interface on top of hard limits."
+        "desc": "From doing tasks to owning modules: I carried them whole, from the brief to the release, and agreed the decisions with the team and the backend. I often worked as an outstaffed developer — joining other teams, finding my way through heavy legacy and systems like 1C-Bitrix, where part of the server logic had to live on the frontend. I learned to find a way within any limits."
       },
       "commercialStart": {
         "period": "March 2021 — January 2022",
         "role": "Junior Frontend Developer",
-        "desc": "Joined an IT company and learned Vue from scratch — the stack I still write in. Projects came in of every kind, including on technologies I had never touched: that is how I picked up PHP and Yii2, WordPress and Shopify. Experienced developers in the team reviewed my code, and the range of my tasks grew fast."
+        "desc": "A first job at an IT company and a new stack: I learned Vue from scratch and still write in it. I took on projects of every kind, including on technologies I had never touched — PHP and Yii2, WordPress, Shopify. I learned from the experienced developers in the team: their reviews quickly turned tasks done by the book into tasks done on my own."
       },
       "startups": {
         "period": "before 2021",
         "role": "Frontend developer in startups",
-        "desc": "I started not in an office but at home and in basements — in small teams of enthusiasts building their own startups. I learned frontend on real tasks: markup, JavaScript, my first projects in React. That is also where I learned the main thing: a product is made by a team, not by one developer."
+        "desc": "First steps — at home and in small rented offices, in little teams of enthusiasts with startups of their own. I learned frontend on real tasks: markup, JavaScript, my first projects in React. And I learned the main thing: a product is made by a team, not by one developer."
       }
     }
   },
