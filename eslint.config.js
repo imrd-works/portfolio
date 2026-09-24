@@ -108,7 +108,8 @@ export default [
     ? [
         {
           files: ['src/**/*.ts', 'src/**/*.vue'],
-          ignores: ['**/locales/**', '**/*.json'],
+          // the typograph holds Russian prepositions as rules, not as UI copy
+          ignores: ['**/locales/**', '**/*.json', 'src/shared/lib/typograph*.ts'],
           plugins: { 'no-cyrillic-string': noCyrillicPlugin },
           rules: {
             'no-cyrillic-string/no-cyrillic-string': 'error',
