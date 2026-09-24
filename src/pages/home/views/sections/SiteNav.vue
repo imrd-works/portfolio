@@ -77,9 +77,16 @@ onBeforeUnmount(() => {
   spy?.disconnect()
 })
 
-// a link was followed: the page is travelling, the bar steps aside
-function go() {
+// a link was followed: the page travels to the section without writing its
+// anchor into the address (a reload would otherwise land there), and the bar
+// steps aside
+function go(event: MouseEvent) {
   open.value = false
+  const id = (event.currentTarget as HTMLAnchorElement).hash.slice(1)
+  const target = document.getElementById(id)
+  if (!target) return
+  event.preventDefault()
+  target.scrollIntoView({ behavior: 'smooth' })
 }
 </script>
 
