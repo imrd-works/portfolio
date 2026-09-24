@@ -121,14 +121,6 @@ function toggleFog() {
         aria-hidden="true"
       ></canvas>
 
-      <!-- hint on the desk while the scroll is still rolled up -->
-      <div
-        class="hero__hint"
-        aria-hidden="true"
-      >
-        {{ t('home.hero.hint') }}<i class="hero__hint-line"></i>
-      </div>
-
       <div class="hero__rod"></div>
       <div
         ref="paper"
@@ -218,7 +210,6 @@ function toggleFog() {
   // Tokens from the prototype. The site is dark-only, so the desk takes the
   // prototype's dark variant.
   --hero-desk: #14161a;
-  --hero-desk-ink: #9a9da3;
   --hero-paper: #ece8e1;
   --hero-ink: #101214;
   --hero-ink-soft: #3a4454;
@@ -231,8 +222,9 @@ function toggleFog() {
 
   position: relative;
   z-index: 2;
-  // the unrolling needs a track, not a hold: see onScroll in hero/lib/scene.ts
-  height: 220vh;
+  // one screen: the scroll unrolls by itself on load (hero/lib/scene.ts)
+  height: 100vh;
+  height: 100dvh;
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   // The site body sets its own line-height; the prototype's geometry is built on `normal`.
   line-height: normal;
@@ -250,30 +242,6 @@ function toggleFog() {
     height: 100vh;
     height: 100dvh;
     overflow: hidden;
-  }
-
-  &__hint {
-    position: absolute;
-    top: 46%;
-    right: 0;
-    left: 0;
-    font-size: 13px;
-    color: var(--hero-desk-ink);
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    pointer-events: none;
-    opacity: calc(1 - var(--hero-u, 0) * 4);
-  }
-
-  &__hint-line {
-    display: block;
-    width: 1px;
-    height: 44px;
-    margin: 14px auto 0;
-    background: currentcolor;
-    transform-origin: top;
-    animation: hero-drip 2.2s cubic-bezier(0.6, 0, 0.3, 1) infinite;
   }
 
   // Without WebGL2 the scroll is flat CSS: rod, paper window and roller.
@@ -441,9 +409,10 @@ function toggleFog() {
   &__role {
     filter: blur(14px);
     opacity: 0;
+    // --hero-pace: halved when a try to scroll hurries the hero up
     transition:
-      opacity 1.6s ease,
-      filter 2.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+      opacity calc(1.6s * var(--hero-pace, 1)) ease,
+      filter calc(2.2s * var(--hero-pace, 1)) cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
   &__name {
@@ -588,33 +557,11 @@ function toggleFog() {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    &__hint-line {
-      transform: none;
-      animation: none;
-    }
-
     &__name,
     &__role,
     &__seal--shown {
       transition: none;
     }
-  }
-}
-
-@keyframes hero-drip {
-  0% {
-    opacity: 1;
-    transform: scaleY(0);
-  }
-
-  70% {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-
-  100% {
-    opacity: 0;
-    transform: scaleY(1);
   }
 }
 </style>

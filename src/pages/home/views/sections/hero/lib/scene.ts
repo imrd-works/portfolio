@@ -9,6 +9,7 @@
  * root instead of `document.documentElement`, and caption visibility is
  * reported through `hooks` so Vue owns the classes.
  */
+import { holdScroll, type ScrollHold } from './hold'
 import { CAPTION_TIMING, FOG_DEFAULTS, INK, INK_RATIO as RATIO, type FogConfig } from '../config'
 import { createSegmentBuffers } from './renderer'
 import { createScroll3D, type Scroll3D } from './scroll3d'
@@ -166,7 +167,7 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     state.sun = [sx, 1 - sy]
     sunTarget = [left + sx * w, topPx + sy * h]
     draw()
-    onScroll()
+    applyUnroll()
   }
 
   /* ---------- animation ---------- */
@@ -189,6 +190,7 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     draw()
     if (fallback) hooks.showArt(true)
     showCaptions()
+    hold?.release()
     phase = 'done'
   }
 
@@ -203,9 +205,34 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     return tr
   }
 
+  /* the ink's own clock: ms since the impact, running faster once hurried */
+  const HURRY_SPEED = 3
+  let clockFrom = 0 // real time the current pace started at
+  let clockBase = 0 // ink ms at that moment
+  let pace = 1
+  const inkMs = (now: number) => clockBase + (now - clockFrom) * pace
+
+  // what happens after the impact, on the ink's clock
+  let plan: { at: number; fn: () => void; done: boolean }[] = []
+  function schedulePlan() {
+    timers.forEach(clearTimeout)
+    timers = []
+    const now = inkMs(performance.now())
+    for (const step of plan) {
+      if (step.done) continue
+      later(
+        () => {
+          step.done = true
+          step.fn()
+        },
+        Math.max(0, (step.at - now) / pace)
+      )
+    }
+  }
+
   /* render loop: reveal and sun, then the quiet life of the mist; stops off-screen */
   let t0 = 0
-  let sunT0 = 0
+  let sunT0 = 0 // ink ms the sun landed at
   let ticking = false
   let visible = true
   let lastTick = 0
@@ -220,11 +247,13 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
       return
     }
     lastTick = now
-    if (phase === 'playing' && frame((now - t0) / 1000) >= 1) {
-      phase = 'done'
-      hooks.show('controls')
+    if (phase === 'playing') {
+      if (frame(inkMs(now) / 1000) >= 1) {
+        phase = 'done'
+        hooks.show('controls')
+      }
     }
-    if (sunT0) state.sunT = (now - sunT0) / 1000
+    if (sunT0) state.sunT = (inkMs(now) - sunT0) / 1000
     state.time = now / 1000
     const want = FOG.on ? 1 : 0
     state.fogIn += (want - state.fogIn) * 0.02 // mist fades in and out smoothly
@@ -259,11 +288,13 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
         },
         { transform: `translateY(${sunTarget[1]}px) scale(.8, 1.9)`, offset: 1 },
       ],
-      { duration: 800, fill: 'forwards' }
+      { duration: hurried ? 600 : 800, fill: 'forwards' }
     )
     fall.onfinish = () => {
       sunEl.style.opacity = '0'
-      sunT0 = performance.now()
+      sunT0 = Math.max(1, inkMs(performance.now()))
+      // the sun is the last touch: the page scrolls again once it has landed
+      hold?.release()
     }
   }
 
@@ -283,13 +314,22 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     parts = makeSplash(R0)
     state.seed = 1 + Math.random() * 40
     t0 = performance.now()
+    clockFrom = t0
+    clockBase = 0
+    pace = hurried ? HURRY_SPEED : 1
     schedule()
+    landed = true
     const base = INK.revealDelayMs
-    later(() => hooks.show('name'), base + CAPTION_TIMING.name)
-    later(() => hooks.show('role'), base + CAPTION_TIMING.role)
-    later(sunDrop, base + INK.sunAtMs)
-    later(() => hooks.show('seal'), base + CAPTION_TIMING.seal)
-    later(() => hooks.show('controls'), base + CAPTION_TIMING.controls)
+    plan = [
+      { at: base + CAPTION_TIMING.name, fn: () => hooks.show('name'), done: false },
+      { at: base + CAPTION_TIMING.role, fn: () => hooks.show('role'), done: false },
+      { at: base + INK.sunAtMs, fn: sunDrop, done: false },
+      { at: base + CAPTION_TIMING.seal, fn: () => hooks.show('seal'), done: false },
+      { at: base + CAPTION_TIMING.controls, fn: () => hooks.show('controls'), done: false },
+    ]
+    // hurried by a try to scroll: the name comes with the blot, not after it
+    if (hurried) plan[0].at = plan[1].at = 0
+    schedulePlan()
   }
 
   function play() {
@@ -315,7 +355,7 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
         },
         { transform: `translateY(${y}px) scale(.8, 2.3)`, offset: 1 },
       ],
-      { duration: 650, fill: 'forwards' }
+      { duration: hurried ? 400 : 650, fill: 'forwards' }
     )
     fall.onfinish = impact
   }
@@ -330,6 +370,11 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     })
     ticking = false
     sunT0 = 0
+    landed = false
+    hurried = false
+    pace = 1
+    plan = []
+    setVar('--hero-pace', '1')
     state.p = -0.1
     state.blotR = 0
     state.t = 0
@@ -342,13 +387,22 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     draw()
   }
 
-  /* ---------- scroll: unrolling the scroll ---------- */
-  function onScroll() {
-    const range = root.offsetHeight - stage.clientHeight
-    const s = Math.min(1, Math.max(0, -root.getBoundingClientRect().top / range))
-    // the paper unrolls over the first 70% of the track; the rest is held
-    // for the drop to fall and the valley to bloom while it is still in view
-    const u = Math.min(1, s / 0.7)
+  /* ---------- the unrolling: by itself, on load ---------- */
+  // The sheet unrolls on its own as the page opens, instead of with the
+  // scroll. Meanwhile the page is held at the top, so the hero is seen before
+  // the next section; a try to scroll hurries the drawing up instead.
+  const UNROLL_MS = 1500
+  const HURRY_MS = 350
+  const easeUnroll = (t: number) => 1 - Math.pow(1 - t, 3)
+  let unrolled = REDUCED ? 1 : 0
+  let unrollRaf = 0
+  let unrolling = false
+  let hurried = false
+  let landed = false
+
+  /** Sets the sheet `unrolled` of the way down and lets the drop fall once its spot is down. */
+  function applyUnroll() {
+    const u = unrolled
     setVar('--hero-u', u.toFixed(4))
     // how much of the sheet is down, px from its top
     let down: number
@@ -362,11 +416,54 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
       setVar('--hero-roll', down.toFixed(1) + 'px') // the roller surface travels 1:1 with the paper
       setVar('--hero-d', (58 - 24 * u).toFixed(1) + 'px') // the roller gets thinner
     }
-    // the drop falls as soon as the spot it lands on has been unrolled, not
-    // once the whole sheet is down: by then the reader is already moving on
+    // the drop falls as soon as the spot it lands on is down
     if ((down >= dropTarget[1] + 60 || u >= 0.985) && phase === 'idle') play()
-    if (u < 0.15 && phase !== 'idle') reset()
   }
+
+  /** Unrolls the rest of the sheet, from wherever it is now. */
+  function unroll() {
+    cancelAnimationFrame(unrollRaf)
+    if (REDUCED) {
+      unrolled = 1
+      applyUnroll()
+      return
+    }
+    unrolling = true
+    const from = unrolled
+    const ms = hurried ? HURRY_MS : UNROLL_MS
+    const begun = performance.now()
+    const step = (now: number) => {
+      if (destroyed) return
+      unrolled = from + (1 - from) * easeUnroll(Math.min(1, (now - begun) / ms))
+      applyUnroll()
+      if (unrolled < 1) unrollRaf = requestAnimationFrame(step)
+      else unrolling = false
+    }
+    unrollRaf = requestAnimationFrame(step)
+  }
+
+  /** A try to scroll while the hero is still being drawn: show it sooner. */
+  function hurry() {
+    if (hurried) return
+    hurried = true
+    // the captions bleed in faster too
+    setVar('--hero-pace', '0.5')
+    if (unrolling) unroll()
+    // a drop on its way falls faster
+    dropEl.getAnimations().forEach((a) => (a.playbackRate = 650 / 400))
+    if (landed) {
+      // the ink runs faster from here on, and the name comes now
+      const now = performance.now()
+      clockBase = inkMs(now)
+      clockFrom = now
+      pace = HURRY_SPEED
+      plan[0].at = plan[1].at = 0
+      schedulePlan()
+    }
+  }
+
+  // held from the first frame, unless the page opens somewhere below the hero
+  const hold: ScrollHold | null = !REDUCED && window.scrollY < 40 ? holdScroll(hurry) : null
 
   /* ---------- wiring ---------- */
   const io = new IntersectionObserver((es) => {
@@ -375,7 +472,6 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
   })
   io.observe(stage)
   document.addEventListener('visibilitychange', schedule)
-  window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('resize', layout)
 
   if (import.meta.env.DEV) {
@@ -409,6 +505,7 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
       hooks.useImageFallback()
     }
     layout()
+    unroll()
   }
 
   // The <img> is in the prerendered HTML and may have finished loading before hydration.
@@ -427,11 +524,12 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     },
     destroy() {
       destroyed = true
+      hold?.dispose()
       reset()
       io.disconnect()
       art.removeEventListener('load', start)
       document.removeEventListener('visibilitychange', schedule)
-      window.removeEventListener('scroll', onScroll)
+      cancelAnimationFrame(unrollRaf)
       window.removeEventListener('resize', layout)
       renderer?.dispose()
       renderer = null

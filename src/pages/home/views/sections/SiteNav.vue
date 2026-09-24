@@ -22,9 +22,10 @@ let lastY = 0
 let upBy = 0
 let frame = 0
 
+/** Until most of the hero has scrolled away, the bar stays off it. */
 function heroBottom() {
   const hero = document.getElementById('top')
-  return hero ? hero.offsetTop + hero.offsetHeight - innerHeight : innerHeight
+  return hero ? hero.offsetTop + hero.offsetHeight * 0.6 : innerHeight
 }
 
 function onScroll() {
