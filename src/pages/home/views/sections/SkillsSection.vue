@@ -259,7 +259,9 @@ const found = computed(() => allChips.filter(matches).length)
     display: grid;
     grid-template-columns: 26px minmax(160px, 260px) minmax(0, 1fr);
     gap: 18px;
-    align-items: baseline;
+    /* the blot and the name stand in the middle of the row, however many
+       lines its description runs to */
+    align-items: center;
     padding: 16px 0;
     border-bottom: 1px solid rgb(16 18 20 / 15%);
   }
@@ -545,6 +547,7 @@ const found = computed(() => allChips.filter(matches).length)
     &__core {
       grid-template-columns: 26px minmax(0, 1fr);
       gap: 10px 14px;
+      align-items: start;
     }
 
     &__core-note {
