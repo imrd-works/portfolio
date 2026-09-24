@@ -542,13 +542,16 @@ onBeforeUnmount(() => {
     position: absolute;
   }
 
+  /* pinned to the top and taller than the section (its height is set as it
+     is drawn): the section can grow without the paper moving */
   &__sheet {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
     z-index: 0;
     display: block;
     width: 100%;
-    height: 100%;
+    max-width: none;
   }
 
   /* one column down the middle of the sheet: the heading, the letter, and

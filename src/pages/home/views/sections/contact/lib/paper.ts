@@ -21,21 +21,32 @@ export function mountPaper(root: HTMLElement, canvas: HTMLCanvasElement): Paper 
   const seed = Math.random() * 97
   let frame = 0
 
+  // The sheet is drawn taller than the section and pinned to its top, so when
+  // the section grows — the stack shelf opens in the letter, the envelope
+  // takes its place — the paper does not move: more of the same sheet shows.
+  // It is only drawn again when the width changes or the section outgrows it.
+  const SPARE = 900 // px of paper below the section
+  let drawnW = 0
+  let drawnH = 0
+
   const draw = () => {
     frame = 0
     const dpr = Math.min(devicePixelRatio || 1, 2)
     const width = root.clientWidth
     const height = root.clientHeight
     if (!width || !height) return
+    if (width === drawnW && height <= drawnH) return
+    drawnW = width
+    drawnH = height + SPARE
+    canvas.style.height = `${drawnH}px`
     canvas.width = Math.round(width * dpr)
-    canvas.height = Math.round(height * dpr)
+    canvas.height = Math.round(drawnH * dpr)
     gl.uniform2f(u.uRes, canvas.width, canvas.height)
     gl.uniform1f(u.uDpr, dpr)
     gl.uniform1f(u.uSeed, seed)
     quad.draw()
   }
 
-  // the section grows when the envelope replaces the letter, not only on resize
   const observer = new ResizeObserver(() => {
     if (!frame) frame = requestAnimationFrame(draw)
   })
