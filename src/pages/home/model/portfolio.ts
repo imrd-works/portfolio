@@ -51,8 +51,20 @@ export const stackGroups: StackGroup[] = [
         id: 'frameworks',
         chips: ['Vue 2 / 2.7', 'Vue 3', 'Nuxt 2', 'Nuxt 3 / 4', 'React', 'Next.js'],
       },
-      { id: 'state', chips: ['Pinia', 'Vuex', 'Vue Router', 'TanStack Query', 'VueUse', 'Axios'] },
-      { id: 'forms', chips: ['Vee-validate / Yup', 'Vuelidate', 'TipTap'] },
+      {
+        id: 'state',
+        chips: [
+          'Pinia',
+          'Vuex',
+          'Vue Router',
+          'VueUse',
+          'Redux / Redux Toolkit',
+          'React Router',
+          'TanStack Query',
+          'Axios',
+        ],
+      },
+      { id: 'forms', chips: ['Vee-validate / Yup', 'Vuelidate', 'React Hook Form', 'TipTap'] },
       {
         id: 'markup',
         chips: [
