@@ -165,7 +165,7 @@ export const sharedRows: StackRow[] = [
     id: 'api',
     chips: ['REST API', 'OpenAPI / Swagger', 'Apollo (GraphQL)', 'CryptoPro', 'reCAPTCHA'],
   },
-  { id: 'cms', chips: ['Sanity', 'WordPress', 'Shopify'] },
+  { id: 'cms', chips: ['Sanity', 'WordPress', 'Shopify', '1C-Bitrix'] },
   { id: 'build', chips: ['Vite', 'Webpack', 'npm / Yarn / PNPM', 'Docker'] },
 ]
 
@@ -301,25 +301,20 @@ export const projects: Project[] = [
 ]
 
 export interface TimelineEntry {
-  id:
-    | 'current'
-    | 'fullstack'
-    | 'energyLead'
-    | 'educationLead'
-    | 'complexSystems'
-    | 'commercialStart'
-  dot: string
+  id: 'current' | 'energyLead' | 'educationLead' | 'complexSystems' | 'commercialStart' | 'startups'
 }
 
-// Reverse chronological. Periods here mirror the CV exactly — a recruiter
-// comparing the two documents should find the same dates in both.
+// Reverse chronological, one step per print on the river: the startups before
+// the first job, then junior, middle, senior and lead, and fullstack / DevOps
+// today. The periods follow the CV; the two senior steps are split where they
+// used to overlap, and the startup years and the grades come from the author.
 export const timeline: TimelineEntry[] = [
-  { id: 'current', dot: 'var(--color-accent)' },
-  { id: 'fullstack', dot: '#9a8ae8' },
-  { id: 'energyLead', dot: '#8b7be0' },
-  { id: 'educationLead', dot: '#6c66c8' },
-  { id: 'complexSystems', dot: '#555196' },
-  { id: 'commercialStart', dot: '#46427e' },
+  { id: 'current' },
+  { id: 'energyLead' },
+  { id: 'educationLead' },
+  { id: 'complexSystems' },
+  { id: 'commercialStart' },
+  { id: 'startups' },
 ]
 
 // Contacts live in `shared/config` — the app-level SEO layer reads them too.

@@ -149,14 +149,14 @@ describe('portfolio CV data', () => {
     expect(en.work.items.moex.title).toBe('Financial Monitoring Portal')
   })
 
-  it('shows six responsibility milestones in reverse chronological order', () => {
+  it('shows six steps in reverse chronological order, one per print on the river', () => {
     expect(timeline.map(({ id }) => id)).toEqual([
       'current',
-      'fullstack',
       'energyLead',
       'educationLead',
       'complexSystems',
       'commercialStart',
+      'startups',
     ])
   })
 
@@ -168,8 +168,15 @@ describe('portfolio CV data', () => {
 
     expect(Object.keys(ruItems)).toEqual(ids)
     expect(Object.keys(enItems)).toEqual(ids)
-    expect(ruItems.fullstack?.role).toBe('Fullstack Developer / Team Lead')
-    expect(enItems.energyLead?.role).toBe('Frontend Developer / Team Lead')
+    // junior, middle, senior and lead, then fullstack and DevOps today
+    expect(ids.map((id) => enItems[id]?.role)).toEqual([
+      'Fullstack / DevOps Developer',
+      'Senior Frontend Developer / Team Lead',
+      'Senior Frontend Developer / Team Lead',
+      'Middle Frontend Developer',
+      'Junior Frontend Developer',
+      'Frontend developer in startups',
+    ])
     expect(enItems.educationLead?.desc).toContain('mentoring')
     expect(ruItems.energyLead?.desc).toContain('code review')
     expect(ids.every((id) => (ruItems[id]?.desc.length ?? 0) > 100)).toBe(true)
@@ -185,10 +192,10 @@ describe('portfolio CV data', () => {
     const enItems = en.experience.items as Record<string, ExperienceCopy>
     const ids = timeline.map(({ id }) => id)
 
-    expect(ruItems.fullstack?.role).toBe('Fullstack Developer / Team Lead')
-    expect(enItems.fullstack?.role).toBe('Fullstack Developer / Team Lead')
     expect(ruItems.educationLead?.period).toContain('2024')
-    expect(enItems.educationLead?.period).toBe('June — November 2024, March 2025 — February 2026')
+    // the two senior steps follow one another instead of overlapping
+    expect(enItems.educationLead?.period).toBe('June — November 2024, March — November 2025')
+    expect(enItems.energyLead?.period).toBe('December 2025 — February 2026')
     // The timeline must reach today, not stop at the last finished project.
     expect(enItems.current?.period).toContain('present')
     expect(

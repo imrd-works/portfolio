@@ -26,9 +26,9 @@
     "eyebrow": "About",
     "title": "I turn complex ideas into {accent}",
     "titleAccent": "living interfaces",
-    "p1": "For more than 5 years, I have designed and launched enterprise and public-sector platforms from scratch where mistakes are expensive: digital signatures, role-based access, multi-step forms, heavy interactive dashboards and SVG data visualization.",
-    "p2": "I take products from the idea stage to production: I build DDD and FSD architectures that can grow without turning into legacy within a year. As a Team Lead, I am responsible not only for my own code, but also for timelines, reviews and onboarding.",
-    "p3": "I configure Docker and CI/CD, work confidently with backend teams and take on fullstack tasks when that speeds up the result without diluting focus.",
+    "p1": "For more than 5 years I have been designing and launching corporate and government platforms where a mistake is costly: electronic signatures, role-based access, multi-step forms, heavy dashboards and data visualisation. I take a product from the idea to production — with an architecture (DDD, FSD) that holds up as it grows — and as a Team Lead I answer not only for my own code but for deadlines, reviews and the team.",
+    "p2": "For most of my path I worked as an outstaffed developer — in other people's teams, on old codebases and in systems boxed in on every side. Whatever the conditions, I found a way: not a single contract ended early, I saw every project through to the end and left with the client's thanks.",
+    "p3": "I started before AI assistants existed and learned to design clean, fast and reliable solutions with my own hands. Today AI is part of every stage of my work, and I move many times faster. But it does not think for me — it helps: the architecture, the quality of the code and every decision stay under my control. AI brings the speed; the quality is on me.",
     "stats": {
       "systems": "systems in production",
       "launches": "products from scratch",
@@ -154,34 +154,34 @@
     "title": "Timeline",
     "items": {
       "current": {
-        "period": "June 2026 — present",
-        "role": "Frontend / Fullstack Developer",
-        "desc": "I run the company's product projects as a fullstack developer: a Nuxt 3 SSG site on a headless CMS and a storefront on Nuxt 2 with a Symfony backend. Cut load time and closed CLS, hardened the forms, static delivery and deploys across several environments. Inside the team I own the technical decisions and the release cycle."
-      },
-      "fullstack": {
-        "period": "March — June 2026",
-        "role": "Fullstack Developer / Team Lead",
-        "desc": "Within a development team, owned the complete delivery cycle for an institutional Bitcoin landing page: from the interactive Next.js and GSAP frontend to Sanity CMS, SEO, analytics, Docker and CI/CD. Coordinated technical decisions and the product outcome as a whole."
+        "period": "March 2026 — present",
+        "role": "Fullstack / DevOps Developer",
+        "desc": "Closed the loop: I take a product from the idea to production. The frontend on Nuxt and Next, the backend and a headless CMS, Docker, CI/CD and deployments to several environments. In the team I answer for the technical decisions and the release cycle — from the first line of code to a running service."
       },
       "energyLead": {
         "period": "December 2025 — February 2026",
-        "role": "Frontend Developer / Team Lead",
-        "desc": "Owned the architecture of core workflows for an energy trading marketplace, including CryptoPro signatures, complex data tables and ECharts visualizations. Maintained team delivery quality through code review, mentoring and release oversight."
+        "role": "Senior Frontend Developer / Team Lead",
+        "desc": "Led the frontend of an energy trading platform: the architecture of its key processes, CryptoPro electronic signatures, complex tables and ECharts. In parallel kept developing the education platform — through code review, mentoring and release control I kept the quality up in both teams."
       },
       "educationLead": {
-        "period": "June — November 2024, March 2025 — February 2026",
-        "role": "Frontend Developer / Team Lead",
-        "desc": "Built an education platform from the ground up with DDD architecture, testing, analytics, content editing, purchases and role-based access. Led decomposition, code review and mentoring so the team could make durable technical decisions."
+        "period": "June — November 2024, March — November 2025",
+        "role": "Senior Frontend Developer / Team Lead",
+        "desc": "Built an education platform from scratch on a DDD architecture: tests, analytics, a content editor, purchases and roles. Broke work down, ran code review and did the mentoring of junior developers — that is how the team arrived at the shared rules the project still stands on."
       },
       "complexSystems": {
         "period": "February 2022 — February 2023",
-        "role": "Frontend Developer",
-        "desc": "As part of a development team, independently owned modules across a financial monitoring portal, a public transport document system and an industrial business-process platform. Aligned solutions with other developers and delivered SVG visualizations, GraphQL, dashboards and complex forms."
+        "role": "Middle Frontend Developer",
+        "desc": "Stopped waiting for tasks and started to own whole modules: a financial monitoring portal, a transport system, document flow and business processes, SVG visualisations, GraphQL and dashboards. From here on I often worked as an outstaffed developer — joining other teams and heavy legacy code. On 1C-Bitrix, where there is next to no flexibility, I took part of the server logic onto the frontend and built a reliable interface on top of hard limits."
       },
       "commercialStart": {
         "period": "March 2021 — January 2022",
-        "role": "Frontend Developer",
-        "desc": "Started in a team building commercial interfaces for corporate platforms, e-commerce and advertising services. Worked with other developers to turn designs into responsive products, integrate REST APIs and evolve Vue code while taking ownership of increasingly independent areas."
+        "role": "Junior Frontend Developer",
+        "desc": "Joined an IT company and learned Vue from scratch — the stack I still write in. Projects came in of every kind, including on technologies I had never touched: that is how I picked up PHP and Yii2, WordPress and Shopify. Experienced developers in the team reviewed my code, and the range of my tasks grew fast."
+      },
+      "startups": {
+        "period": "before 2021",
+        "role": "Frontend developer in startups",
+        "desc": "I started not in an office but at home and in basements — in small teams of enthusiasts building their own startups. I learned frontend on real tasks: markup, JavaScript, my first projects in React. That is also where I learned the main thing: a product is made by a team, not by one developer."
       }
     }
   },
