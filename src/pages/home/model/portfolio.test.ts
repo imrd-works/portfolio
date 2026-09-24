@@ -90,7 +90,8 @@ describe('portfolio CV data', () => {
 
   it('backs the headline numbers with things listed on the page', () => {
     expect(stats.map(({ id }) => id)).toEqual(['systems', 'launches', 'lead'])
-    expect(stats.find(({ id }) => id === 'systems')?.value).toBe(projects.length)
+    // Work shows a selection: never more systems than the count claims
+    expect(stats.find(({ id }) => id === 'systems')?.value).toBeGreaterThanOrEqual(projects.length)
     expect(Object.keys(ru.about.stats)).toEqual(['systems', 'launches', 'lead'])
     expect(Object.keys(en.about.stats)).toEqual(['systems', 'launches', 'lead'])
   })

@@ -218,14 +218,14 @@ export interface StatItem {
   suffix: string
 }
 
-// Countable facts that map onto the sections below — six systems are listed
-// in Work, the team lead years line up with the timeline in Path. Round
-// "20+ projects / 50+ technologies" badges say nothing and check out against
-// nothing.
+// Countable facts, as the author counts them over the whole path. Work shows
+// a selection of six of the systems, so it can never list more than there
+// are; the team lead years add up the lead periods in Path: June to November
+// 2024, March 2025 to February 2026 and March to June 2026, 22 months.
 export const stats: StatItem[] = [
-  { id: 'systems', value: 6, suffix: '' },
-  { id: 'launches', value: 2, suffix: '' },
-  { id: 'lead', value: 3, suffix: '+' },
+  { id: 'systems', value: 25, suffix: '+' },
+  { id: 'launches', value: 13, suffix: '' },
+  { id: 'lead', value: 2, suffix: '' },
 ]
 
 export type ProjectKind = 'system' | 'product' | 'landing'
