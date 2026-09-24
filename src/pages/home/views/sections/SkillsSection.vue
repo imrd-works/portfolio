@@ -118,7 +118,7 @@ const found = computed(() => allChips.filter(matches).length)
           v-for="(skill, i) in coreSkills"
           :key="skill.id"
           class="skills__core"
-          :style="{ '--skills-d': `${i * 0.8}s` }"
+          :style="{ '--skills-d': `${i * 0.12}s` }"
         >
           <span
             class="skills__blot"
@@ -310,11 +310,11 @@ const found = computed(() => allChips.filter(matches).length)
   }
 
   &__cores--shown &__blot::before {
-    animation: skills-drop 0.45s cubic-bezier(0.6, 0, 1, 0.6) var(--skills-d) both;
+    animation: skills-drop 0.2s cubic-bezier(0.6, 0, 1, 0.6) var(--skills-d) both;
   }
 
   &__cores--shown &__blot::after {
-    animation: skills-blot 0.7s cubic-bezier(0.2, 1.3, 0.4, 1) calc(var(--skills-d) + 0.45s) both;
+    animation: skills-blot 0.35s cubic-bezier(0.2, 1.3, 0.4, 1) calc(var(--skills-d) + 0.2s) both;
   }
 
   /* the words come out of the water: from the blot outward, soft, then dry */
@@ -328,11 +328,11 @@ const found = computed(() => allChips.filter(matches).length)
   }
 
   &__cores--shown &__core-name {
-    animation: skills-wet 1.2s ease calc(var(--skills-d) + 0.6s) both;
+    animation: skills-wet 0.6s ease calc(var(--skills-d) + 0.25s) both;
   }
 
   &__cores--shown &__core-note {
-    animation: skills-wet 1.4s ease calc(var(--skills-d) + 0.8s) both;
+    animation: skills-wet 0.7s ease calc(var(--skills-d) + 0.3s) both;
   }
 
   &__core-name {
