@@ -59,6 +59,7 @@ export const stackGroups: StackGroup[] = [
           'Vue Router',
           'VueUse',
           'Redux / Redux Toolkit',
+          'Zustand',
           'React Router',
           'TanStack Query',
           'Axios',
