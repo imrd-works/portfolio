@@ -315,7 +315,7 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
         },
         { transform: `translateY(${y}px) scale(.8, 2.3)`, offset: 1 },
       ],
-      { duration: 1050, fill: 'forwards' }
+      { duration: 650, fill: 'forwards' }
     )
     fall.onfinish = impact
   }
@@ -346,20 +346,25 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
   function onScroll() {
     const range = root.offsetHeight - stage.clientHeight
     const s = Math.min(1, Math.max(0, -root.getBoundingClientRect().top / range))
-    // the paper unrolls over most of the track: a long stretch where the
-    // scroll moved and nothing on screen did read as the page being stuck
-    const u = Math.min(1, s / 0.85)
+    // the paper unrolls over the first 70% of the track; the rest is held
+    // for the drop to fall and the valley to bloom while it is still in view
+    const u = Math.min(1, s / 0.7)
     setVar('--hero-u', u.toFixed(4))
+    // how much of the sheet is down, px from its top
+    let down: number
     if (renderer) {
       // captions and drops live on the paper overlay, cut where the 3D sheet ends
-      setVar('--hero-h', Math.max(0, renderer.setUnroll(u)).toFixed(1) + 'px')
+      down = Math.max(0, renderer.setUnroll(u))
+      setVar('--hero-h', down.toFixed(1) + 'px')
     } else {
-      const h = u * sheetH
-      setVar('--hero-h', h.toFixed(1) + 'px')
-      setVar('--hero-roll', h.toFixed(1) + 'px') // the roller surface travels 1:1 with the paper
+      down = u * sheetH
+      setVar('--hero-h', down.toFixed(1) + 'px')
+      setVar('--hero-roll', down.toFixed(1) + 'px') // the roller surface travels 1:1 with the paper
       setVar('--hero-d', (58 - 24 * u).toFixed(1) + 'px') // the roller gets thinner
     }
-    if (u >= 0.985 && phase === 'idle') play()
+    // the drop falls as soon as the spot it lands on has been unrolled, not
+    // once the whole sheet is down: by then the reader is already moving on
+    if ((down >= dropTarget[1] + 60 || u >= 0.985) && phase === 'idle') play()
     if (u < 0.15 && phase !== 'idle') reset()
   }
 
