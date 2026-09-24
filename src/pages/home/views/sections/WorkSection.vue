@@ -757,10 +757,16 @@ onBeforeUnmount(() => {
 
   &__filter {
     opacity: 0.75;
-    transition: opacity 0.2s;
+    transition:
+      opacity 0.2s,
+      transform 0.25s cubic-bezier(0.2, 1.4, 0.4, 1);
 
-    &:hover {
+    /* half pressed on hover: turned like the chosen stamp, a pale wash of ink */
+    &:hover:not(&--on) {
+      --work-stamp-bg: rgb(194 59 42 / 16%);
+
       opacity: 1;
+      transform: rotate(-2deg);
     }
 
     &--on {
@@ -768,6 +774,7 @@ onBeforeUnmount(() => {
 
       color: var(--work-paper);
       opacity: 0.95;
+      transform: rotate(-2deg);
     }
   }
 
@@ -1107,6 +1114,12 @@ onBeforeUnmount(() => {
 
     &:hover::before {
       opacity: 1;
+    }
+
+    &:hover:not([aria-selected='true']) {
+      --work-stamp-bg: rgb(194 59 42 / 16%);
+
+      transform: rotate(-2deg);
     }
 
     &[aria-selected='true'] {

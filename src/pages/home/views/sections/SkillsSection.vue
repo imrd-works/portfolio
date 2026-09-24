@@ -394,7 +394,14 @@ const found = computed(() => allChips.filter(matches).length)
       transition: opacity 0.25s;
     }
 
-    &:hover::before {
+    /* on hover the stamp is half pressed: turned like the chosen one, and
+       inked with a pale wash of the same cinnabar */
+    &:hover:not(&--on) {
+      transform: rotate(-2deg);
+    }
+
+    &:hover:not(&--on)::before {
+      background: rgb(194 59 42 / 16%);
       opacity: 1;
     }
 
