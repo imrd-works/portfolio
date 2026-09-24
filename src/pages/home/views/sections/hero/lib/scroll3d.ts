@@ -8,9 +8,11 @@
  *   unrolls, and the roller turns by exactly the paper that left it.
  * - It rolls painting-inwards, like a real kakemono: the roller hangs in front
  *   of the sheet, and the outside of the roll is the back of the paper.
- * - The ink painting is drawn by the hero's own shader (hero.frag.glsl) into a
- *   render target in the same GL context, and the sheet carries it. From
- *   behind, the painting shows through the paper, mirrored and soft.
+ * - The hero's own shader (hero.frag.glsl) draws the part of the sheet the
+ *   screen shows, the painting and the day's light on the paper included, into a
+ *   render target in the same GL context; the sheet carries it, with the
+ *   paper's fibres laid over. From behind, it shows through the paper,
+ *   mirrored and soft.
  * - Lighting is relative: a flat sheet facing the viewer keeps the hero
  *   paper's exact colour; curves only ever shade, never glare.
  *
@@ -19,7 +21,7 @@
  */
 import * as THREE from 'three'
 import FRAG from '../shaders/hero.frag.glsl?raw'
-import { SPLASH_SEGMENTS } from '../config'
+import { RIVER, SPLASH_SEGMENTS } from '../config'
 import type { InkUniforms } from './renderer'
 
 /** Knobs of the roll, in CSS px. */
@@ -98,11 +100,11 @@ function canvasTexture(w: number, h: number, draw: (g: CanvasRenderingContext2D)
   return t
 }
 
-/* The ink pass: the hero's fragment shader as is, on a full-screen quad. */
-const INK_VERT = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }`
+/* The ink pass: the hero's fragment shader, over the part of the sheet on screen. */
+const INK_VERT = `varying vec2 vStage; void main(){ vStage = uv; gl_Position = vec4(position.xy, 0., 1.); }`
 
 /* The sheet: the prototype's roll, lighting and show-through, with the ink
-   render target composited over the paper where the painting sits. */
+   render target (the sheet as the screen shows it, opaque) over the paper. */
 const SHEET_VERT = `
 uniform float uU, uL, uTop, uR0, uH;
 varying float vShade;
@@ -135,27 +137,28 @@ void main(){
 const SHEET_FRAG = `
 uniform sampler2D uPaper, uInk;
 uniform vec2 uPaperRepeat;
-uniform vec4 uPaint;          // painting box in sheet uv: origin, size
+uniform vec4 uStage;          // sheet uv -> the ink target's uv (the part of the sheet on screen)
+const vec3 PAPER = vec3(.925, .910, .882);   // the paper the ink pass paints on
 uniform vec3 uLightDir;
 uniform float uRout, uShow;
 varying float vShade;
 varying vec2 vSheetUv;
 varying vec3 vNormal;
 vec4 inkAt(vec2 uv, float bias){
-  vec2 p = (uv - uPaint.xy) / uPaint.zw;
+  vec2 p = uv * uStage.xy + uStage.zw;
   if (p.x < 0. || p.y < 0. || p.x > 1. || p.y > 1.) return vec4(0.);
-  return texture2D(uInk, p, bias);               // premultiplied: rgb already carries alpha
+  return texture2D(uInk, p, bias);               // alpha 0 until it has been drawn
 }
 void main(){
   vec3 paper = texture2D(uPaper, vSheetUv * uPaperRepeat).rgb;
   vec3 col;
   if (gl_FrontFacing) {
     vec4 ink = inkAt(vSheetUv, 0.);
-    col = paper * (1. - ink.a) + ink.rgb;          // the ink over the paper, as the browser composited it before
+    col = mix(paper, ink.rgb * paper / PAPER, ink.a);   // what it drew, with this paper's fibres
   } else {
     // the back of the paper: the painting shows through, mirrored and soft
     vec4 ink = inkAt(vSheetUv, 2.5);
-    col = paper * (1. - ink.a * uShow) + ink.rgb * uShow;
+    col = mix(paper, ink.rgb * paper / PAPER, ink.a * uShow);
   }
   vec3 n = normalize(gl_FrontFacing ? vNormal : -vNormal);
   // relative lighting: flat and facing the viewer is exactly the paper; curves only shade
@@ -206,6 +209,22 @@ export function createScroll3D(canvas: HTMLCanvasElement): Scroll3D | null {
     uTime: { value: 0 },
     uFog: { value: 0 },
     uFogSpeed: { value: 0 },
+    uPScale: { value: new THREE.Vector2(1, 1) },
+    uPOffset: { value: new THREE.Vector2() },
+    uS: { value: 0 },
+    uM: { value: 0 },
+    uSunC: { value: new THREE.Vector2() },
+    uSet: { value: new THREE.Vector2() },
+    uSetHz: { value: 0 },
+    uMoon0: { value: new THREE.Vector2() },
+    uMoonC: { value: new THREE.Vector2() },
+    uMoon1: { value: new THREE.Vector2() },
+    uMoonR: { value: 0 },
+    uBand: { value: 0 },
+    uMBand: { value: 0 },
+    uFade: { value: new THREE.Vector2(9, 10) },
+    uRiver: { value: RIVER.points.map(([x, y]) => new THREE.Vector2(x, y)) },
+    uHw: { value: [...RIVER.halfWidth] },
   }
   const inkMat = new THREE.ShaderMaterial({
     vertexShader: INK_VERT,
@@ -233,7 +252,7 @@ export function createScroll3D(canvas: HTMLCanvasElement): Scroll3D | null {
     uPaper: { value: paperTex },
     uPaperRepeat: { value: new THREE.Vector2(1, 1) },
     uInk: { value: null as THREE.Texture | null },
-    uPaint: { value: new THREE.Vector4(0, 0, 1, 1) },
+    uStage: { value: new THREE.Vector4(1, 1, 0, 0) },
     uLightDir: { value: new THREE.Vector3(0, 0, 1) },
     uShow: { value: ROLL.showThrough },
   }
@@ -319,14 +338,12 @@ export function createScroll3D(canvas: HTMLCanvasElement): Scroll3D | null {
     sheetU.uL.value = L
     sheetU.uTop.value = top
     sheetU.uPaperRepeat.value.set(W / 1024, L / 1024)
-    // the painting's box in sheet uv (v = 1 at the sheet's top edge)
-    const s0 = vh - paint.bottom - paint.h + 2 // from the sheet's top to the painting's top
-    sheetU.uPaint.value.set(
-      (paint.left + (W - vw) / 2) / W,
-      1 - (s0 + paint.h) / L,
-      paint.w / W,
-      paint.h / L
-    )
+    // the ink target covers the part of the sheet on screen once it is unrolled: from sheet uv
+    // (v = 1 at the sheet's top edge, which hangs 2 px above the screen) to the target's uv
+    sheetU.uStage.value.set(W / vw, L / vh, -(W - vw) / 2 / vw, 1 - (L - 2) / vh)
+    // and the painting's place on it: target uv -> painting uv (the painting is bottom-anchored)
+    inkUniforms.uPScale.value.set(vw / paint.w, vh / paint.h)
+    inkUniforms.uPOffset.value.set(-paint.left / paint.w, -paint.bottom / paint.h)
 
     if (sheet) {
       scene.remove(sheet)
@@ -344,11 +361,11 @@ export function createScroll3D(canvas: HTMLCanvasElement): Scroll3D | null {
     core.rotation.z = Math.PI / 2
     roller.add(core)
 
-    // the ink render target: the painting at its on-screen size (capped, as before)
+    // the ink render target: the screen's part of the sheet (capped, as before)
     const dpr = renderer.getPixelRatio()
-    const scale = Math.min(1, 2900 / (paint.w * dpr))
-    const rw = Math.max(2, Math.round(paint.w * dpr * scale))
-    const rh = Math.max(2, Math.round(paint.h * dpr * scale))
+    const scale = Math.min(1, 2900 / (vw * dpr))
+    const rw = Math.max(2, Math.round(vw * dpr * scale))
+    const rh = Math.max(2, Math.round(vh * dpr * scale))
     if (!rt) {
       rt = new THREE.WebGLRenderTarget(rw, rh, {
         generateMipmaps: true, // the back of the paper samples it soft
@@ -431,6 +448,18 @@ export function createScroll3D(canvas: HTMLCanvasElement): Scroll3D | null {
         iu.uFogSpeed.value = u.fogSpeed
         iu.uSeg.value = u.seg
         iu.uRad.value = u.rad
+        iu.uS.value = u.s
+        iu.uM.value = u.m
+        iu.uSunC.value.set(u.sunC[0], u.sunC[1])
+        iu.uSet.value.set(u.set[0], u.set[1])
+        iu.uSetHz.value = u.setHz
+        iu.uMoon0.value.set(u.moon0[0], u.moon0[1])
+        iu.uMoonC.value.set(u.moonC[0], u.moonC[1])
+        iu.uMoon1.value.set(u.moon1[0], u.moon1[1])
+        iu.uMoonR.value = u.moonR
+        iu.uBand.value = u.band
+        iu.uMBand.value = u.mband
+        iu.uFade.value.set(u.fade[0], u.fade[1])
         renderer.setRenderTarget(rt)
         renderer.setClearColor(0x000000, 0)
         renderer.clear()

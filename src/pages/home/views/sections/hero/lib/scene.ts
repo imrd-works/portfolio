@@ -2,6 +2,9 @@
  * The hero scene outside of Vue: the scroll unrolls the hanging scroll (in 3D,
  * edge to edge), a drop of ink falls from the top, the painting blooms out of
  * the blot, then a cinnabar drop becomes the sun and the mist keeps drifting.
+ * Then the evening (lib/evening.ts): a scroll at the top sends the sun down
+ * into a slit cut with the brush and brings the moon up out of another, before
+ * the page moves on.
  * Without WebGL2 the flat CSS scroll unrolls with the plain image on it.
  *
  * Ported from `hero-prototype.html` with the logic unchanged. The only
@@ -10,7 +13,16 @@
  * reported through `hooks` so Vue owns the classes.
  */
 import { holdScroll, type ScrollHold } from './hold'
-import { CAPTION_TIMING, FOG_DEFAULTS, INK, INK_RATIO as RATIO, type FogConfig } from '../config'
+import { createEvening } from './evening'
+import { heightAt, readSkyline, type Skyline } from './skyline'
+import {
+  CAPTION_TIMING,
+  EVENING,
+  FOG_DEFAULTS,
+  INK,
+  INK_RATIO as RATIO,
+  type FogConfig,
+} from '../config'
 import { createSegmentBuffers } from './renderer'
 import { createScroll3D, type Scroll3D } from './scroll3d'
 import { makeSplash, updateSplash, type SplashPart } from '@/shared/lib/ink/splash'
@@ -80,6 +92,20 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     t: 0,
     seed: 1.7,
     ...createSegmentBuffers(),
+    // the evening
+    s: 0,
+    m: 0,
+    sunC: [0.74, 0.86] as [number, number],
+    set: [0.71, 0.5] as [number, number],
+    setHz: 0.6,
+    moon0: [0.29, 0.5] as [number, number],
+    moonC: [0.24, 0.8] as [number, number],
+    moon1: [0.36, 0.86] as [number, number],
+    /** The slits the sun goes into and the moon comes out of (painting y). */
+    band: 0.7,
+    mband: 0.75,
+    /** The painting fades out above this: fully shown below [0], gone above [1] (painting y). */
+    fade: [9, 10] as [number, number],
   }
 
   function draw() {
@@ -101,6 +127,18 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
       fogSpeed: FOG.speed,
       seg: state.seg,
       rad: state.rad,
+      s: state.s,
+      m: state.m,
+      sunC: state.sunC,
+      set: state.set,
+      setHz: state.setHz,
+      moon0: state.moon0,
+      moonC: state.moonC,
+      moon1: state.moon1,
+      moonR: EVENING.moonRadius,
+      band: state.band,
+      mband: state.mband,
+      fade: state.fade,
     })
   }
 
@@ -166,8 +204,44 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     const sy = Math.max(0.15, (-topPx + SUN_R * h * 1.6 + 18) / h)
     state.sun = [sx, 1 - sy]
     sunTarget = [left + sx * w, topPx + sy * h]
+    paths(vx0, vx1, 1 + topPx / h)
     draw()
     applyUnroll()
+  }
+
+  /* ---------- the evening's paths ---------- */
+  // Set within the part of the painting the screen shows, like the sun's own place. The sun
+  // goes over to the right and down along an arc into a slit a little under it; the moon
+  // comes straight up out of its own slit by the name. They answer only to their slits,
+  // whatever is painted there, so it all goes the same way on any screen.
+  let sky: Skyline | null = null
+  function paths(vx0: number, vx1: number, vy1: number) {
+    const X = (f: number) => vx0 + f * (vx1 - vx0)
+    const top = state.sun[1]
+    const MR = EVENING.moonRadius
+    const setX = X(EVENING.sunSetAt)
+    // On a very wide screen the sky is cropped so low that the hills come up to the sun's way
+    // down. The sun stays where it always is: its slit goes right under it instead, and the
+    // hills above the slit fade into the sky.
+    let hills = 0
+    if (sky)
+      for (let k = 0; k <= 24; k++)
+        hills = Math.max(hills, heightAt(sky.tops, X(0.6 + 0.16 * (k / 24))))
+    const crowded = hills > top - SUN_R * 1.3 - 0.02
+    const band = crowded ? top - SUN_R * 1.6 : top - 0.16
+    state.band = band
+    state.fade = crowded ? [band - 0.07, band + 0.005] : [9, 10]
+    state.setHz = band // the glow over the horizon is born where it sets
+    state.sunC = [X(EVENING.sunArcAt), top + 0.01]
+    state.set = [setX, band - SUN_R * 1.4] // it ends just gone through its slit
+    // the moon, straight up out of its slit (leaning a hair), clear of the name
+    const narrow = vx1 - vx0 < 0.75
+    const m1 = narrow ? Math.min(1.12, vy1 - 0.14) : top + 0.01
+    const mx = X(narrow ? EVENING.moonAtNarrow : EVENING.moonAt)
+    state.mband = m1 - 0.11
+    state.moon0 = [mx + 0.01, state.mband - MR * 1.4]
+    state.moonC = [mx + 0.005, m1 - 0.05]
+    state.moon1 = [mx, m1]
   }
 
   /* ---------- animation ---------- */
@@ -236,11 +310,20 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
   let ticking = false
   let visible = true
   let lastTick = 0
+  let lastStep = 0
 
   function tick(now: number) {
     ticking = false
     if (phase !== 'playing' && phase !== 'done') return
-    const calm = phase === 'done' && sunT0 && state.sunT >= INK.sunSettleS
+    // real time, even at a low frame rate (a slow device plays it coarser, not slower)
+    const dt = Math.min(0.25, (now - (lastStep || now)) / 1000)
+    lastStep = now
+    const ev = evening?.step(dt)
+    if (ev) {
+      state.s = ev.s
+      state.m = ev.m
+    }
+    const calm = phase === 'done' && sunT0 && state.sunT >= INK.sunSettleS && !ev?.moving
     if (calm && now - lastTick < 32) {
       // ~30 fps is plenty at rest
       schedule()
@@ -258,18 +341,15 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     const want = FOG.on ? 1 : 0
     state.fogIn += (want - state.fogIn) * 0.02 // mist fades in and out smoothly
     draw()
-    if (
-      phase === 'playing' ||
-      !sunT0 ||
-      state.sunT < INK.sunSettleS ||
-      FOG.on ||
-      state.fogIn > 0.01
-    )
-      schedule()
+    // on while in view: the river's strokes keep riding it and the sun breathes
+    schedule()
   }
 
   function schedule() {
-    if (ticking || !visible || document.hidden || destroyed) return
+    if (ticking || !visible || document.hidden || destroyed) {
+      if (!ticking) lastStep = 0 // no jump when it comes back into view
+      return
+    }
     ticking = true
     raf = requestAnimationFrame(tick)
   }
@@ -293,8 +373,10 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     fall.onfinish = () => {
       sunEl.style.opacity = '0'
       sunT0 = Math.max(1, inkMs(performance.now()))
-      // the sun is the last touch: the page scrolls again once it has landed
+      // the sun is the last touch: the page scrolls again once it has landed,
+      // and a scroll at the top from now on brings the evening
       hold?.release()
+      evening?.arm()
     }
   }
 
@@ -381,6 +463,9 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     state.rad.fill(0)
     state.sunT = -1
     state.fogIn = 0
+    evening?.reset()
+    state.s = 0
+    state.m = 0
     hooks.hideCaptions()
     if (fallback) hooks.showArt(false)
     phase = 'idle'
@@ -464,6 +549,8 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
 
   // held from the first frame, unless the page opens somewhere below the hero
   const hold: ScrollHold | null = !REDUCED && window.scrollY < 40 ? holdScroll(hurry) : null
+  // the evening waits for the hero to be drawn (and never comes with reduced motion)
+  const evening = REDUCED ? null : createEvening()
 
   /* ---------- wiring ---------- */
   const io = new IntersectionObserver((es) => {
@@ -499,8 +586,10 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
       console.error(e)
       renderer = null
     }
-    if (renderer) renderer.loadTexture(art)
-    else {
+    if (renderer) {
+      renderer.loadTexture(art)
+      sky = readSkyline(art, RATIO)
+    } else {
       fallback = true
       hooks.useImageFallback()
     }
@@ -525,6 +614,7 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     destroy() {
       destroyed = true
       hold?.dispose()
+      evening?.dispose()
       reset()
       io.disconnect()
       art.removeEventListener('load', start)
