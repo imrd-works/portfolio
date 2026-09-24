@@ -14,6 +14,8 @@ import {
 
 const { t } = useI18n()
 const { targetRef: shelf, inView: shown } = useInView({ threshold: 0.1 })
+// the strengths are written in one after another once the list is in view
+const { targetRef: cores, inView: coresShown } = useInView({ threshold: 0.3 })
 
 // Two levels: the direction a client hires for, and the job each tool does
 // inside it. Nothing is hidden, but a row of six names reads where a wall of
@@ -78,21 +80,48 @@ const found = computed(() => allChips.filter(matches).length)
           scale="2.6"
         />
       </filter>
+      <!-- a blot's edge: ink runs out along the fibres unevenly -->
+      <filter
+        id="skills-blot"
+        x="-40%"
+        y="-40%"
+        width="180%"
+        height="180%"
+      >
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency=".32"
+          numOctaves="3"
+          seed="9"
+          result="n"
+        />
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="n"
+          scale="7"
+        />
+      </filter>
     </svg>
 
     <div class="skills__inner">
       <p class="skills__eyebrow">{{ t('home.skills.eyebrow') }}</p>
       <h2 class="skills__title">{{ t('home.skills.title') }}</h2>
 
-      <!-- the five brushes: what I work with every day -->
-      <ul class="skills__cores">
+      <!-- the five strengths: for each a drop of ink lands and spreads into a
+           blot, then the words bloom out of the wet paper beside it -->
+      <ul
+        :ref="cores"
+        class="skills__cores"
+        :class="{ 'skills__cores--shown': coresShown }"
+      >
         <li
-          v-for="skill in coreSkills"
+          v-for="(skill, i) in coreSkills"
           :key="skill.id"
           class="skills__core"
+          :style="{ '--skills-d': `${i * 0.8}s` }"
         >
           <span
-            class="skills__brush"
+            class="skills__blot"
             aria-hidden="true"
           ></span>
           <span class="skills__core-name">{{ t(`home.skills.coreName.${skill.id}`) }}</span>
@@ -233,53 +262,77 @@ const found = computed(() => allChips.filter(matches).length)
     align-items: baseline;
     padding: 16px 0;
     border-bottom: 1px solid rgb(16 18 20 / 15%);
-    opacity: 0;
-    transform: translateY(6px);
-    transition:
-      opacity 0.7s ease,
-      transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
-  &--shown &__core {
-    opacity: 1;
-    transform: none;
-  }
-
-  @for $i from 1 through 5 {
-    &--shown &__core:nth-child(#{$i}) {
-      transition-delay: ($i - 1) * 0.08s;
-    }
-  }
-
-  // a brush laid on the line: ferrule and hair, thicker for the first ones
-  &__brush {
+  /* the blot: a drop falls onto the line, lands, and spreads on the paper */
+  &__blot {
     position: relative;
     display: block;
-    width: 22px;
-    height: 10px;
-    background: linear-gradient(to right, #6a4a33 0 40%, #3b2c24 40% 52%, transparent 52%);
-    border-radius: 2px;
-
-    &::after {
-      position: absolute;
-      top: 1px;
-      right: 0;
-      width: 48%;
-      height: 8px;
-      content: '';
-      background: linear-gradient(to right, rgb(16 18 20 / 85%), rgb(16 18 20 / 35%));
-      clip-path: polygon(0 0, 100% 42%, 100% 58%, 0 100%);
-    }
+    align-self: center;
+    width: 16px;
+    height: 16px;
   }
 
-  &__core:nth-child(2) &__brush,
-  &__core:nth-child(3) &__brush {
-    transform: scale(0.92);
+  &__blot::before,
+  &__blot::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    border-radius: 50%;
   }
 
-  &__core:nth-child(4) &__brush,
-  &__core:nth-child(5) &__brush {
-    transform: scale(0.84);
+  /* the ink itself, ragged at the edge; each one turned its own way */
+  &__blot::after {
+    background: radial-gradient(
+      circle at 45% 55%,
+      rgb(16 18 20 / 95%) 0 42%,
+      rgb(16 18 20 / 70%) 56%,
+      rgb(16 18 20 / 0%) 72%
+    );
+    filter: url('#skills-blot');
+    transform: scale(0);
+  }
+
+  &__core:nth-child(2n) &__blot {
+    rotate: 70deg;
+  }
+
+  &__core:nth-child(3n) &__blot {
+    rotate: 150deg;
+  }
+
+  /* the falling drop, and then the wet ring it leaves as it soaks in */
+  &__blot::before {
+    background: var(--skills-ink);
+    border-radius: 50% 50% 50% 50% / 72% 72% 34% 34%;
+    opacity: 0;
+    transform: translateY(-70px) scale(0.3, 0.45);
+  }
+
+  &__cores--shown &__blot::before {
+    animation: skills-drop 0.45s cubic-bezier(0.6, 0, 1, 0.6) var(--skills-d) both;
+  }
+
+  &__cores--shown &__blot::after {
+    animation: skills-blot 0.7s cubic-bezier(0.2, 1.3, 0.4, 1) calc(var(--skills-d) + 0.45s) both;
+  }
+
+  /* the words come out of the water: from the blot outward, soft, then dry */
+  &__core-name,
+  &__core-note {
+    opacity: 0;
+    filter: blur(6px);
+    mask-image: linear-gradient(90deg, #000 42%, transparent 58%);
+    mask-size: 260% 100%;
+    mask-position: 100% 0;
+  }
+
+  &__cores--shown &__core-name {
+    animation: skills-wet 1.2s ease calc(var(--skills-d) + 0.6s) both;
+  }
+
+  &__cores--shown &__core-note {
+    animation: skills-wet 1.4s ease calc(var(--skills-d) + 0.8s) both;
   }
 
   &__core-name {
@@ -500,10 +553,83 @@ const found = computed(() => allChips.filter(matches).length)
   }
 
   @media (prefers-reduced-motion: reduce) {
-    &__core,
     &__chip {
       transition: none;
     }
+
+    &__cores &__blot::before {
+      display: none;
+    }
+
+    &__cores &__blot::after,
+    &__cores &__core-name,
+    &__cores &__core-note {
+      opacity: 1;
+      filter: none;
+      mask-image: none;
+      transform: none;
+      animation: none;
+    }
+
+    &__cores &__blot::after {
+      filter: url('#skills-blot');
+    }
+  }
+}
+
+@keyframes skills-drop {
+  /* unseen while it waits its turn: a hanging drop would sit over the row above */
+  0% {
+    opacity: 0;
+    transform: translateY(-70px) scale(0.3, 0.45);
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  85% {
+    opacity: 1;
+    transform: translateY(-4px) scale(0.55, 1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(0) scale(0.7, 0.5);
+  }
+}
+
+@keyframes skills-blot {
+  /* nothing on the line until the drop has landed on it */
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+
+  1% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes skills-wet {
+  0% {
+    opacity: 0.2;
+    filter: blur(6px);
+    mask-position: 100% 0;
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    mask-position: 0 0;
   }
 }
 </style>
