@@ -39,13 +39,13 @@
   },
   "skills": {
     "eyebrow": "Skills",
-    "title": "A stack for complex interfaces and product systems",
+    "title": "Where I am strong",
     "core": {
-      "vue": "5 years in production — six enterprise systems and landing pages",
-      "typescript": "4 years in strict mode: contract types generated from OpenAPI",
-      "dataviz": "Highcharts and ECharts, interactive SVG schematics, heavy tables and forms",
-      "architecture": "3+ years leading teams: decomposition, code review, release cycle",
-      "react": "Next.js in production: a financial landing with animation and a headless CMS"
+      "vue": "My main stack since 2021: from a fast SSR site to an enterprise system of dozens of modules. I know not just the API but where the framework saves months and where it starts to get in the way.",
+      "typescript": "Strict types from the API to the button: they are generated from OpenAPI, so a broken contract is caught at build time, not by a user.",
+      "dataviz": "Dashboards, charts and large tables that do not lag; multi-step forms where not a single field gets lost.",
+      "architecture": "I design so that the code does not need rewriting a year later, and I lead the team: breaking work down, reviews, releases on schedule.",
+      "react": "My second stack, also in production: fast landing pages with motion, SEO and a headless CMS."
     },
     "searchLabel": "Search the stack",
     "searchHint": "GraphQL, for example",
@@ -81,6 +81,13 @@
       "perf": "Performance and SEO",
       "teamwork": "Planning and tracking",
       "server": "Nuxt and Next server side"
+    },
+    "coreName": {
+      "vue": "Vue / Nuxt",
+      "typescript": "TypeScript",
+      "dataviz": "Complex interfaces and data",
+      "architecture": "Architecture and team",
+      "react": "React / Next.js"
     }
   },
   "work": {

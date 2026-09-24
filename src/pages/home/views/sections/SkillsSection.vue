@@ -95,7 +95,7 @@ const found = computed(() => allChips.filter(matches).length)
             class="skills__brush"
             aria-hidden="true"
           ></span>
-          <span class="skills__core-name">{{ skill.label }}</span>
+          <span class="skills__core-name">{{ t(`home.skills.coreName.${skill.id}`) }}</span>
           <span class="skills__core-note">{{ t(`home.skills.core.${skill.id}`) }}</span>
         </li>
       </ul>

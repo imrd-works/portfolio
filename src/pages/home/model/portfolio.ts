@@ -3,21 +3,20 @@
 // links, accent colours) referenced by id from the views.
 
 export interface CoreSkill {
-  /** i18n key for the localised "how long / on what" line. */
+  /** i18n keys: the strength's name and what it gives the one who hires. */
   id: 'vue' | 'typescript' | 'dataviz' | 'architecture' | 'react'
-  /** Latin stack name — identical in both locales. */
-  label: string
 }
 
 // Deliberately no percentages: "Vue 95%" is a number nobody can verify and
-// everybody has seen on a template. Each entry carries the years and the
-// systems it was used on instead — claims that match the projects below.
+// everybody has seen on a template. Each strength says what it gives instead
+// — a result a client can hold the work to — and the names are localised,
+// because "Architecture and team" says more to a recruiter than "DDD / FSD".
 export const coreSkills: CoreSkill[] = [
-  { id: 'vue', label: 'Vue 3 / Nuxt 3–4' },
-  { id: 'typescript', label: 'TypeScript' },
-  { id: 'dataviz', label: 'Complex UI / Data Viz' },
-  { id: 'architecture', label: 'DDD / FSD / Team Lead' },
-  { id: 'react', label: 'React / Next.js' },
+  { id: 'vue' },
+  { id: 'typescript' },
+  { id: 'dataviz' },
+  { id: 'architecture' },
+  { id: 'react' },
 ]
 
 // The chip groups mirror the "Key skills" table of the CV, plus the stacks

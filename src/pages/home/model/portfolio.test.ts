@@ -39,6 +39,8 @@ describe('portfolio CV data', () => {
     for (const { id } of coreSkills) {
       expect((ru.skills.core as Record<string, string>)[id]?.length ?? 0).toBeGreaterThan(20)
       expect((en.skills.core as Record<string, string>)[id]?.length ?? 0).toBeGreaterThan(20)
+      expect((ru.skills.coreName as Record<string, string>)[id]).toBeTruthy()
+      expect((en.skills.coreName as Record<string, string>)[id]).toBeTruthy()
     }
   })
 
@@ -97,7 +99,8 @@ describe('portfolio CV data', () => {
   })
 
   it('represents the Vue and Nuxt specialization from the CV', () => {
-    expect(coreSkills[0]).toEqual({ id: 'vue', label: 'Vue 3 / Nuxt 3–4' })
+    expect(coreSkills[0]).toEqual({ id: 'vue' })
+    expect(ru.skills.coreName.vue).toBe('Vue / Nuxt')
     const frontend =
       stackGroups.find(({ id }) => id === 'frontend')?.rows.flatMap(({ chips }) => chips) ?? []
 
