@@ -3,6 +3,8 @@ import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, useTempl
 import { useI18n } from 'vue-i18n'
 import { projects, projectKinds, type Project, type ProjectKind } from '../../model/portfolio'
 import type { Bleed, Painting, RippleFilter } from './work/lib/transitions'
+import { createSwing, type Swing } from './work/lib/swing'
+import { graphics, onGraphicsChange } from '@/shared/lib/graphics'
 
 const { t } = useI18n()
 
@@ -36,6 +38,7 @@ const neighbour = (step: number) =>
 const visible = (p: Project) => filter.value === 'all' || p.kind === filter.value
 
 const section = useTemplateRef<HTMLElement>('section')
+const wall = useTemplateRef<HTMLElement>('wall')
 const sheetEls = useTemplateRef<HTMLElement[]>('sheetEls')
 const inside = useTemplateRef<HTMLElement>('inside')
 const artCanvas = useTemplateRef<HTMLCanvasElement>('artCanvas')
@@ -53,6 +56,8 @@ let painting: Painting | null = null
 let bleed: Bleed | null = null
 let rippler: RippleFilter | null = null
 let observer: IntersectionObserver | null = null
+let swing: Swing | null = null
+let offGraphics = () => {}
 let REDUCED = false
 let busy = false
 let pushed = false
@@ -128,6 +133,9 @@ async function enter(p: Project, e?: MouseEvent, { push = true, instant = false 
   busy = true
   current.value = p
   activeId.value = p.id
+  // the sheet stops swinging as it opens: the water spreads from a still picture
+  const opening = sheetOf(p.id)
+  if (opening) swing?.still(opening)
   tab.value = 'about'
   lightbox.value = null
   if (push) history.pushState({ work: p.id }, '', `#/work/${p.id}`)
@@ -205,6 +213,7 @@ async function leave({ pop = false } = {}) {
   lockPage(false)
   current.value = null
   activeId.value = null
+  swing?.wake() // back askew on its pin, unless pointed at
   sheet?.focus({ preventScroll: true })
   busy = false
 }
@@ -301,6 +310,15 @@ onMounted(async () => {
     )
     sheetEls.value?.forEach((el) => observer!.observe(el))
   }
+  // the sheets swing on their pins under a mouse; not with reduced motion or in the light mode
+  const swings = () =>
+    !REDUCED && !graphics.low && window.matchMedia?.('(hover: hover) and (pointer: fine)').matches
+  if (wall.value && swings()) swing = createSwing(wall.value)
+  offGraphics = onGraphicsChange(() => {
+    if (swings()) return
+    swing?.dispose()
+    swing = null
+  })
   window.addEventListener('keydown', onKey)
   window.addEventListener('popstate', onPop)
   window.addEventListener('resize', onResize)
@@ -311,6 +329,8 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   observer?.disconnect()
+  swing?.dispose()
+  offGraphics()
   timers.forEach(clearTimeout)
   window.removeEventListener('keydown', onKey)
   window.removeEventListener('popstate', onPop)
@@ -415,7 +435,10 @@ onBeforeUnmount(() => {
         </button>
       </div>
 
-      <div class="work__wall">
+      <div
+        ref="wall"
+        class="work__wall"
+      >
         <button
           v-for="(p, i) in projects"
           v-show="visible(p)"
@@ -811,6 +834,22 @@ onBeforeUnmount(() => {
   &__sheet:focus-visible &__hang,
   &__sheet--active &__hang {
     transform: rotate(0deg) translateY(-3px);
+  }
+
+  // lib/swing.ts moves the sheets itself (inline, every frame): no transition in the way,
+  // and they keep their tilt in CSS till it takes them, so nothing jumps on the first hover
+  &__wall--swing &__hang,
+  &__wall--swing &__sheet:hover &__hang,
+  &__wall--swing &__sheet:focus-visible &__hang,
+  &__wall--swing &__sheet--active &__hang {
+    transform: rotate(var(--work-tilt, 0deg));
+    transition: none;
+  }
+
+  // each sheet on a layer of its own: turning it every frame only turns the layer, instead
+  // of painting the pin's SVG filter, the picture's filters and blend and the shadow again
+  &__wall--swing &__hang {
+    will-change: transform;
   }
 
   &__nail {
