@@ -152,15 +152,19 @@ async function cardHtml(locale, fonts, avatar, logo) {
 </html>`
 }
 
+// The favicon is the hero's seal, a cinnabar square: the icons are that square edge to
+// edge; the maskable one keeps the letters inside the 80% safe zone of the mask.
+const SEAL = '#c23b2a'
+
 function iconHtml(logo, { size, maskable }) {
-  const pad = maskable ? size * 0.22 : size * 0.16
+  const pad = maskable ? size * 0.1 : 0
   const radius = maskable ? 0 : size * 0.22
 
   return `<!doctype html>
 <html><head><meta charset="utf-8"><style>
   * { margin: 0; padding: 0; }
   body { width: ${size}px; height: ${size}px; display: grid; place-items: center;
-    background: #06050d; border-radius: ${radius}px; overflow: hidden; }
+    background: ${SEAL}; border-radius: ${radius}px; overflow: hidden; }
   img { width: ${size - pad * 2}px; height: auto; }
 </style></head>
 <body><img src="${logo}" alt=""></body></html>`
