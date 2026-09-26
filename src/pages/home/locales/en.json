@@ -241,6 +241,12 @@
   "a11y": {
     "skip": "Skip to content"
   },
+  "graphics": {
+    "label": "Light mode",
+    "offer": "The animations on this page are stuttering. Switch to the light mode? It will run smoother: the graphics get simpler, and the mist and the river's current stop.",
+    "accept": "Switch",
+    "decline": "Keep as is"
+  },
   "nav": {
     "label": "Page sections",
     "path": "Path",

@@ -13,6 +13,7 @@
 import VERT from '../shaders/quad.vert.glsl?raw'
 import BLEED_FRAG from '../shaders/bleed.frag.glsl?raw'
 import PAINTING_FRAG from '../shaders/painting.frag.glsl?raw'
+import { drawingRatio } from '@/shared/lib/graphics'
 
 /** --work-paper, as linear 0..1 RGB for the shaders. */
 const PAPER: [number, number, number] = [0.925, 0.91, 0.882]
@@ -116,7 +117,7 @@ function program(gl: WebGLRenderingContext, frag: string) {
   return (name: string) => gl.getUniformLocation(prog, name)
 }
 
-const dprOf = () => Math.min(window.devicePixelRatio || 1, 2)
+const dprOf = drawingRatio
 
 /* ---------------- bleed ---------------- */
 

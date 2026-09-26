@@ -1,5 +1,6 @@
 import FRAG from '../shaders/paper.frag.glsl?raw'
 import { createQuad } from '../../ink/lib/quad'
+import { drawingRatio } from '@/shared/lib/graphics'
 
 /**
  * The old sheet the letter is written on: a full-section canvas of yellowed
@@ -31,7 +32,7 @@ export function mountPaper(root: HTMLElement, canvas: HTMLCanvasElement): Paper 
 
   const draw = () => {
     frame = 0
-    const dpr = Math.min(devicePixelRatio || 1, 2)
+    const dpr = drawingRatio()
     const width = root.clientWidth
     const height = root.clientHeight
     if (!width || !height) return

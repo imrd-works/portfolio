@@ -17,6 +17,7 @@
 import { RIVER_COURSE, RIVER_FLOW, RIVER_IMAGE, RIVER_SEAL, RIVER_STEPS } from '../config'
 import { createRiverRenderer, type RiverRenderer } from './renderer'
 import { CINNABAR, makePaw, type PawSprite } from './paw'
+import { drawingRatio, graphics, onGraphicsChange, probeGraphics } from '@/shared/lib/graphics'
 
 export interface RiverElements {
   /** The tall scroll track; its height is set here. */
@@ -123,7 +124,7 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
   function layout() {
     W = root.clientWidth
     VH = window.innerHeight
-    DPR = Math.min(window.devicePixelRatio || 1, 2)
+    DPR = drawingRatio() // 1x on a weak device
     mobile = W < MOBILE
     const F = RIVER_FLOW
     pw = mobile ? W : Math.min(W * (W > 1600 ? F.columnWide : F.column), F.columnMax)
@@ -310,6 +311,8 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
 
   /* ---------- the flow ---------- */
   let head = REDUCED ? 1 : 0
+  /** Where the current stopped on a weak device (seconds), or null while it runs. */
+  let stillAt: number | null = null
   let dry = REDUCED ? 1 : 0
   const reached: number[] = []
   let sealed = false
@@ -406,14 +409,16 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       }
     }
 
-    // the current keeps the water moving; with reduced motion it stands still
-    const time = REDUCED ? 0 : now / 1000
+    // the current keeps the water moving; with reduced motion it stands still, and on a
+    // weak device it stops where it is (no jump) and the painting is left alone at rest
+    if (graphics.low) stillAt ??= now / 1000
+    const time = REDUCED ? 0 : (stillAt ?? now / 1000)
     renderer!.draw({ rect: { left: px0, top, width: pw, height: ph }, head, dry, time })
     const wet = drawPrints(now, top)
 
     // keep going while the ink moves or dries, or a print is still wet
     if (target > head + 0.0005 || dry < head - 0.0005 || wet || trailMoving) schedule()
-    else if (!REDUCED) calmLater() // the water keeps running, at a calmer frame rate
+    else if (!REDUCED && !graphics.low) calmLater() // the water keeps running, at a calmer frame rate
   }
 
   function drawPaw(paw: PawSprite, x: number, y: number, rot: number, sc: number, alpha: number) {
@@ -497,6 +502,8 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
   const io = new IntersectionObserver(
     (es) => {
       visible = es[0].isIntersecting
+      // the river runs every frame while it is in view: see how the device keeps up
+      if (visible && ready && !REDUCED) probeGraphics()
       schedule()
     },
     { rootMargin: '20% 0px' }
@@ -506,6 +513,11 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
   document.addEventListener('visibilitychange', onScroll)
   window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('resize', layout)
+  // a weak device: laid out again at 1x (the current stops on the next frame)
+  const offGraphics = onGraphicsChange(() => {
+    if (ready) layout()
+    schedule()
+  })
 
   Promise.all([
     loadImage(RIVER_IMAGE.ink),
@@ -518,6 +530,7 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       ready = true
       hooks.live(true)
       layout()
+      if (visible && !REDUCED) probeGraphics()
       // the prints are placed by the descriptions' height, which the web fonts change
       document.fonts?.ready.then(() => !destroyed && layout())
     })
@@ -535,6 +548,7 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       document.removeEventListener('visibilitychange', onScroll)
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', layout)
+      offGraphics()
       root.style.height = ''
       view.style.height = ''
       view.style.transform = ''

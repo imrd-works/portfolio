@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } f
 import { useI18n } from 'vue-i18n'
 import { INK_IMAGE } from './hero/config'
 import type { Caption, InkScene } from './hero/lib/scene'
+import { graphics, onGraphicsChange } from '@/shared/lib/graphics'
 
 const { t } = useI18n()
 // the role in two parts, the title and the rest ("Fullstack · Team Lead"): on a narrow
@@ -35,13 +36,20 @@ const artShown = ref(false)
 
 let scene: InkScene | null = null
 let unmounted = false
+let offGraphics = () => {}
 
 onMounted(async () => {
   // Kept out of the initial chunk's critical path: the scroll is rolled up on
   // load, so nothing needs the renderer before the first scroll.
   const { mountInkScene } = await import('./hero/lib/scene')
   if (unmounted) return
-  fogOn.value = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  fogOn.value = !window.matchMedia('(prefers-reduced-motion: reduce)').matches && !graphics.low
+  // a weak device drops the mist; the button can still bring it back
+  offGraphics = onGraphicsChange((level) => {
+    if (level !== 'low' || !fogOn.value) return
+    fogOn.value = false
+    scene?.setFog(false)
+  })
   scene = mountInkScene(
     {
       root: root.value!,
@@ -66,6 +74,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   unmounted = true
+  offGraphics()
   scene?.destroy()
   scene = null
 })

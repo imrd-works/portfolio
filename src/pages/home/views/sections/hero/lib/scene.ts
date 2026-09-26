@@ -26,6 +26,7 @@ import {
 import { createSegmentBuffers } from './renderer'
 import { createScroll3D, type Scroll3D } from './scroll3d'
 import { makeSplash, updateSplash, type SplashPart } from '@/shared/lib/ink/splash'
+import { graphics, onGraphicsChange, probeGraphics } from '@/shared/lib/graphics'
 
 export type Caption = keyof typeof CAPTION_TIMING
 
@@ -74,7 +75,8 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
   const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const { blotRadius: R0, sunRadius: SUN_R, wet: WET, progressStart: P0, progressEnd: P_END } = INK
 
-  const FOG: FogConfig = { ...FOG_DEFAULTS, on: FOG_DEFAULTS.on && !REDUCED }
+  // no mist on a weak device either (HeroSection turns it off when the level drops)
+  const FOG: FogConfig = { ...FOG_DEFAULTS, on: FOG_DEFAULTS.on && !REDUCED && !graphics.low }
 
   let renderer: Scroll3D | null = null
   let fallback = false
@@ -432,8 +434,8 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     }
     const going = stepStrokes(dt)
     const calm = phase === 'done' && sunT0 && state.sunT >= INK.sunSettleS && !ev?.moving && !going
-    if (calm && now - lastTick < 32) {
-      // ~30 fps is plenty at rest
+    if (calm && now - lastTick < (graphics.low ? 66 : 32)) {
+      // ~30 fps is plenty at rest, ~15 on a weak device
       schedule()
       return
     }
@@ -672,6 +674,8 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
   io.observe(stage)
   document.addEventListener('visibilitychange', schedule)
   window.addEventListener('resize', layout)
+  // a weak device: laid out again, at 1x
+  const offGraphics = onGraphicsChange(() => layout())
 
   if (import.meta.env.DEV) {
     // console handles: __fog.on = false, __fog.speed = 0.03; __ink.at(0.3) freezes 0.3 s after the hit
@@ -701,6 +705,7 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     if (renderer) {
       renderer.loadTexture(art)
       sky = readSkyline(art, RATIO)
+      probeGraphics() // the scroll unrolls and the ink blooms: see how the device keeps up
     } else {
       fallback = true
       hooks.useImageFallback()
@@ -733,6 +738,7 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
       document.removeEventListener('visibilitychange', schedule)
       cancelAnimationFrame(unrollRaf)
       window.removeEventListener('resize', layout)
+      offGraphics()
       renderer?.dispose()
       renderer = null
       if (import.meta.env.DEV) {

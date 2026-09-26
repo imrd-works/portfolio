@@ -1,5 +1,6 @@
 import FRAG from '../shaders/bloom.frag.glsl?raw'
 import { createQuad } from './quad'
+import { drawingRatio } from '@/shared/lib/graphics'
 
 /**
  * A painting (ink on transparency) drawn onto a canvas the way the hero's
@@ -51,7 +52,7 @@ export function createBloom(
 
   const bloom: Bloom = {
     resize() {
-      const dpr = Math.min(devicePixelRatio || 1, 2)
+      const dpr = drawingRatio()
       const w = canvas.clientWidth
       const h = canvas.clientHeight
       if (!w || !h) return

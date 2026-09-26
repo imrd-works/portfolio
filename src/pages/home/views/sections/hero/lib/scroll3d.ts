@@ -23,6 +23,7 @@ import * as THREE from 'three'
 import FRAG from '../shaders/hero.frag.glsl?raw'
 import { RIVER, SPLASH_SEGMENTS } from '../config'
 import type { InkUniforms } from './renderer'
+import { drawingRatio } from '@/shared/lib/graphics'
 
 /** Knobs of the roll, in CSS px. */
 const ROLL = {
@@ -178,7 +179,7 @@ export function createScroll3D(canvas: HTMLCanvasElement): Scroll3D | null {
   } catch {
     return null
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+  renderer.setPixelRatio(drawingRatio())
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace // colours pass straight through
   renderer.toneMapping = THREE.NoToneMapping
   const maxAniso = renderer.capabilities.getMaxAnisotropy()
@@ -422,6 +423,8 @@ export function createScroll3D(canvas: HTMLCanvasElement): Scroll3D | null {
     },
 
     setLayout(vw, h, paint) {
+      // the resolution follows the graphics level: 1x on a weak device
+      renderer.setPixelRatio(drawingRatio())
       layoutRoll(vw, h, paint)
       render()
     },

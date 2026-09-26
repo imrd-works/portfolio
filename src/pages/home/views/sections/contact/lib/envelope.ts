@@ -1,5 +1,6 @@
 import FRAG from '../shaders/envelope.frag.glsl?raw'
 import { createQuad } from '../../ink/lib/quad'
+import { drawingRatio } from '@/shared/lib/graphics'
 
 /**
  * The envelope, drawn onto the letter the way the hero's painting is drawn:
@@ -108,7 +109,7 @@ export async function mountEnvelope(
   const falls: Animation[] = []
 
   const size = () => {
-    const dpr = Math.min(devicePixelRatio || 1, 2)
+    const dpr = drawingRatio()
     const w = canvas.clientWidth
     const h = canvas.clientHeight
     canvas.width = Math.round(w * dpr)
