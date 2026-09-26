@@ -471,8 +471,8 @@ onBeforeUnmount(() => {
             </span>
           </span>
           <span class="work__label">
-            <span class="work__name">{{ t(`home.work.items.${p.id}.title`) }}</span>
             <span class="work__year">{{ p.years }}</span>
+            <span class="work__name">{{ t(`home.work.items.${p.id}.title`) }}</span>
           </span>
           <span class="work__kind">{{ t(`home.work.kinds.${p.kind}`) }}</span>
         </button>
@@ -939,14 +939,17 @@ onBeforeUnmount(() => {
     opacity: 0;
   }
 
+  // the years over the title, like a line of a label: the title has the card's whole width
   &__label {
     display: flex;
-    gap: 16px;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 6px;
     margin-top: 18px;
   }
 
   &__name {
+    // a word longer than the card ("документооборотом" on a narrow one) breaks, not overflows
+    overflow-wrap: break-word;
     font-family: Unbounded, sans-serif;
     font-size: 15px;
     font-weight: 300;
@@ -955,8 +958,6 @@ onBeforeUnmount(() => {
   }
 
   &__year {
-    flex: none;
-    padding-top: 4px;
     font-size: 11px;
     color: var(--work-seal);
     letter-spacing: 0.1em;
@@ -1394,7 +1395,6 @@ onBeforeUnmount(() => {
     }
 
     &__label {
-      flex-direction: column;
       gap: 4px;
     }
   }
