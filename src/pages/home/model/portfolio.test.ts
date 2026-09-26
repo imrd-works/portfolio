@@ -11,6 +11,8 @@ import {
   stackGroups,
   strongChips,
   projects,
+  allToolsOf,
+  toolGroupsOf,
   socials,
   stats,
   timeline,
@@ -138,6 +140,10 @@ describe('portfolio CV data', () => {
         expect(item.did.split('\n').length).toBeGreaterThanOrEqual(3)
         expect(locale.work.kinds[kind]).toBeTruthy()
       }
+      // every group a project uses has its caption
+      for (const p of projects) {
+        for (const g of toolGroupsOf(p)) expect(locale.work.toolGroups[g.id]).toBeTruthy()
+      }
     }
     expect(ru.work.items.sigma.about).toContain('CryptoPro')
     expect(en.work.items.moex.about).toContain('monitoring')
@@ -208,5 +214,34 @@ describe('portfolio CV data', () => {
     expect(ids.every((id) => /team|developers|collaborat/i.test(enItems[id]?.desc ?? ''))).toBe(
       true
     )
+  })
+})
+
+describe('project tools', () => {
+  it('are grouped, in the same order everywhere, each tool once', () => {
+    const sigma = projects.find(({ id }) => id === 'sigma')!
+    expect(toolGroupsOf(sigma).map((g) => g.id)).toEqual([
+      'data',
+      'visual',
+      'styles',
+      'signature',
+      'api',
+      'build',
+      'quality',
+      'repo',
+    ])
+    expect(toolGroupsOf(sigma).find((g) => g.id === 'api')?.tools).toEqual([
+      'REST API',
+      'Axios',
+      'OpenAPI',
+      'Swagger',
+      'Postman',
+    ])
+    for (const p of projects) {
+      const all = allToolsOf(p)
+      expect(all.slice(0, p.tools.main.length)).toEqual(p.tools.main)
+      expect(new Set(all).size).toBe(all.length)
+      expect(toolGroupsOf(p).every((g) => g.tools.length > 0)).toBe(true)
+    }
   })
 })

@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { projects, projectKinds, type Project, type ProjectKind } from '../../model/portfolio'
+import {
+  projects,
+  projectKinds,
+  toolGroupsOf,
+  type Project,
+  type ProjectKind,
+} from '../../model/portfolio'
 import type { Bleed, Painting, RippleFilter } from './work/lib/transitions'
 import { createSwing, type Swing } from './work/lib/swing'
 import { graphics, onGraphicsChange } from '@/shared/lib/graphics'
@@ -587,20 +593,34 @@ onBeforeUnmount(() => {
             </template>
             <div
               v-else-if="tab === 'tools'"
-              class="work__brands"
+              class="work__tools"
             >
-              <span
-                v-for="x in current.tools.main"
-                :key="x"
-                class="work__stamp work__brand work__brand--main"
-                >{{ x }}</span
-              >
-              <span
-                v-for="x in current.tools.rest"
-                :key="x"
-                class="work__stamp work__brand"
-                >{{ x }}</span
-              >
+              <div class="work__brands">
+                <span
+                  v-for="x in current.tools.main"
+                  :key="x"
+                  class="work__stamp work__brand work__brand--main"
+                  >{{ x }}</span
+                >
+              </div>
+              <!-- the rest by group, each under its caption -->
+              <dl class="work__groups">
+                <div
+                  v-for="g in toolGroupsOf(current)"
+                  :key="g.id"
+                  class="work__group"
+                >
+                  <dt class="work__group-name">{{ t(`home.work.toolGroups.${g.id}`) }}</dt>
+                  <dd class="work__brands work__group-tools">
+                    <span
+                      v-for="x in g.tools"
+                      :key="x"
+                      class="work__stamp work__brand"
+                      >{{ x }}</span
+                    >
+                  </dd>
+                </div>
+              </dl>
             </div>
             <template v-else>
               <p class="work__para work__role">{{ t(`home.work.items.${current.id}.role`) }}</p>
@@ -1234,6 +1254,24 @@ onBeforeUnmount(() => {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+  }
+
+  &__groups {
+    display: grid;
+    gap: 18px;
+    margin: 26px 0 0;
+  }
+
+  &__group-name {
+    margin: 0 0 9px;
+    font-size: 11px;
+    color: var(--work-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  &__group-tools {
+    margin: 0;
   }
 
   &__brand {

@@ -101,6 +101,21 @@
       "product": "Product",
       "landing": "Landing"
     },
+    "toolGroups": {
+      "base": "Foundation",
+      "data": "Data, state, forms",
+      "visual": "Visualisation and motion",
+      "styles": "Styles",
+      "signature": "Signature",
+      "api": "API",
+      "architecture": "Architecture",
+      "content": "Content",
+      "build": "Build and tests",
+      "quality": "Code quality",
+      "seo": "SEO and analytics",
+      "delivery": "Infrastructure",
+      "repo": "Repository"
+    },
     "tabs": {
       "about": "About",
       "tools": "Tools",

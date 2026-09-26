@@ -254,9 +254,44 @@ export interface Project {
    * NDA), served from `public/work/`.
    */
   art: string
-  /** Latin stack names, identical in both locales; `main` are shown inked. */
-  tools: { main: string[]; rest: string[] }
+  /**
+   * Latin stack names, identical in both locales: `main` are shown inked, the rest by
+   * group, each under its caption (`home.work.toolGroups.*`).
+   */
+  tools: { main: string[]; groups: Partial<Record<ToolGroup, string[]>> }
 }
+
+/** The groups a project's tools are shown in, in this order. */
+export type ToolGroup =
+  | 'base'
+  | 'data'
+  | 'visual'
+  | 'styles'
+  | 'signature'
+  | 'api'
+  | 'architecture'
+  | 'content'
+  | 'build'
+  | 'quality'
+  | 'seo'
+  | 'delivery'
+  | 'repo'
+
+export const toolGroups: ToolGroup[] = [
+  'base',
+  'data',
+  'visual',
+  'styles',
+  'signature',
+  'api',
+  'architecture',
+  'content',
+  'build',
+  'quality',
+  'seo',
+  'delivery',
+  'repo',
+]
 
 export const projectKinds: ProjectKind[] = ['system', 'product', 'landing']
 
@@ -268,7 +303,16 @@ export const projects: Project[] = [
     art: '/work/energy.webp',
     tools: {
       main: ['Vue 3', 'TypeScript'],
-      rest: ['Pinia', 'ECharts', 'CryptoPro', 'REST API', 'Vite', 'Vitest'],
+      groups: {
+        data: ['Pinia', 'Vue Query', 'VueUse', 'Vuelidate'],
+        visual: ['ECharts', 'GSAP'],
+        styles: ['SCSS', 'BEM'],
+        signature: ['CryptoPro'],
+        api: ['REST API', 'Axios', 'OpenAPI', 'Swagger', 'Postman'],
+        build: ['Vite', 'Vitest'],
+        quality: ['ESLint', 'Prettier', 'Stylelint', 'Husky'],
+        repo: ['GitLab'],
+      },
     },
   },
   {
@@ -278,7 +322,15 @@ export const projects: Project[] = [
     art: '/work/education.webp',
     tools: {
       main: ['Nuxt 3 / 4', 'TypeScript'],
-      rest: ['Vue 3', 'Pinia', 'DDD', 'Highcharts', 'WYSIWYG', 'Vitest', 'REST API'],
+      groups: {
+        base: ['Vue 3'],
+        data: ['Pinia'],
+        visual: ['Highcharts'],
+        api: ['REST API'],
+        architecture: ['DDD'],
+        content: ['WYSIWYG'],
+        build: ['Vitest'],
+      },
     },
   },
   {
@@ -288,7 +340,12 @@ export const projects: Project[] = [
     art: '/work/bitcoin.webp',
     tools: {
       main: ['Next.js', 'GSAP'],
-      rest: ['Sanity CMS', 'TypeScript', 'SEO', 'Analytics', 'Docker', 'CI/CD'],
+      groups: {
+        base: ['TypeScript'],
+        content: ['Sanity CMS'],
+        seo: ['SEO', 'Analytics'],
+        delivery: ['Docker', 'CI/CD'],
+      },
     },
   },
   {
@@ -296,23 +353,44 @@ export const projects: Project[] = [
     kind: 'system',
     years: '2022–2023',
     art: '/work/monitoring.webp',
-    tools: { main: ['Vue 3', 'GraphQL'], rest: ['TypeScript', 'SVG', 'Data Viz', 'Pinia'] },
+    tools: {
+      main: ['Vue 3', 'GraphQL'],
+      groups: { base: ['TypeScript'], data: ['Pinia'], visual: ['SVG', 'Data Viz'] },
+    },
   },
   {
     id: 'irlix',
     kind: 'system',
     years: '2022–2023',
     art: '/work/documents.webp',
-    tools: { main: ['Vue 3', 'Pinia'], rest: ['TypeScript', 'Highcharts', 'REST API'] },
+    tools: {
+      main: ['Vue 3', 'Pinia'],
+      groups: { base: ['TypeScript'], visual: ['Highcharts'], api: ['REST API'] },
+    },
   },
   {
     id: 'baccasoft',
     kind: 'system',
     years: '2022–2023',
     art: '/work/process.webp',
-    tools: { main: ['Vue 2.7', 'Pinia'], rest: ['TypeScript', 'REST API', 'WebSocket'] },
+    tools: {
+      main: ['Vue 2.7', 'Pinia'],
+      groups: { base: ['TypeScript'], api: ['REST API', 'WebSocket'] },
+    },
   },
 ]
+
+/** A project's tools by group, in the order the groups are always shown; empty ones left out. */
+export function toolGroupsOf(project: Project): { id: ToolGroup; tools: string[] }[] {
+  return toolGroups
+    .map((id) => ({ id, tools: project.tools.groups[id] ?? [] }))
+    .filter((g) => g.tools.length)
+}
+
+/** Every tool of a project, the main ones first (the structured data's keywords). */
+export function allToolsOf(project: Project): string[] {
+  return [...project.tools.main, ...toolGroupsOf(project).flatMap((g) => g.tools)]
+}
 
 export interface TimelineEntry {
   id: 'current' | 'energyLead' | 'educationLead' | 'complexSystems' | 'commercialStart' | 'startups'
