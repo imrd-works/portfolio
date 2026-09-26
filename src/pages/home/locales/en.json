@@ -25,7 +25,7 @@
     "eyebrow": "About",
     "title": "I turn complex ideas into {accent}",
     "titleAccent": "living interfaces",
-    "p1": "For more than 5 years I have been designing and launching corporate and government platforms where a mistake is costly: electronic signatures, role-based access, multi-step forms, heavy dashboards and data visualisation. I also build online stores and landing pages, where load speed, motion and SEO decide the outcome. I take a product from the idea to production — with an architecture (DDD, FSD) that holds up as it grows — and as a Team Lead I answer not only for my own code but for deadlines, reviews and the team.",
+    "p1": "For more than 5 years I have been designing and launching high-load corporate and government platforms where a mistake is costly: electronic signatures, role-based access, multi-step forms, heavy dashboards and data visualisation. I also build online stores and landing pages, where load speed, motion and SEO decide the outcome. I take a product from the idea to production — with an architecture (DDD, FSD) that holds up as it grows — and as a Team Lead I answer not only for my own code but for deadlines, reviews and the team.",
     "p2": "I am as much at home on a blank page as in someone else's code: I have launched products from scratch — from the architecture to the release — and as an outstaffed developer joined other teams, old codebases and systems boxed in on every side. Whatever the conditions, I found a way: not a single contract ended early, I saw every project through to the end and left with the client's thanks.",
     "p3": "I started before AI assistants existed and learned to design clean, fast and reliable solutions with my own hands. Today AI is part of every stage of my work, and I move many times faster. But it does not think for me — it helps: the architecture, the quality of the code and every decision stay under my control. AI brings the speed; the quality is on me.",
     "stats": {
@@ -43,7 +43,7 @@
       "vue": "My main stack since 2021: from a fast SSR site to an enterprise system of dozens of modules. I know not just the API but where the framework saves months and where it starts to get in the way.",
       "typescript": "Strict types from the API to the button: they are generated from OpenAPI, so a broken contract is caught at build time, not by a user.",
       "dataviz": "Dashboards, charts and large tables that do not lag; multi-step forms where not a single field gets lost.",
-      "architecture": "I design so that the code does not need rewriting a year later, and I lead the team: breaking work down, reviews, releases on schedule.",
+      "architecture": "I lay down an architecture that grows without a rewrite from scratch, and I lead the team: breaking work down, reviews, releases on schedule.",
       "react": "My second stack, also in production: fast landing pages with motion, SEO and a headless CMS."
     },
     "searchLabel": "Search the stack",
