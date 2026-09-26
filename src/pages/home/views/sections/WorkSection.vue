@@ -38,7 +38,9 @@ const lightbox = ref<string | null>(null)
 const state = reactive({ on: false, ready: false, covering: false, bleeding: false, noFade: false })
 
 const lines = (key: string) => t(key).split('\n').filter(Boolean)
-const index = computed(() => (current.value ? projects.indexOf(current.value) : -1))
+// by id: `current` holds Vue's reactive proxy of the project, never the object in the list
+// itself, so indexOf was always -1 (the number read 00, "next" was the first project)
+const index = computed(() => projects.findIndex((p) => p.id === current.value?.id))
 const neighbour = (step: number) =>
   projects[(index.value + step + projects.length) % projects.length]
 const visible = (p: Project) => filter.value === 'all' || p.kind === filter.value
