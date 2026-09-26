@@ -217,6 +217,8 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
   let trail = 0
   /** How strong a trail or a step already passed stays. */
   const PASSED = 0.35
+  /** The trail never moves slower than this, in steps a second, till it is there. */
+  const TRAIL_MIN_SPEED = 0.6
   let walked = 0
 
   /**
@@ -389,8 +391,11 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       goal = Math.min(byReader, byInk)
     }
     // the trail catches up gently instead of jumping with the scroll
-    trail += (goal - trail) * (1 - Math.exp(-dt * 4))
-    if (Math.abs(goal - trail) < 0.002) trail = goal
+    // at a steady pace at the end, not ever slower: easing alone crawls up to the goal and
+    // only arrives much later, and the last step lit up a second after its trail was there
+    const gap = goal - trail
+    const step = Math.max(Math.abs(gap) * (1 - Math.exp(-dt * 4)), dt * TRAIL_MIN_SPEED)
+    trail = Math.abs(gap) <= step ? goal : trail + Math.sign(gap) * step
     next = Math.min(N, Math.floor(trail))
     walked = trail - next
     const trailMoving = trail !== goal
