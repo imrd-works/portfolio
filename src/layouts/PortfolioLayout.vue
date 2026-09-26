@@ -64,7 +64,10 @@ const { t } = useI18n()
     transform: translateY(-200%);
     transition: transform 0.2s ease;
 
+    // the seal's cinnabar (the hero's sun), not the site's violet
     &:focus-visible {
+      outline: 2px solid #c73826;
+      outline-offset: 3px;
       transform: translateY(0);
     }
   }

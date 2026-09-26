@@ -774,9 +774,13 @@ onBeforeUnmount(() => {
     border-color: var(--contact-ink);
   }
 
+  /* the focus ring is the seal's cinnabar here, not the site's violet */
   &__tag:focus-visible,
   &__pick:focus-visible,
-  &__stack-add:focus-visible {
+  &__stack-add:focus-visible,
+  &__stamp:focus-visible,
+  &__again:focus-visible,
+  &__row-value:focus-visible {
     outline: 2px solid var(--contact-sun);
     outline-offset: 3px;
   }
