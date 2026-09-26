@@ -12,6 +12,8 @@
  * reader past it all.
  */
 
+import { fromModal } from './modal'
+
 // keys that scroll the page, and which way
 const KEYS: Record<string, number> = {
   ArrowDown: 80,
@@ -66,7 +68,7 @@ export function createEvening(): Evening {
   }
 
   function take(d: number, e: Event) {
-    if (!armed || window.scrollY > 0) return
+    if (!armed || window.scrollY > 0 || fromModal(e)) return
     const now = performance.now()
     const was = night
     if (d > 0 && (!done() || (now - lastHeld < QUIET_MS && now - doneAt < LET_GO_MS))) {

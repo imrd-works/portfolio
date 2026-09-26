@@ -8,6 +8,8 @@
  * reader past the hero after all.
  */
 
+import { fromModal } from './modal'
+
 // keys that scroll the page down
 const KEYS = new Set(['ArrowDown', 'PageDown', 'End', ' ', 'Spacebar'])
 // a gesture has ended when no try came for this long (trackpad momentum included)
@@ -47,6 +49,7 @@ export function holdScroll(onTry: () => void): ScrollHold {
   }
 
   function tryScroll(e: Event) {
+    if (fromModal(e)) return
     if (e.cancelable) e.preventDefault()
     lastTry = performance.now()
     onTry()
