@@ -95,17 +95,22 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     // the evening
     s: 0,
     m: 0,
-    sunC: [0.74, 0.86] as [number, number],
-    set: [0.71, 0.5] as [number, number],
+    sunC: [0.67, 0.85] as [number, number],
+    set: [0.67, 0.64] as [number, number],
     setHz: 0.6,
-    moon0: [0.29, 0.5] as [number, number],
-    moonC: [0.24, 0.8] as [number, number],
-    moon1: [0.36, 0.86] as [number, number],
+    moon0: [0.43, 0.64] as [number, number],
+    moonC: [0.43, 0.85] as [number, number],
+    moon1: [0.46, 0.85] as [number, number],
     /** The slits the sun goes into and the moon comes out of (painting y). */
     band: 0.7,
-    mband: 0.75,
+    mband: 0.7,
     /** The painting fades out above this: fully shown below [0], gone above [1] (painting y). */
     fade: [9, 10] as [number, number],
+    /** How far each slit's stroke has been laid, and taken away again (0..1). */
+    sunDraw: 0,
+    sunGone: 0,
+    moonDraw: 0,
+    moonGone: 0,
   }
 
   function draw() {
@@ -138,6 +143,10 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
       moonR: EVENING.moonRadius,
       band: state.band,
       mband: state.mband,
+      sunDraw: state.sunDraw,
+      sunGone: state.sunGone,
+      moonDraw: state.moonDraw,
+      moonGone: state.moonGone,
       fade: state.fade,
     })
   }
@@ -204,22 +213,25 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     const sy = Math.max(0.15, (-topPx + SUN_R * h * 1.6 + 18) / h)
     state.sun = [sx, 1 - sy]
     sunTarget = [left + sx * w, topPx + sy * h]
-    paths(vx0, vx1, 1 + topPx / h)
+    paths(vx0, vx1)
     draw()
     applyUnroll()
   }
 
   /* ---------- the evening's paths ---------- */
-  // Set within the part of the painting the screen shows, like the sun's own place. The sun
-  // goes over to the right and down along an arc into a slit a little under it; the moon
-  // comes straight up out of its own slit by the name. They answer only to their slits,
+  // Set within the part of the painting the screen shows, like the sun's own place. One
+  // horizon for both: the sun goes down into a slit a little under it, the moon comes up out
+  // of its own slit on the same line, by the name. Each goes along a small arc, one the other
+  // mirrored: the sun leaves going over to the right and goes in straight down, the moon comes
+  // out straight up and ends going over to the right. They answer only to their slits,
   // whatever is painted there, so it all goes the same way on any screen.
   let sky: Skyline | null = null
-  function paths(vx0: number, vx1: number, vy1: number) {
+  function paths(vx0: number, vx1: number) {
     const X = (f: number) => vx0 + f * (vx1 - vx0)
     const top = state.sun[1]
     const MR = EVENING.moonRadius
-    const setX = X(EVENING.sunSetAt)
+    const D = EVENING.arc
+    const sx = state.sun[0]
     // On a very wide screen the sky is cropped so low that the hills come up to the sun's way
     // down. The sun stays where it always is: its slit goes right under it instead, and the
     // hills above the slit fade into the sky.
@@ -230,18 +242,113 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     const crowded = hills > top - SUN_R * 1.3 - 0.02
     const band = crowded ? top - SUN_R * 1.6 : top - 0.16
     state.band = band
+    state.mband = band
     state.fade = crowded ? [band - 0.07, band + 0.005] : [9, 10]
     state.setHz = band // the glow over the horizon is born where it sets
-    state.sunC = [X(EVENING.sunArcAt), top + 0.01]
-    state.set = [setX, band - SUN_R * 1.4] // it ends just gone through its slit
-    // the moon, straight up out of its slit (leaning a hair), clear of the name
-    const narrow = vx1 - vx0 < 0.75
-    const m1 = narrow ? Math.min(1.12, vy1 - 0.14) : top + 0.01
-    const mx = X(narrow ? EVENING.moonAtNarrow : EVENING.moonAt)
-    state.mband = m1 - 0.11
-    state.moon0 = [mx + 0.01, state.mband - MR * 1.4]
-    state.moonC = [mx + 0.005, m1 - 0.05]
-    state.moon1 = [mx, m1]
+    // the control point at the arc's corner: level with where it starts, over where it ends
+    state.sunC = [sx + D, top]
+    // it ends just gone through its slit: the stroke goes away in its own time
+    state.set = [sx + D, band - SUN_R * 1.4]
+    // the moon: the same arc, turned over, up to where the sun stood in the day
+    const mx = X(vx1 - vx0 < 0.75 ? EVENING.moonAtNarrow : EVENING.moonAt)
+    state.moon0 = [mx, band - MR * 1.4]
+    state.moonC = [mx, top]
+    state.moon1 = [mx + D, top]
+  }
+
+  /* ---------- the slits' strokes ---------- */
+  // Each stroke is laid as its disc comes to the slit and taken away once it has gone through,
+  // and both take their time: laying one takes at least STROKE_DRAW_S, taking it away
+  // STROKE_AWAY_S, however fast the scroll. The sun and the moon wait for them, both ways:
+  // neither gets far ahead of the brush into its slit, and on the way back neither gets far
+  // ahead of its stroke coming back. So it plays back as it played.
+  const STROKE_DRAW_S = 0.35
+  const STROKE_AWAY_S = 0.5
+  const MR = EVENING.moonRadius
+  const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
+  const smooth = (a: number, b: number, x: number) => {
+    const t = clamp01((x - a) / (b - a))
+    return t * t * (3 - 2 * t)
+  }
+  const arcY = (a: number[], c: number[], b: number[], t: number) =>
+    (1 - t) ** 2 * a[1] + 2 * (1 - t) * t * c[1] + t * t * b[1]
+  const ease = (t: number) => t * t * (3 - 2 * t)
+  /** The sun's lower edge over its slit (below it: < 0); falls as `s` grows. */
+  const sunGap = (s: number) => arcY(state.sun, state.sunC, state.set, ease(s)) - SUN_R - state.band
+  /** The moon's upper edge over its slit; rises as `m` grows. */
+  const moonGap = (m: number) =>
+    arcY(state.moon0, state.moonC, state.moon1, ease(m)) + MR - state.mband
+  /** Where along its way `f` (monotonic, rising or falling) reaches `g`. */
+  function at(f: (x: number) => number, g: number, rising: boolean) {
+    let lo = 0
+    let hi = 1
+    for (let k = 0; k < 24; k++) {
+      const mid = (lo + hi) / 2
+      if (f(mid) < g === rising) lo = mid
+      else hi = mid
+    }
+    return (lo + hi) / 2
+  }
+  // the brush lays the sun's stroke from a hair before it touches till it is some way in, and
+  // it is taken away from the moment the sun is all in (in sun radii, its lower edge's gap)
+  const SUN_DRAW = [0.35, -0.9]
+  const SUN_AWAY = [-2.05, -2.35]
+  // the moon's: from a hair before its top comes out till it is some way out; taken away
+  // along its way on up once it is all out (moon radii, its top's gap; on a screen where its
+  // way is short, by the end of it)
+  const MOON_DRAW = [-0.35, 0.9]
+  const MOON_AWAY = [1.7, 4.5]
+
+  function strokesWant() {
+    const g = sunGap(state.s) / SUN_R
+    const gm = moonGap(state.m)
+    const awayEnd = Math.max(MOON_AWAY[0] + 0.5, Math.min(MOON_AWAY[1], moonGap(1) / MR))
+    return {
+      sunDraw: clamp01((SUN_DRAW[0] - g) / (SUN_DRAW[0] - SUN_DRAW[1])),
+      sunGone: smooth(-SUN_AWAY[0], -SUN_AWAY[1], -g),
+      moonDraw: state.m > 0 ? clamp01((gm / MR - MOON_DRAW[0]) / (MOON_DRAW[1] - MOON_DRAW[0])) : 0,
+      moonGone: state.m > 0 ? smooth(MOON_AWAY[0], awayEnd, gm / MR) : 0,
+    }
+  }
+
+  /** Moves the strokes toward where they should be by `dt` s; true while they still move. */
+  function stepStrokes(dt: number) {
+    const want = strokesWant()
+    const toward = (v: number, w: number, secs: number) =>
+      v + Math.max(-dt / secs, Math.min(dt / secs, w - v))
+    state.sunDraw = toward(state.sunDraw, want.sunDraw, STROKE_DRAW_S)
+    state.sunGone = toward(state.sunGone, want.sunGone, STROKE_AWAY_S)
+    state.moonDraw = toward(state.moonDraw, want.moonDraw, STROKE_DRAW_S)
+    state.moonGone = toward(state.moonGone, want.moonGone, STROKE_AWAY_S)
+    return (
+      state.sunDraw !== want.sunDraw ||
+      state.sunGone !== want.sunGone ||
+      state.moonDraw !== want.moonDraw ||
+      state.moonGone !== want.moonGone
+    )
+  }
+
+  /**
+   * Holds the sun and the moon back for their strokes (only ever stops them, never pushes).
+   * Both ways they may be well ahead of the stroke, laid or coming back, so they hardly ever
+   * wait: it catches up with them as they go in.
+   */
+  function waitForStrokes(s0: number, m0: number, s: number, m: number): [number, number] {
+    const lead = 0.7
+    const eps = 1e-3 // done is done: no waiting on a rounding error
+    if (s > s0 && state.sunDraw < 1 - eps) {
+      const g = SUN_DRAW[0] - (SUN_DRAW[0] - SUN_DRAW[1]) * (state.sunDraw + lead)
+      s = Math.min(s, Math.max(s0, at(sunGap, g * SUN_R, false)))
+    }
+    if (s < s0 && state.sunGone > lead)
+      s = Math.max(s, Math.min(s0, at(sunGap, SUN_AWAY[0] * SUN_R, false)))
+    if (m > m0 && state.moonDraw < 1 - eps) {
+      const g = MOON_DRAW[0] + (MOON_DRAW[1] - MOON_DRAW[0]) * (state.moonDraw + lead)
+      m = Math.min(m, Math.max(m0, at(moonGap, g * MR, true)))
+    }
+    if (m < m0 && state.moonGone > lead)
+      m = Math.max(m, Math.min(m0, at(moonGap, MOON_AWAY[0] * MR, true)))
+    return [s, m]
   }
 
   /* ---------- animation ---------- */
@@ -318,12 +425,13 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     // real time, even at a low frame rate (a slow device plays it coarser, not slower)
     const dt = Math.min(0.25, (now - (lastStep || now)) / 1000)
     lastStep = now
-    const ev = evening?.step(dt)
+    const ev = evening?.step(dt, waitForStrokes)
     if (ev) {
       state.s = ev.s
       state.m = ev.m
     }
-    const calm = phase === 'done' && sunT0 && state.sunT >= INK.sunSettleS && !ev?.moving
+    const going = stepStrokes(dt)
+    const calm = phase === 'done' && sunT0 && state.sunT >= INK.sunSettleS && !ev?.moving && !going
     if (calm && now - lastTick < 32) {
       // ~30 fps is plenty at rest
       schedule()
@@ -466,6 +574,10 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     evening?.reset()
     state.s = 0
     state.m = 0
+    state.sunDraw = 0
+    state.sunGone = 0
+    state.moonDraw = 0
+    state.moonGone = 0
     hooks.hideCaptions()
     if (fallback) hooks.showArt(false)
     phase = 'idle'

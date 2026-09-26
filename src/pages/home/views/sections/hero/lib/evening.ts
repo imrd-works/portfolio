@@ -5,8 +5,9 @@
  * next section waits for it; after that it scrolls on as usual. Scrolling up at the top plays
  * it all back (the moon goes down first, then the sun comes up).
  *
- * Whoever keeps scrolling while it plays hurries it on, up to 4×, so it can all go by in
- * about a second and a half; the pace eases back once they stop. A gesture still going when
+ * Whoever keeps scrolling while it plays hurries it on, up to 3×, so it can all go by in
+ * about two seconds (the scene may still hold the sun and the moon back for the brush
+ * strokes at their slits); the pace eases back once they stop. A gesture still going when
  * the moon is up is let go once it stops, 0.7 s at most, so its momentum doesn't carry the
  * reader past it all.
  */
@@ -23,7 +24,9 @@ const KEYS: Record<string, number> = {
 const SUN_PER_S = 1 / 3 // the sunset: ~3 s
 const SUN_BACK_PER_S = 0.4
 const MOON_PER_S = 0.5 // the moonrise: ~2 s
-const MAX_PACE = 4
+// the moon sets off once the sun has gone into its slit, not after it has eased to a stop
+const SUN_IN_AT = 0.9
+const MAX_PACE = 3
 const QUIET_MS = 300
 const LET_GO_MS = 700
 // never held longer than this, however slowly it plays on a slow device
@@ -32,8 +35,14 @@ const MAX_HOLD_MS = 8000
 export interface Evening {
   /** The hero is drawn: from now on a scroll at the top starts the evening. */
   arm(): void
-  /** Advances it by `dt` seconds; `s`: how far the sun has gone down, `m`: the moon up. */
-  step(dt: number): { s: number; m: number; moving: boolean }
+  /**
+   * Advances it by `dt` seconds; `s`: how far the sun has gone down, `m`: the moon up.
+   * `hold` may keep them back (from where they were to where they would go).
+   */
+  step(
+    dt: number,
+    hold?: (s0: number, m0: number, s: number, m: number) => [number, number]
+  ): { s: number; m: number; moving: boolean }
   /** Back to the day, disarmed (a replay of the drawing). */
   reset(): void
   dispose(): void
@@ -98,7 +107,7 @@ export function createEvening(): Evening {
     arm() {
       armed = true
     },
-    step(dt) {
+    step(dt, hold) {
       pace = 1 + (pace - 1) * Math.exp(-dt / 0.8) // eases back once the scrolling stops
       const s0 = s
       const m0 = m
@@ -106,8 +115,9 @@ export function createEvening(): Evening {
       const sTarget = night || m > 0.02 ? 1 : 0
       s += Math.max(-dt * SUN_BACK_PER_S * pace, Math.min(dt * SUN_PER_S * pace, sTarget - s))
       // the moon comes up once the sun is gone
-      const mTarget = night && s >= 1 ? 1 : 0
+      const mTarget = night && s >= SUN_IN_AT ? 1 : 0
       m += Math.max(-dt * MOON_PER_S * pace, Math.min(dt * MOON_PER_S * pace, mTarget - m))
+      if (hold) [s, m] = hold(s0, m0, s, m)
       return { s, m, moving: s !== s0 || m !== m0 }
     },
     reset() {

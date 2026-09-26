@@ -37,6 +37,11 @@ export interface InkUniforms {
   /** The slits the sun goes into and the moon comes out of (painting y). */
   band: number
   mband: number
+  /** How far each slit's stroke has been laid, and taken away again (0..1), in real time. */
+  sunDraw: number
+  sunGone: number
+  moonDraw: number
+  moonGone: number
   /** The painting fades out from the top: fully shown below [0], gone above [1] (painting y). */
   fade: [number, number]
 }

@@ -22,6 +22,8 @@ uniform float uSetHz;         // the height the glow over the horizon is born at
 uniform vec2 uMoon0, uMoonC, uMoon1;
 uniform float uMoonR;
 uniform float uBand, uMBand; // the slits the sun goes into and the moon comes out of (painting y)
+uniform float uSunDraw, uSunGone;    // how far each slit's stroke has been laid and taken away
+uniform float uMoonDraw, uMoonGone;  // (0..1, in real time: scene.ts)
 uniform vec2 uFade;           // the painting fades out from the top: shown below .x, gone above .y
 uniform vec2 uRiver[9];       // the river's course, from the valley to its mouth (painting uv)
 uniform float uHw[9];         // and its half-width (uv x)
@@ -43,9 +45,13 @@ float fadeAt(float y){ return smoothstep(uFade.x, uFade.y, y); }
 // The slit the sun goes into and the moon comes out of: one stroke of the brush, as a sumi-e
 // painter would cut the sky with it. It comes down lightly, is fullest in the middle and lifts
 // off into a hair; its edges ragged, the tail breaking into dry-brush streaks, bowed a little.
-// `draw` 0..1: the brush travelling left to right; `fade` 1..0: the ink fading off afterwards.
+// `draw` 0..1: the brush travelling left to right; `fade` 1..0: the stroke going the way it
+// came, lifted off from its start to its tail as gently as it was laid.
 float slit(vec2 q, vec2 c, float r, float draw, float fade, float seed){
   if (draw <= 0. || fade <= 0.) return 0.;
+  draw = draw * draw * (3. - 2. * draw);   // the brush sets off gently and slows to lift off
+  float lift = 1. - fade;
+  lift = lift * lift * (3. - 2. * lift);   // and so is it taken away
   float hw = r * 1.9;
   float u = (q.x - c.x + hw) / (2. * hw);                  // 0 at the start .. 1 at the tail
   if (u < -.02 || u > 1.) return 0.;
@@ -59,13 +65,31 @@ float slit(vec2 q, vec2 c, float r, float draw, float fade, float seed){
   // dry brush: the hairs part toward the tail and at the edges, leaving streaks of paper
   float hairs = smoothstep(.3, .62, vnoise(vec2(u * 9. + seed, d * 5. + seed)));
   float dry = mix(1., hairs, clamp(smoothstep(.3, .95, u) + smoothstep(.55, 1., ad) * .5, 0., 1.));
-  float got = 1. - smoothstep(draw * 1.06 - .05, draw * 1.06, u);   // as far as the brush has got
+  // as far as the brush has got: the ink soaks in behind it over a quarter of the stroke,
+  // so there is no hard head; and the whole of it comes up from nothing as it starts
+  float got = (1. - smoothstep(draw * 1.3 - .3, draw * 1.3, u)) * smoothstep(0., .3, draw);
   // ink: darker in its core where it was pressed, paler at the wet edges, grained by the paper
   float ink = (.55 + .45 * press) * (1. - .45 * smoothstep(.2, 1., ad)) * (.85 + .15 * vnoise(q * 320.));
-  return clamp(body * dry * got * ink * fade, 0., 1.);
+  // taken away the same way: a soft front runs along it from the start, the ink paling off
+  // behind it, and the whole of it thins to nothing by the end
+  float left = smoothstep(lift * 1.3 - .3, lift * 1.3, u) * (1. - smoothstep(.7, 1., lift));
+  return clamp(body * dry * got * ink * left, 0., 1.);
 }
 
 vec2 arc(vec2 a, vec2 c, vec2 b, float t){ return mix(mix(a, c, t), mix(c, b, t), t); }
+// where the arc crosses height y (the root inside 0..1): the slit is cut there, and stays put
+// while the disc goes through it
+float arcXAt(vec2 a, vec2 c, vec2 b, float y){
+  float A = a.y - 2. * c.y + b.y, B = 2. * (c.y - a.y), C = a.y - y;
+  float t;
+  if (abs(A) < 1e-6) t = -C / B;
+  else {
+    float D = sqrt(max(B * B - 4. * A * C, 0.));
+    t = (-B - D) / (2. * A);
+    if (t < 0. || t > 1.) t = (-B + D) / (2. * A);
+  }
+  return arc(a, c, b, clamp(t, 0., 1.)).x;
+}
 
 float inkAt(vec2 uv, float bias){ return 1. - smoothstep(.02, .97, texture2D(uTex, uv, bias).r); }
 
@@ -304,11 +328,13 @@ void main(){
   // ---------- together: the ink over the sun over the washed paper ----------
   a *= 1. - fadeAt(vUv.y);
   vec3 outc = mix(base, col, a);
-  // the sun's slit: the brush cuts it as the sun comes down to it, and the ink fades off once
-  // the sun has gone through
-  float stS = slit(q, vec2(sc.x, uBand), uSunR,
-                   smoothstep(uSunR * 2., 0., (sunUv.y - uSunR) - uBand) * smoothstep(0., .08, uS),
-                   1. - smoothstep(.75, 1., hidden), 1.3);
+  // the sun's slit: the brush sets off in the moment the disc touches it (a stroke's width
+  // before) and goes on slowly under it as it goes in; the moment the sun has gone through,
+  // it is taken away (scene.ts lays and takes it away in real time)
+  float slitX = arcXAt(uSun, uSunC, uSet, uBand + uSunR) * uAspect;
+  float stS = slit(q, vec2(slitX, uBand), uSunR,
+                   uSunDraw,
+                   1. - uSunGone, 1.3);
   outc = mix(outc, vec3(.16, .17, .2), stS * .85);
   // night: a little darker and cooler, thinning out toward the bottom of the screen
   outc *= mix(vec3(1.), vec3(.87, .88, .93), nightIn * smoothstep(.0, .4, vStage.y));
@@ -326,14 +352,24 @@ void main(){
     float seen = smoothstep(uMBand - .004, uMBand + .004, vUv.y);   // out of its slit
     float off = md - uMoonR;
     float ring = smoothstep(-.002, uMoonR * .25, off) * exp(-pow(off / (uMoonR * 1.6), 2.));
+    // under its slit the disc is hidden, so the wash is laid whole there, over where the disc
+    // is too: a ring round nothing would draw the moon's shape through the line
+    ring = mix(exp(-pow(max(off, 0.) / (uMoonR * 1.6), 2.)), ring, seen);
     float cloud = .55 + .9 * fbm(q * 5. + vec2(uTime * .01, 0.));
-    outc *= mix(vec3(1.), vec3(.82, .83, .88), clamp(ring * cloud * .45 * seen, 0., 1.));
+    // the wash round it is not cut by the slit: it comes as the moon comes out and thins away
+    // softly under the horizon, so no straight edge is left there
+    float through = clamp((mUv.y + uMoonR - uMBand) / (2. * uMoonR), 0., 1.);
+    float haze = smoothstep(uMBand - uMoonR * 2.5, uMBand + uMoonR * .5, vUv.y + (fbm(q * 7.) - .5) * uMoonR)
+               * smoothstep(0., 1., through);
+    outc *= mix(vec3(1.), vec3(.82, .83, .88), clamp(ring * cloud * .45 * haze, 0., 1.));
     float seas = smoothstep(.5, .75, fbm((q - mc) * 26. + 5.)) * .5;   // the faintest seas
     outc = mix(outc, mix(vec3(.955, .95, .935), vec3(.87, .875, .89), seas), mdisc * seen);
-    // the brush cuts the sky first, the moon comes out of the cut, and the ink fades off
-    float through = clamp((mUv.y + uMoonR - uMBand) / (2. * uMoonR), 0., 1.);
-    float st = slit(q, vec2(mUv.x * uAspect, uMBand), uMoonR, smoothstep(0., .12, uM),
-                    1. - smoothstep(.7, 1., through), 5.7);
+    // the brush cuts the sky just as the moon comes to it and goes on slowly as it comes out
+    // of the cut, and once it is all out the stroke is taken away (in real time: scene.ts)
+    float mSlitX = arcXAt(uMoon0, uMoonC, uMoon1, uMBand - uMoonR) * uAspect;
+    float st = slit(q, vec2(mSlitX, uMBand), uMoonR,
+                    uMoonDraw,
+                    1. - uMoonGone, 5.7);
     outc = mix(outc, vec3(.16, .17, .2), st * .85);
   }
   gl_FragColor = vec4(outc, 1.);

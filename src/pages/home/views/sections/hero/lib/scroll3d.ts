@@ -222,6 +222,10 @@ export function createScroll3D(canvas: HTMLCanvasElement): Scroll3D | null {
     uMoonR: { value: 0 },
     uBand: { value: 0 },
     uMBand: { value: 0 },
+    uSunDraw: { value: 0 },
+    uSunGone: { value: 0 },
+    uMoonDraw: { value: 0 },
+    uMoonGone: { value: 0 },
     uFade: { value: new THREE.Vector2(9, 10) },
     uRiver: { value: RIVER.points.map(([x, y]) => new THREE.Vector2(x, y)) },
     uHw: { value: [...RIVER.halfWidth] },
@@ -459,6 +463,10 @@ export function createScroll3D(canvas: HTMLCanvasElement): Scroll3D | null {
         iu.uMoonR.value = u.moonR
         iu.uBand.value = u.band
         iu.uMBand.value = u.mband
+        iu.uSunDraw.value = u.sunDraw
+        iu.uSunGone.value = u.sunGone
+        iu.uMoonDraw.value = u.moonDraw
+        iu.uMoonGone.value = u.moonGone
         iu.uFade.value.set(u.fade[0], u.fade[1])
         renderer.setRenderTarget(rt)
         renderer.setClearColor(0x000000, 0)

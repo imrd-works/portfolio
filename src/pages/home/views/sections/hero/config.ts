@@ -51,15 +51,15 @@ export const INK: Readonly<InkConfig> = {
 }
 
 /**
- * The evening. Where the sun sets and the moon comes up are shares of the part of the
- * painting the screen shows (like the sun's own place), so they stay in view on any screen.
+ * The evening. The sun goes down where it stands and the moon comes up on the same horizon;
+ * where the moon does is a share of the part of the painting the screen shows (like the sun's
+ * own place), so it stays in view on any screen.
  */
 export const EVENING = {
-  /** The sun sets here, over to the right, along an arc through `sunArcAt`. */
-  sunSetAt: 0.71,
-  sunArcAt: 0.74,
+  /** How far over to the right each goes along its small arc (painting uv x). */
+  arc: 0.03,
   moonRadius: 0.034,
-  /** The moon comes up out of its slit here, by the name (on a narrow screen, above the painting). */
+  /** The moon comes up out of its slit here, by the name. */
   moonAt: 0.43,
   moonAtNarrow: 0.365,
 } as const
