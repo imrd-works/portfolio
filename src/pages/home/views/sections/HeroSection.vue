@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { INK_IMAGE } from './hero/config'
 import type { Caption, InkScene } from './hero/lib/scene'
 
 const { t } = useI18n()
+// the role in two parts, the title and the rest ("Fullstack · Team Lead"): on a narrow
+// screen each takes a line of its own, instead of a dot left hanging at a line's end
+const role = computed(() => {
+  const [title, ...rest] = t('home.hero.role').split(' · ')
+  return { title, rest: rest.join(' · ') }
+})
 
 const root = useTemplateRef<HTMLElement>('root')
 const stage = useTemplateRef<HTMLElement>('stage')
@@ -169,7 +175,11 @@ function toggleFog() {
               class="hero__role"
               :class="{ 'hero__role--shown': shown.role }"
             >
-              {{ t('home.hero.role') }}
+              <span class="hero__role-part">{{ role.title }}</span>
+              <template v-if="role.rest">
+                <span class="hero__role-sep"> · </span>
+                <span class="hero__role-part">{{ role.rest }}</span>
+              </template>
             </p>
           </div>
 
@@ -538,7 +548,19 @@ function toggleFog() {
     }
   }
 
+  &__role-part {
+    white-space: nowrap;
+  }
+
   @media (width <= 700px) {
+    &__role-sep {
+      display: none;
+    }
+
+    &__role-part {
+      display: block;
+    }
+
     &__control {
       top: auto;
       right: auto;

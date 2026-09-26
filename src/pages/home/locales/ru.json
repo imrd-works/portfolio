@@ -1,18 +1,18 @@
 {
   "meta": {
-    "title": "Даниил Рассомахин — Vue / Nuxt разработчик и Team Lead",
-    "description": "Senior frontend-разработчик и team lead: Vue 3, Nuxt, TypeScript. Корпоративные и государственные системы, дашборды, ЭЦП, запуск продуктов с нуля.",
+    "title": "Даниил Рассомахин — Vue / Nuxt разработчик, Fullstack, Team Lead",
+    "description": "Senior frontend-разработчик с fullstack-опытом и team lead: Vue 3, Nuxt, TypeScript. Корпоративные и государственные системы, дашборды, ЭЦП, запуск продуктов с нуля.",
     "personName": "Даниил Рассомахин",
     "alternateName": "Daniel Rassomakhin",
-    "jobTitle": "Senior Frontend Developer / Team Lead",
+    "jobTitle": "Senior Frontend Developer · Fullstack · Team Lead",
     "locality": "Новороссийск",
     "region": "Краснодарский край",
-    "ogAlt": "Даниил Рассомахин — Vue / Nuxt разработчик и Team Lead"
+    "ogAlt": "Даниил Рассомахин — Vue / Nuxt разработчик, Fullstack, Team Lead"
   },
   "hero": {
     "firstName": "Даниил",
     "lastName": "Рассомахин",
-    "role": "Senior Frontend Developer · Team Lead",
+    "role": "Senior Frontend Developer · Fullstack · Team Lead",
     "seal": "ДР",
     "art": "Рисунок тушью: долина тайги в тумане",
     "replay": "Нарисовать заново",

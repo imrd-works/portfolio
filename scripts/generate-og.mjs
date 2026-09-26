@@ -31,14 +31,14 @@ const CARDS = {
   ru: {
     eyebrow: 'Открыт к предложениям · Vue / Nuxt · Team Lead',
     name: 'Даниил Рассомахин',
-    role: 'Frontend-разработчик и Team Lead',
+    role: 'Frontend-разработчик · Fullstack · Team Lead',
     lead: 'Корпоративные и государственные системы, дашборды, запуск продуктов с нуля.',
     chips: ['Vue 3', 'Nuxt 4', 'TypeScript', 'DDD / FSD', 'Data Viz'],
   },
   en: {
     eyebrow: 'Open to opportunities · Vue / Nuxt · Team Lead',
     name: 'Daniel Rassomakhin',
-    role: 'Frontend Developer & Team Lead',
+    role: 'Frontend Developer · Fullstack · Team Lead',
     lead: 'Enterprise and public-sector systems, dashboards, products built from scratch.',
     chips: ['Vue 3', 'Nuxt 4', 'TypeScript', 'DDD / FSD', 'Data Viz'],
   },
@@ -47,6 +47,16 @@ const CARDS = {
 async function dataUri(file, mime) {
   const buffer = await readFile(path.join(publicDir, file))
   return `data:${mime};base64,${buffer.toString('base64')}`
+}
+
+// the role in two lines, the title and the rest ("Fullstack · Team Lead"), as in the hero
+// on a narrow screen: never a word or a dot left hanging at a line's end
+function roleLines(role) {
+  const [title, ...rest] = role.split(' · ')
+  return [title, rest.join(' · ')]
+    .filter(Boolean)
+    .map((line) => `<span class="role-line">${escapeHtml(line)}</span>`)
+    .join('')
 }
 
 function escapeHtml(value) {
@@ -102,6 +112,7 @@ async function cardHtml(locale, fonts, avatar, logo) {
     background: linear-gradient(100deg, #ffffff 10%, #a78bfa 92%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .role { margin-top: 18px; font-size: 30px; font-weight: 600; color: #d7d3ef; }
+  .role-line { display: block; white-space: nowrap; }
   .lead { margin-top: 18px; font-size: 22px; line-height: 1.45; color: #9d98bd; max-width: 620px; }
 
   .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 34px; }
@@ -128,7 +139,7 @@ async function cardHtml(locale, fonts, avatar, logo) {
   <div class="content">
     <div class="eyebrow"><span class="dot"></span>${escapeHtml(card.eyebrow)}</div>
     <div class="name">${escapeHtml(card.name)}</div>
-    <div class="role">${escapeHtml(card.role)}</div>
+    <div class="role">${roleLines(card.role)}</div>
     <div class="lead">${escapeHtml(card.lead)}</div>
     <div class="chips">${card.chips.map((chip) => `<span class="chip">${escapeHtml(chip)}</span>`).join('')}</div>
   </div>
