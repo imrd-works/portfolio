@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } f
 import { useI18n } from 'vue-i18n'
 import { INK_IMAGE } from './hero/config'
 import type { Caption, InkScene } from './hero/lib/scene'
-import { graphics, onGraphicsChange } from '@/shared/lib/graphics'
+import { onGraphicsChange } from '@/shared/lib/graphics'
 
 const { t } = useI18n()
 // the role in two parts, the title and the rest ("Fullstack · Team Lead"): on a narrow
@@ -30,7 +30,6 @@ const shown = reactive<Record<Caption, boolean>>({
   seal: false,
   controls: false,
 })
-const fogOn = ref(true)
 const imageFallback = ref(false)
 const artShown = ref(false)
 
@@ -43,12 +42,9 @@ onMounted(async () => {
   // load, so nothing needs the renderer before the first scroll.
   const { mountInkScene } = await import('./hero/lib/scene')
   if (unmounted) return
-  fogOn.value = !window.matchMedia('(prefers-reduced-motion: reduce)').matches && !graphics.low
-  // a weak device drops the mist; the button can still bring it back
+  // the light mode drops the mist (the scene starts without it when already in it)
   offGraphics = onGraphicsChange((level) => {
-    if (level !== 'low' || !fogOn.value) return
-    fogOn.value = false
-    scene?.setFog(false)
+    if (level === 'low') scene?.setFog(false)
   })
   scene = mountInkScene(
     {
@@ -81,11 +77,6 @@ onBeforeUnmount(() => {
 
 function replay() {
   scene?.replay()
-}
-
-function toggleFog() {
-  fogOn.value = !fogOn.value
-  scene?.setFog(fogOn.value)
 }
 </script>
 
@@ -206,15 +197,6 @@ function toggleFog() {
             @click="replay"
           >
             {{ t('home.hero.replay') }}
-          </button>
-          <button
-            class="hero__control hero__control--fog"
-            :class="{ 'hero__control--shown': shown.controls }"
-            type="button"
-            :aria-pressed="fogOn"
-            @click="toggleFog"
-          >
-            {{ fogOn ? t('home.hero.fog.on') : t('home.hero.fog.off') }}
           </button>
         </div>
       </div>
@@ -516,10 +498,6 @@ function toggleFog() {
     transition: opacity 0.6s ease;
     pointer-events: none;
 
-    &--fog {
-      top: calc(clamp(30px, 9.4vh, 114px) + 30px);
-    }
-
     &--shown {
       pointer-events: auto;
       opacity: 0.75;
@@ -575,11 +553,6 @@ function toggleFog() {
       right: auto;
       bottom: 52px;
       left: clamp(20px, 5.5vw, 96px);
-
-      &--fog {
-        top: auto;
-        bottom: 28px;
-      }
     }
 
     &__seal {

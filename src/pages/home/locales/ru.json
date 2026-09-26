@@ -15,11 +15,7 @@
     "role": "Senior Frontend Developer · Fullstack · Team Lead",
     "seal": "ДР",
     "art": "Рисунок тушью: долина тайги в тумане",
-    "replay": "Нарисовать заново",
-    "fog": {
-      "on": "Туман: вкл",
-      "off": "Туман: выкл"
-    }
+    "replay": "Нарисовать заново"
   },
   "about": {
     "eyebrow": "Обо мне",
