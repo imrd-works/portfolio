@@ -155,9 +155,9 @@
       },
       "documents": {
         "title": "Document Management System",
-        "about": "An internal public-transport system: a file manager with automated document upload, a hierarchical catalogue and analytical dashboards.",
+        "about": "A closed internal document management system of a large transport company, used by staff across the industry.\n\nIt holds a dynamic document tree, a file explorer right in the browser, shared and personal, and analytics dashboards.",
         "role": "Frontend Developer",
-        "did": "Built the file manager and the hierarchical document catalogue\nBuilt analytical dashboards with Highcharts\nAgreed on solutions with the backend developers"
+        "did": "Joined the team when it was falling behind and took on new modules\nBuilt a file explorer in the browser that behaves like Windows Explorer: drag and drop, moving through folders, cutting and moving files and whole folders\nBuilt a dynamic document tree: it shows your own files and other users' files, like a shared exchange, and a personal explorer apart from it\nBuilt an analytics dashboard with dynamic charts in Highcharts\nHanded over all my modules and brought my work on the project to a successful close"
       },
       "processes": {
         "title": "Business Process Management System",

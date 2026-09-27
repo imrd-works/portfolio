@@ -244,6 +244,8 @@ describe('project tools', () => {
       expect(all.slice(0, p.tools.main.length)).toEqual(p.tools.main)
       expect(new Set(all).size).toBe(all.length)
       expect(toolGroupsOf(p).every((g) => g.tools.length > 0)).toBe(true)
+      // no project is written without version control
+      expect(p.tools.groups.repo?.length).toBeGreaterThan(0)
     }
   })
 })

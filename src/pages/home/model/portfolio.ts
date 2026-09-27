@@ -64,7 +64,10 @@ export const stackGroups: StackGroup[] = [
           'Axios',
         ],
       },
-      { id: 'forms', chips: ['Vee-validate / Yup', 'Vuelidate', 'React Hook Form', 'TipTap'] },
+      {
+        id: 'forms',
+        chips: ['Vee-validate / Yup', 'Zod', 'Vuelidate', 'React Hook Form', 'TipTap'],
+      },
       {
         id: 'markup',
         chips: [
@@ -348,6 +351,7 @@ export const projects: Project[] = [
         build: ['Vitest', 'Playwright'],
         quality: ['ESLint', 'Prettier', 'Stylelint'],
         delivery: ['Docker', 'Docker Compose', 'GitLab CI'],
+        repo: ['GitLab'],
       },
     },
   },
@@ -365,6 +369,7 @@ export const projects: Project[] = [
         quality: ['ESLint', 'Prettier'],
         seo: ['SEO', 'Google Tag Manager', 'Google Analytics', 'Microsoft Clarity', 'HubSpot'],
         delivery: ['Vercel', 'CI/CD', 'Telegram Bot API'],
+        repo: ['GitHub'],
       },
     },
   },
@@ -381,6 +386,7 @@ export const projects: Project[] = [
         styles: ['SCSS', 'BEM'],
         api: ['GraphQL'],
         quality: ['ESLint', 'Prettier'],
+        repo: ['GitLab'],
       },
     },
   },
@@ -392,10 +398,13 @@ export const projects: Project[] = [
     tools: {
       main: ['Vue 3', 'TypeScript'],
       groups: {
-        data: ['Pinia'],
+        data: ['Pinia', 'Vee-validate / Yup'],
+        ui: ['Vuedraggable'],
         visual: ['Highcharts'],
-        styles: ['BEM'],
+        styles: ['SCSS', 'BEM'],
         api: ['REST API'],
+        quality: ['ESLint', 'Prettier'],
+        repo: ['GitHub'],
       },
     },
   },
@@ -406,7 +415,12 @@ export const projects: Project[] = [
     art: '/work/process.webp',
     tools: {
       main: ['Vue 2.7', 'TypeScript'],
-      groups: { data: ['Pinia'], styles: ['BEM'], api: ['REST API', 'WebSocket'] },
+      groups: {
+        data: ['Pinia'],
+        styles: ['BEM'],
+        api: ['REST API', 'WebSocket'],
+        repo: ['GitLab'],
+      },
     },
   },
 ]
