@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { AuroraBackdrop, CustomCursor } from '@/shared/ui'
+import { CustomCursor } from '@/shared/ui'
 import PageCorner from './PageCorner.vue'
 
 const { t } = useI18n()
@@ -17,7 +17,6 @@ const { t } = useI18n()
       {{ t('home.a11y.skip') }}
     </a>
 
-    <AuroraBackdrop />
     <CustomCursor />
     <PageCorner />
     <main
@@ -47,7 +46,7 @@ const { t } = useI18n()
   // layout into a scroll container, which would break the sticky hero stage.
   overflow: clip;
   color: var(--color-text-primary);
-  background: var(--color-bg-canvas);
+  background: var(--page-paper);
 
   &__skip {
     position: fixed;

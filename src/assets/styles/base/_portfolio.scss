@@ -15,6 +15,10 @@
   --type-title-tracking: -0.02em;
   --type-eyebrow-size: 12px;
   --type-eyebrow-tracking: 0.14em;
+
+  /* the paper under every page: what shows between two of them, or past the
+     edge of an overscroll */
+  --page-paper: #ece8e1;
 }
 
 html {
@@ -29,7 +33,7 @@ section[id] {
 body {
   font-family: var(--font-family-sans);
   color: var(--color-text-primary);
-  background: var(--color-bg-canvas);
+  background: var(--page-paper);
   -webkit-font-smoothing: antialiased;
 }
 
