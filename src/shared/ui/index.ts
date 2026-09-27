@@ -7,6 +7,8 @@ export { default as SettingsMenu } from './SettingsMenu/SettingsMenu.vue'
 export { default as ConsentMenu } from './ConsentMenu/ConsentMenu.vue'
 export { default as PopoverButton } from './PopoverButton/PopoverButton.vue'
 export { default as ToggleSwitch } from './ToggleSwitch/ToggleSwitch.vue'
+export { default as RoundButton } from './RoundButton/RoundButton.vue'
+export { default as ScrollTopButton } from './ScrollTopButton/ScrollTopButton.vue'
 
 // Layout primitives
 export { default as Section } from '@/shared/layout/Section/Section.vue'

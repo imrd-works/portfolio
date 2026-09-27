@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, useId } from 'vue'
+import { onBeforeUnmount, onMounted, ref, useId, useTemplateRef } from 'vue'
+import RoundButton from '../RoundButton/RoundButton.vue'
 
 defineOptions({ name: 'UiPopoverButton' })
 
 /*
- * A paper disc with an icon that opens a small panel: the page corner's controls
+ * A paper disc (RoundButton) with an icon that opens a small panel: the page corner's controls
  * (the settings, the cookies) are made of it. The panel opens where there is room,
  * down or up, and towards the middle of the screen; a click elsewhere or Escape
  * closes it, and Escape gives the focus back to the disc.
@@ -18,7 +19,7 @@ defineProps<{
 
 const id = useId()
 const root = ref<HTMLElement | null>(null)
-const trigger = ref<HTMLButtonElement | null>(null)
+const trigger = useTemplateRef<InstanceType<typeof RoundButton>>('trigger')
 const open = ref(false)
 const up = ref(false)
 const fromLeft = ref(false)
@@ -55,24 +56,18 @@ onBeforeUnmount(() => {
   <div
     ref="root"
     class="popover-button"
-    :class="{ 'popover-button--turn': turn }"
   >
-    <button
+    <RoundButton
       ref="trigger"
       class="popover-button__trigger"
-      type="button"
+      :class="{ 'popover-button__trigger--turn': turn }"
+      :label="label"
       :aria-expanded="open"
       :aria-controls="id"
-      :aria-label="label"
       @click="toggle"
     >
-      <span
-        class="popover-button__icon"
-        aria-hidden="true"
-      >
-        <slot name="icon" />
-      </span>
-    </button>
+      <slot name="icon" />
+    </RoundButton>
 
     <div
       v-if="open"
@@ -94,59 +89,16 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 /** @define popover-button */
 .popover-button {
-  // the hero's paper, ink and seal
+  // the hero's paper and ink
   --popover-button-paper: #ece8e1;
   --popover-button-ink: #101214;
-  --popover-button-sun: #c73826;
 
   position: relative;
   display: inline-flex;
 
-  &__trigger {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    color: var(--popover-button-ink);
-    cursor: pointer;
-    background: var(--popover-button-paper);
-    border: 1px solid rgb(16 18 20 / 16%);
-    border-radius: 50%;
-    box-shadow: 0 6px 18px rgb(16 18 20 / 16%);
-    transition:
-      color 0.2s,
-      background-color 0.2s,
-      border-color 0.2s,
-      transform 0.15s ease;
-  }
-
-  // as the site nav's call to action: the seal's cinnabar on hover, filled with
-  // it while its panel is open, and pressed in a little under the finger
-  &__trigger:hover {
-    color: var(--popover-button-sun);
-    border-color: rgb(199 56 38 / 60%);
-  }
-
-  &__trigger[aria-expanded='true'] {
-    color: var(--popover-button-paper);
-    background: var(--popover-button-sun);
-    border-color: var(--popover-button-sun);
-  }
-
-  &__trigger:active {
-    transform: scale(0.93);
-  }
-
-  &__icon {
-    display: grid;
-    width: 17px;
-    height: 17px;
-    transition: transform 0.4s ease;
-  }
-
-  &--turn &__trigger:hover &__icon,
-  &--turn &__trigger[aria-expanded='true'] &__icon {
+  // the gear turns a little on hover and while its panel is open
+  &__trigger--turn:hover :deep(.round-button__icon),
+  &__trigger--turn[aria-expanded='true'] :deep(.round-button__icon) {
     transform: rotate(45deg);
   }
 
@@ -176,22 +128,6 @@ onBeforeUnmount(() => {
   &__panel--from-left {
     right: auto;
     left: 0;
-  }
-
-  &__trigger:focus-visible {
-    outline: 2px solid var(--popover-button-sun);
-    outline-offset: 3px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    &__trigger,
-    &__icon {
-      transition: none;
-    }
-
-    &__trigger:active {
-      transform: none;
-    }
   }
 }
 </style>

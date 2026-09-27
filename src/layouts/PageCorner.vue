@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { ConsentMenu, SettingsMenu } from '@/shared/ui'
+import { ConsentMenu, ScrollTopButton, SettingsMenu } from '@/shared/ui'
 import ConsentBanner from './ConsentBanner.vue'
 import GraphicsOffer from './GraphicsOffer.vue'
 
 /*
- * The page's bottom right corner: the cookie (consent to analytics) and the settings
- * gear, where they are always at hand, and over them the notes that ask the visitor
+ * The page's bottom right corner: the way back to the top (once the reader is a
+ * screen down), the cookie (consent to analytics) and the settings gear, where
+ * they are always at hand, and over them the notes that ask the visitor
  * something (analytics, the light mode when the page stutters), so the visitor sees
  * where to change the answer later. The notes show wherever the page is; the buttons
  * keep off the hero, which has the seal and its own controls in its corners: they
@@ -14,12 +15,15 @@ import GraphicsOffer from './GraphicsOffer.vue'
  * without a hero they are there.
  */
 const gear = ref(false)
+/** The way up: once the reader is more than a screen down. */
+const up = ref(false)
 let frame = 0
 
 function update() {
   frame = 0
   const hero = document.getElementById('top')
   gear.value = !hero || scrollY > hero.offsetTop + hero.offsetHeight * 0.6
+  up.value = gear.value && scrollY > innerHeight
 }
 function onScroll() {
   if (!frame) frame = requestAnimationFrame(update)
@@ -51,6 +55,14 @@ onBeforeUnmount(() => {
         v-show="gear"
         class="page-corner__buttons"
       >
+        <Transition
+          enter-active-class="page-corner__buttons--moving"
+          leave-active-class="page-corner__buttons--moving"
+          enter-from-class="page-corner__buttons--away"
+          leave-to-class="page-corner__buttons--away"
+        >
+          <ScrollTopButton v-show="up" />
+        </Transition>
         <ConsentMenu />
         <SettingsMenu />
       </div>
