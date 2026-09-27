@@ -265,10 +265,12 @@ export interface Project {
 export type ToolGroup =
   | 'base'
   | 'data'
+  | 'ui'
   | 'visual'
   | 'styles'
   | 'signature'
   | 'api'
+  | 'backend'
   | 'architecture'
   | 'content'
   | 'build'
@@ -280,10 +282,12 @@ export type ToolGroup =
 export const toolGroups: ToolGroup[] = [
   'base',
   'data',
+  'ui',
   'visual',
   'styles',
   'signature',
   'api',
+  'backend',
   'architecture',
   'content',
   'build',
@@ -324,12 +328,27 @@ export const projects: Project[] = [
       main: ['Nuxt 3 / 4', 'TypeScript'],
       groups: {
         base: ['Vue 3'],
-        data: ['Pinia'],
+        data: ['Pinia', 'Vue Query', 'VueUse', 'Vee-validate / Yup'],
+        ui: ['Vuetify', 'Vue Cal', 'Vue Datepicker', 'Vuedraggable', 'Maska'],
         visual: ['Highcharts'],
-        api: ['REST API'],
-        architecture: ['DDD'],
-        content: ['WYSIWYG'],
-        build: ['Vitest'],
+        styles: ['SCSS', 'BEM'],
+        api: ['REST API', 'OpenAPI', 'Swagger', 'Nuxt Auth'],
+        backend: [
+          'Node.js',
+          'Ts.ED',
+          'Express',
+          'TypeORM',
+          'PostgreSQL',
+          'Redis',
+          'BullMQ',
+          'MinIO',
+          'JWT',
+        ],
+        architecture: ['DDD → FSD'],
+        content: ['TipTap', 'KaTeX'],
+        build: ['Vitest', 'Playwright'],
+        quality: ['ESLint', 'Prettier', 'Stylelint'],
+        delivery: ['Docker', 'Docker Compose', 'GitLab CI'],
       },
     },
   },
@@ -342,6 +361,7 @@ export const projects: Project[] = [
       main: ['Next.js', 'GSAP'],
       groups: {
         base: ['TypeScript'],
+        styles: ['BEM'],
         content: ['Sanity CMS'],
         seo: ['SEO', 'Analytics'],
         delivery: ['Docker', 'CI/CD'],
@@ -355,7 +375,12 @@ export const projects: Project[] = [
     art: '/work/monitoring.webp',
     tools: {
       main: ['Vue 3', 'GraphQL'],
-      groups: { base: ['TypeScript'], data: ['Pinia'], visual: ['SVG', 'Data Viz'] },
+      groups: {
+        base: ['TypeScript'],
+        data: ['Pinia'],
+        visual: ['SVG', 'Data Viz'],
+        styles: ['BEM'],
+      },
     },
   },
   {
@@ -365,7 +390,12 @@ export const projects: Project[] = [
     art: '/work/documents.webp',
     tools: {
       main: ['Vue 3', 'Pinia'],
-      groups: { base: ['TypeScript'], visual: ['Highcharts'], api: ['REST API'] },
+      groups: {
+        base: ['TypeScript'],
+        visual: ['Highcharts'],
+        styles: ['BEM'],
+        api: ['REST API'],
+      },
     },
   },
   {
@@ -375,7 +405,7 @@ export const projects: Project[] = [
     art: '/work/process.webp',
     tools: {
       main: ['Vue 2.7', 'Pinia'],
-      groups: { base: ['TypeScript'], api: ['REST API', 'WebSocket'] },
+      groups: { base: ['TypeScript'], styles: ['BEM'], api: ['REST API', 'WebSocket'] },
     },
   },
 ]

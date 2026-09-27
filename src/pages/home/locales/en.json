@@ -104,10 +104,12 @@
     "toolGroups": {
       "base": "Foundation",
       "data": "Data, state, forms",
+      "ui": "UI and components",
       "visual": "Visualisation and motion",
       "styles": "Styles",
       "signature": "Signature",
       "api": "API",
+      "backend": "Backend",
       "architecture": "Architecture",
       "content": "Content",
       "build": "Build and tests",
@@ -136,9 +138,9 @@
       },
       "education": {
         "title": "Education Platform",
-        "about": "An education platform built from scratch: courses and lessons, test authoring and delivery, a WYSIWYG content editor, events, chat, purchases and dashboards for students, authors and admins.\n\nThe product grew with the team, so it was built on a DDD architecture with tests and analytics from day one.",
+        "about": "A platform for learning and testing knowledge: staff training, interim exams, courses for students. An online school offers it by subscription, under its own brand and on its own platform.\n\nCourses and lessons, a multi-step test builder, a WYSIWYG content editor with maths formulas, events, chat, course access and five roles with their own rights: student, teacher, curator, administrator and organisation.\n\nThe project grew in stages: first an MVP, then new modules as the client brought new tasks. The client supplied its own backend, which at first could not be changed, so much of the logic had to live in the frontend. All of it — the Nuxt frontend, the Node.js backend, PostgreSQL, Redis and MinIO file storage — runs in Docker.",
         "role": "Frontend Developer / Team Lead",
-        "did": "Laid down the DDD frontend architecture and the team's conventions\nBuilt the content editor, purchases and role-based access\nSet up testing and product analytics\nBroke down tasks, ran code review and helped the team make technical decisions"
+        "did": "Started the project from scratch with a colleague on the DDD architecture he chose. When it only made the product harder to grow, moved it to FSD and migrated from Nuxt 3 to Nuxt 4: features are isolated by layer and do not touch each other, builds and page loads got faster, types stricter\nBuilt a multi-step test builder: single- and multiple-choice questions and open answers. Every step is saved on the backend, and authoring picks up where it left off\nBuilt a role model of five roles — student, teacher, curator, administrator, organisation — with a hierarchy: senior roles set the rights of the ones under them\nBuilt course access and rights management: payment happens on the client's side, and an administrator opens courses to students through an interface we built\nBuilt a WYSIWYG content editor for courses and lessons on TipTap: formatting, links, fonts and maths formulas in KaTeX\nMoved into the frontend the logic the client's backend could not carry: at first it could not be changed, and the platform worked within its limits\nWhen the requirements outgrew the backend and it was reworked, carried the changes through every module: each new role or access right touched nearly all of them\nWhen the backend could not keep up, closed its tasks myself: Node.js and Ts.ED, TypeORM and PostgreSQL\nWhere new features had no mockups, designed the interface myself in the client's style\nCovered the key flows with tests: unit tests in Vitest and end-to-end tests in Playwright\nAs team lead: breaking work down, code review, helping the team through the hard parts\nThe platform is live and in use: organisations and students work in it by subscription"
       },
       "bitcoin": {
         "title": "Bitcoin Financial Services Landing",
@@ -183,7 +185,7 @@
       "educationLead": {
         "period": "June — November 2024, March — November 2025",
         "role": "Senior Frontend Developer / Team Lead",
-        "desc": "Now I answered not for modules but for a whole product: I built the architecture from scratch on DDD and laid down the tests and the rules the team writes code by. I broke the work down, ran code review and did the mentoring of junior developers — that is how the shared standards formed that projects stand on for years."
+        "desc": "Now I answered not for modules but for a whole product: I started it from scratch, later moved its architecture to FSD, and laid down the rules the team writes code by. I broke the work down, ran code review and did the mentoring of junior developers — that is how the shared standards formed that projects stand on for years."
       },
       "complexSystems": {
         "period": "February 2022 — February 2023",
