@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useInView } from '@/shared/composables/useInView'
 import {
@@ -13,7 +13,6 @@ import {
 } from '../../model/portfolio'
 
 const { t } = useI18n()
-const { targetRef: shelf, inView: shown } = useInView({ threshold: 0.1 })
 // the strengths are written in one after another once the list is in view
 const { targetRef: cores, inView: coresShown } = useInView({ threshold: 0.3 })
 
@@ -44,14 +43,43 @@ const shelfGroups = computed(() =>
     .filter(({ rows }) => rows.length)
 )
 const found = computed(() => allChips.filter(matches).length)
+
+// Each row of tools is stamped onto the paper as it comes into view, the brands
+// one after another; a tab opened later stamps its rows as well. Before the
+// scripts run (the prerendered page), and for a reader who asked for less
+// motion, the shelf is simply there.
+const live = ref(false)
+const stamped = reactive(new Set<string>())
+let observer: IntersectionObserver | null = null
+
+function watchRow(el: unknown) {
+  if (el instanceof HTMLElement) observer?.observe(el)
+}
+
+onMounted(() => {
+  if (typeof IntersectionObserver === 'undefined') return
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue
+        const key = (entry.target as HTMLElement).dataset.row
+        if (key) stamped.add(key)
+        observer?.unobserve(entry.target)
+      }
+    },
+    { rootMargin: '0px 0px -12% 0px' }
+  )
+  live.value = true
+})
+onBeforeUnmount(() => observer?.disconnect())
 </script>
 
 <template>
   <section
     id="skills"
-    :ref="shelf"
     class="skills"
-    :class="{ 'skills--shown': shown }"
+    :class="{ 'skills--live': live, 'skills--searching': searching }"
     data-ink-surface="paper"
   >
     <svg
@@ -189,15 +217,19 @@ const found = computed(() => allChips.filter(matches).length)
           <div
             v-for="row in group.rows"
             :key="row.id"
+            :ref="watchRow"
             class="skills__row"
+            :class="{ 'skills__row--stamped': stamped.has(`${group.id}:${row.id}`) }"
+            :data-row="`${group.id}:${row.id}`"
           >
             <h4 class="skills__row-title">{{ t(`home.skills.rows.${row.id}`) }}</h4>
             <div class="skills__chips">
               <span
-                v-for="chip in row.chips"
+                v-for="(chip, i) in row.chips"
                 :key="chip"
                 class="skills__chip"
                 :class="{ 'skills__chip--strong': strong(chip) }"
+                :style="{ '--skills-i': i }"
                 >{{ chip }}</span
               >
             </div>
@@ -518,8 +550,6 @@ const found = computed(() => allChips.filter(matches).length)
     padding: 6px 10px 5px;
     font-size: 11.5px;
     color: var(--skills-ink);
-    opacity: 0;
-    transition: opacity 0.45s ease;
 
     &::before {
       position: absolute;
@@ -542,8 +572,21 @@ const found = computed(() => allChips.filter(matches).length)
     }
   }
 
-  &--shown &__chip {
+  // not yet reached: the brands wait off the paper
+  &--live &__chip {
+    opacity: 0;
+  }
+
+  // reached: stamped one after another, pressed in and settling
+  &--live &__row--stamped &__chip {
+    animation: skills-stamp 0.34s cubic-bezier(0.2, 1.3, 0.4, 1) calc(var(--skills-i) * 45ms) both;
+  }
+
+  // a search shows what it finds at once, not stamped letter by letter
+  &--searching &__chip,
+  &--searching &__row--stamped &__chip {
     opacity: 1;
+    animation: none;
   }
 
   @media (width < 700px) {
@@ -564,10 +607,6 @@ const found = computed(() => allChips.filter(matches).length)
   }
 
   @media (prefers-reduced-motion: reduce) {
-    &__chip {
-      transition: none;
-    }
-
     &__cores &__blot::before {
       display: none;
     }
@@ -585,6 +624,25 @@ const found = computed(() => allChips.filter(matches).length)
     &__cores &__blot::after {
       filter: url('#skills-blot');
     }
+  }
+}
+
+/* a brand pressed onto the paper: it comes down a little larger and askew,
+   gives under the press, and settles */
+@keyframes skills-stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.35) rotate(-3deg);
+  }
+
+  55% {
+    opacity: 1;
+    transform: scale(0.96) rotate(0.5deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: none;
   }
 }
 
