@@ -224,6 +224,7 @@ describe('project tools', () => {
       'data',
       'visual',
       'styles',
+      'design',
       'signature',
       'api',
       'build',
@@ -244,8 +245,9 @@ describe('project tools', () => {
       expect(all.slice(0, p.tools.main.length)).toEqual(p.tools.main)
       expect(new Set(all).size).toBe(all.length)
       expect(toolGroupsOf(p).every((g) => g.tools.length > 0)).toBe(true)
-      // no project is written without version control
+      // no project is written without version control, or without its mockups
       expect(p.tools.groups.repo?.length).toBeGreaterThan(0)
+      expect(p.tools.groups.design).toEqual(['Figma', 'Pixel Perfect'])
     }
   })
 })

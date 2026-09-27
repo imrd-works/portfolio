@@ -272,6 +272,7 @@ export type ToolGroup =
   | 'ui'
   | 'visual'
   | 'styles'
+  | 'design'
   | 'signature'
   | 'api'
   | 'backend'
@@ -288,6 +289,7 @@ export const toolGroups: ToolGroup[] = [
   'ui',
   'visual',
   'styles',
+  'design',
   'signature',
   'api',
   'backend',
@@ -314,6 +316,7 @@ export const projects: Project[] = [
         data: ['Pinia', 'Vue Query', 'VueUse', 'Vuelidate'],
         visual: ['ECharts', 'GSAP'],
         styles: ['SCSS', 'BEM'],
+        design: ['Figma', 'Pixel Perfect'],
         signature: ['CryptoPro'],
         api: ['REST API', 'Axios', 'OpenAPI', 'Swagger', 'Postman'],
         build: ['Vite', 'Vitest'],
@@ -334,6 +337,7 @@ export const projects: Project[] = [
         ui: ['Vuetify', 'Vue Cal', 'Vue Datepicker', 'Vuedraggable', 'Maska'],
         visual: ['Highcharts'],
         styles: ['SCSS', 'BEM'],
+        design: ['Figma', 'Pixel Perfect'],
         api: ['REST API', 'OpenAPI', 'Swagger', 'Nuxt Auth'],
         backend: [
           'Node.js',
@@ -365,6 +369,7 @@ export const projects: Project[] = [
       groups: {
         visual: ['GSAP', 'Lottie', 'Swiper'],
         styles: ['SCSS', 'CSS Modules', 'BEM'],
+        design: ['Figma', 'Pixel Perfect'],
         content: ['Sanity CMS', 'Portable Text'],
         quality: ['ESLint', 'Prettier'],
         seo: ['SEO', 'Google Tag Manager', 'Google Analytics', 'Microsoft Clarity', 'HubSpot'],
@@ -384,6 +389,7 @@ export const projects: Project[] = [
         data: ['Pinia', 'Vee-validate'],
         visual: ['SVG', 'Data Viz'],
         styles: ['SCSS', 'BEM'],
+        design: ['Figma', 'Pixel Perfect'],
         api: ['GraphQL'],
         quality: ['ESLint', 'Prettier'],
         repo: ['GitLab'],
@@ -402,7 +408,8 @@ export const projects: Project[] = [
         ui: ['Vuedraggable'],
         visual: ['Highcharts'],
         styles: ['SCSS', 'BEM'],
-        api: ['REST API'],
+        design: ['Figma', 'Pixel Perfect'],
+        api: ['REST API', 'Axios'],
         quality: ['ESLint', 'Prettier'],
         repo: ['GitHub'],
       },
@@ -418,6 +425,7 @@ export const projects: Project[] = [
       groups: {
         data: ['Pinia'],
         styles: ['BEM'],
+        design: ['Figma', 'Pixel Perfect'],
         api: ['REST API', 'WebSocket'],
         repo: ['GitLab'],
       },
