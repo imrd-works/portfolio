@@ -113,12 +113,12 @@ describe('portfolio CV data', () => {
 
   it('includes six named CV projects with their stacks and full details', () => {
     expect(projects.map(({ id }) => id)).toEqual([
-      'sigma',
+      'energy',
       'education',
-      'bitcoin',
-      'moex',
-      'irlix',
-      'baccasoft',
+      'finance',
+      'monitoring',
+      'documents',
+      'processes',
     ])
     // NDA: the paintings stand in for the products, no screens or links
     expect(projects.map(({ art }) => art)).toEqual([
@@ -130,8 +130,8 @@ describe('portfolio CV data', () => {
       '/work/process.webp',
     ])
     expect(projects.every((p) => !('href' in p) && !('image' in p))).toBe(true)
-    expect(projects.find(({ id }) => id === 'bitcoin')?.tools.main).toContain('Next.js')
-    expect(projects.find(({ id }) => id === 'baccasoft')?.tools.main).toContain('Vue 2.7')
+    expect(projects.find(({ id }) => id === 'finance')?.tools.main).toContain('Next.js')
+    expect(projects.find(({ id }) => id === 'processes')?.tools.main).toContain('Vue 2.7')
     for (const locale of [ru, en]) {
       for (const { id, kind } of projects) {
         const item = locale.work.items[id]
@@ -145,8 +145,8 @@ describe('portfolio CV data', () => {
         for (const g of toolGroupsOf(p)) expect(locale.work.toolGroups[g.id]).toBeTruthy()
       }
     }
-    expect(ru.work.items.sigma.about).toContain('CryptoPro')
-    expect(en.work.items.moex.about).toContain('monitoring')
+    expect(ru.work.items.energy.about).toContain('CryptoPro')
+    expect(en.work.items.monitoring.about).toContain('monitoring')
   })
 
   it('uses neutral localized project titles without company names', () => {
@@ -156,7 +156,7 @@ describe('portfolio CV data', () => {
     expect(ruTitles).toHaveLength(projects.length)
     expect(ruTitles.every((title) => /[\u0400-\u04ff]/.test(title))).toBe(true)
     expect(ruTitles.join(' ')).not.toMatch(/SIGMA-IT|Afterlogic|MOEX|IRLIX|BACCASOFT/)
-    expect(en.work.items.moex.title).toBe('Financial Monitoring Portal')
+    expect(en.work.items.monitoring.title).toBe('Financial Monitoring Portal')
   })
 
   it('shows six steps in reverse chronological order, one per print on the river', () => {
@@ -219,8 +219,8 @@ describe('portfolio CV data', () => {
 
 describe('project tools', () => {
   it('are grouped, in the same order everywhere, each tool once', () => {
-    const sigma = projects.find(({ id }) => id === 'sigma')!
-    expect(toolGroupsOf(sigma).map((g) => g.id)).toEqual([
+    const energy = projects.find(({ id }) => id === 'energy')!
+    expect(toolGroupsOf(energy).map((g) => g.id)).toEqual([
       'data',
       'visual',
       'styles',
@@ -230,7 +230,7 @@ describe('project tools', () => {
       'quality',
       'repo',
     ])
-    expect(toolGroupsOf(sigma).find((g) => g.id === 'api')?.tools).toEqual([
+    expect(toolGroupsOf(energy).find((g) => g.id === 'api')?.tools).toEqual([
       'REST API',
       'Axios',
       'OpenAPI',

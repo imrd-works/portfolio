@@ -245,7 +245,8 @@ export const stats: StatItem[] = [
 export type ProjectKind = 'system' | 'product' | 'site'
 
 export interface Project {
-  id: 'sigma' | 'education' | 'bitcoin' | 'moex' | 'irlix' | 'baccasoft'
+  /** Neutral: it is in the painting's address (#/work/<id>), and the clients are under NDA. */
+  id: 'energy' | 'education' | 'finance' | 'monitoring' | 'documents' | 'processes'
   kind: ProjectKind
   /** Years of work on it, as shown on the sheet. */
   years: string
@@ -300,7 +301,7 @@ export const projectKinds: ProjectKind[] = ['system', 'product', 'site']
 
 export const projects: Project[] = [
   {
-    id: 'sigma',
+    id: 'energy',
     kind: 'system',
     years: '2025–2026',
     art: '/work/energy.webp',
@@ -351,7 +352,7 @@ export const projects: Project[] = [
     },
   },
   {
-    id: 'bitcoin',
+    id: 'finance',
     kind: 'site',
     years: '2026',
     art: '/work/bitcoin.webp',
@@ -368,7 +369,7 @@ export const projects: Project[] = [
     },
   },
   {
-    id: 'moex',
+    id: 'monitoring',
     kind: 'system',
     years: '2022–2023',
     art: '/work/monitoring.webp',
@@ -383,7 +384,7 @@ export const projects: Project[] = [
     },
   },
   {
-    id: 'irlix',
+    id: 'documents',
     kind: 'system',
     years: '2022–2023',
     art: '/work/documents.webp',
@@ -398,7 +399,7 @@ export const projects: Project[] = [
     },
   },
   {
-    id: 'baccasoft',
+    id: 'processes',
     kind: 'system',
     years: '2022–2023',
     art: '/work/process.webp',

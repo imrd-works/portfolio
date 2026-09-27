@@ -129,7 +129,7 @@
     "next": "Next",
     "zoom": "Open picture",
     "items": {
-      "sigma": {
+      "energy": {
         "title": "Energy Trading Marketplace",
         "about": "A trading marketplace for a regional energy market: local companies buy electricity on it, and generating companies sell it. Procurement lots, commercial bids, auctions and deals, contract registries and reports.\n\nKey business processes are signed with CryptoPro digital signatures, and prices and volumes are shown in complex tables, a market-depth chart and ECharts visualisations.\n\nThe project grew out of an old version with heavy tech debt and a Bitrix backend with limited capabilities, and the MVP had to ship in a month and a half, which fell on the New Year holidays.",
         "role": "Frontend Developer / Team Lead",
@@ -141,25 +141,25 @@
         "role": "Frontend Developer / Team Lead",
         "did": "Started the project from scratch with a colleague on the DDD architecture he chose. When it only made the product harder to grow, moved it to FSD and migrated from Nuxt 3 to Nuxt 4: features are isolated by layer and do not touch each other, builds and page loads got faster, types stricter\nBuilt a multi-step test builder: single- and multiple-choice questions and open answers. Every step is saved on the backend, and authoring picks up where it left off\nBuilt a role model of five roles — student, teacher, curator, administrator, organisation — with a hierarchy: senior roles set the rights of the ones under them\nBuilt course access and rights management: payment happens on the client's side, and an administrator opens courses to students through an interface we built\nBuilt a WYSIWYG content editor for courses and lessons on TipTap: formatting, links, fonts and maths formulas in KaTeX\nMoved into the frontend the logic the client's backend could not carry: at first it could not be changed, and the platform worked within its limits\nWhen the requirements outgrew the backend and it was reworked, carried the changes through every module: each new role or access right touched nearly all of them\nWhen the backend could not keep up, closed its tasks myself: Node.js and Ts.ED, TypeORM and PostgreSQL\nWhere new features had no mockups, designed the interface myself in the client's style\nCovered the key flows with tests: unit tests in Vitest and end-to-end tests in Playwright\nAs team lead: breaking work down, code review, helping the team through the hard parts\nThe platform is live and in use: organisations and students work in it by subscription"
       },
-      "bitcoin": {
+      "finance": {
         "title": "Website for a Bitcoin Financial Company",
         "about": "The website of an institutional financial company in the bitcoin space: investment strategies, collateralised lending and onchain products for funds, companies and miners.\n\nAbout fifteen sections and a resources hub — news, insights, events, reports — with tag filters. The client runs all the content in Sanity. Animation in GSAP and Lottie, analytics through Google Tag Manager, GA4, Microsoft Clarity and HubSpot.\n\nBuilt by a team of two fullstack developers, a frontend developer and a QA engineer.",
         "role": "Fullstack Developer",
         "did": "Built all of the site's animation in GSAP: smooth reveals, line-by-line text, cascades, waves, parallax\nBuilt a shared Motion component: every animation is set up in one file, so its behaviour changes to the client's wishes without touching the components themselves\nChained the sections' entrances: each page's animations are described in one place, and each one starts halfway through the one before, though the components know nothing of each other\nFixed the client's Lottie animations: the motion designer's files had errors, and we matched the timing of their replays ourselves\nIn the UI kit, owned breadcrumbs, accordions, sliders, placeholders, inputs, pagination, a custom scroll and the animation component\nWe split modules by likeness: when one of mine came back on other pages, I owned it everywhere, variants included\nBuilt Sanity right into the Next.js project: the site and the content studio start with one command\nBuilt a Telegram bot for the team: notices of pull requests, deploy statuses and errors\nMade the technical decisions on equal terms with the other fullstack developer, and we reviewed each other's code"
       },
-      "moex": {
+      "monitoring": {
         "title": "Financial Monitoring Portal",
         "about": "A financial monitoring portal for a public-sector client featuring interactive SVG diagrams, KPI monitoring, large data tables, reports and GraphQL integrations.",
         "role": "Frontend Developer",
         "did": "Owned portal modules end to end\nBuilt interactive SVG visualisations and dashboards\nIntegrated data through GraphQL"
       },
-      "irlix": {
+      "documents": {
         "title": "Document Management System",
         "about": "An internal public-transport system: a file manager with automated document upload, a hierarchical catalogue and analytical dashboards.",
         "role": "Frontend Developer",
         "did": "Built the file manager and the hierarchical document catalogue\nBuilt analytical dashboards with Highcharts\nAgreed on solutions with the backend developers"
       },
-      "baccasoft": {
+      "processes": {
         "title": "Business Process Management System",
         "about": "An enterprise system for the mining and metals sector covering business processes, complex forms, filtering, chat and legacy product development.",
         "role": "Frontend Developer",
