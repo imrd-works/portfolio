@@ -11,7 +11,10 @@ defineOptions({ name: 'UiCustomCursor' })
  * squashes and splays them. Ink is drawn by the hero's splash shader
  * (./splash-layer.ts): a resting brush lets ink gather and drip; a click on the
  * page (not on a control) drops ink that splashes like the one on the hero scroll.
- * The native cursor is hidden while it is active, except over text fields.
+ * The native cursor is hidden only while the brush is shown, so there is always
+ * one of them: over text fields, outside the window, and whenever the pointer
+ * stops being a fine, hovering one (DevTools' device emulation switches it to
+ * touch on the fly), the native cursor is back.
  */
 
 const brush = ref<SVGSVGElement | null>(null)
@@ -61,6 +64,10 @@ let press = 0
 let pressed = false
 let dipped = false
 let visible = false
+/** A fine, hovering pointer: a mouse or a trackpad. Watched, since it can change. */
+let enabled = false
+const FINE_POINTER = '(hover: hover) and (pointer: fine)'
+let finePointer: MediaQueryList | null = null
 
 const rad = (deg: number) => (deg * Math.PI) / 180
 const f = (n: number) => n.toFixed(2)
@@ -172,9 +179,11 @@ function schedule() {
 }
 
 function setVisible(on: boolean) {
-  visible = on
-  if (brush.value) brush.value.style.opacity = on ? '1' : '0'
-  if (!on && bloom.value) bloom.value.style.opacity = '0'
+  visible = on && enabled
+  if (brush.value) brush.value.style.opacity = visible ? '1' : '0'
+  if (!visible && bloom.value) bloom.value.style.opacity = '0'
+  // the native cursor hides only behind the brush, never on its own
+  document.documentElement.classList.toggle(ROOT_CLASS, visible)
 }
 
 function onPaper(x: number, y: number): boolean {
@@ -182,6 +191,7 @@ function onPaper(x: number, y: number): boolean {
 }
 
 function onMove(event: MouseEvent) {
+  if (!enabled) return
   pos.x = event.clientX
   pos.y = event.clientY
   if (!visible) {
@@ -218,6 +228,7 @@ function onRest() {
 }
 
 function onOver(event: MouseEvent) {
+  if (!enabled) return
   const target = event.target as HTMLElement | null
   if (target?.closest(TEXT_FIELD)) {
     setVisible(false)
@@ -287,20 +298,40 @@ function onResize() {
   splashes?.resize()
 }
 
-onMounted(() => {
-  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
-  reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  document.documentElement.classList.add(ROOT_CLASS)
-  if (!reduced && splashCanvas.value) {
+/** The brush takes over from the native cursor at the next move of the pointer. */
+function enable() {
+  enabled = true
+  if (!reduced && !splashes && splashCanvas.value) {
     try {
       splashes = createSplashLayer(splashCanvas.value)
     } catch (e) {
       console.error(e)
       splashes = null
     }
-    window.addEventListener('resize', onResize)
   }
+}
+
+/** Back to the native cursor: a touch pointer has no use for the brush. */
+function disable() {
+  enabled = false
+  pressed = false
+  restAt = null
+  clearTimeout(dwell)
+  setVisible(false)
+}
+
+function onPointerKind(event: MediaQueryListEvent) {
+  if (event.matches) enable()
+  else disable()
+}
+
+onMounted(() => {
+  reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  finePointer = window.matchMedia(FINE_POINTER)
+  finePointer.addEventListener('change', onPointerKind)
+  if (finePointer.matches) enable()
   draw()
+  window.addEventListener('resize', onResize)
   window.addEventListener('mousemove', onMove, { passive: true })
   window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('mouseover', onOver, { passive: true })
@@ -315,6 +346,7 @@ onBeforeUnmount(() => {
   falling.forEach((a) => a.cancel())
   splashes?.destroy()
   splashes = null
+  finePointer?.removeEventListener('change', onPointerKind)
   document.documentElement.classList.remove(ROOT_CLASS)
   window.removeEventListener('resize', onResize)
   window.removeEventListener('mousemove', onMove)
