@@ -33,7 +33,10 @@ onBeforeUnmount(() => off())
 </script>
 
 <template>
-  <article class="privacy">
+  <article
+    class="privacy"
+    data-ink-surface="paper"
+  >
     <div class="privacy__sheet">
       <nav class="privacy__bar">
         <RouterLink

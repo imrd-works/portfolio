@@ -57,7 +57,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="not-found">
+  <div
+    class="not-found"
+    data-ink-surface="paper"
+  >
     <div
       ref="scene"
       class="not-found__scene"

@@ -39,7 +39,8 @@ const rnd = (a: number, b: number) => a + Math.random() * (b - a)
 
 type Tone = { dense: [number, number, number]; thin: [number, number, number]; alpha: number }
 
-// Paper: the shader's own ink (the trees). Dark site: black would vanish, so light ink.
+// Paper: the shader's own ink (the trees). On a surface marked dark black would
+// vanish, so light ink there.
 const TONES: Record<'paper' | 'dark', Tone> = {
   paper: { dense: [0.035, 0.04, 0.05], thin: [0.21, 0.26, 0.35], alpha: 1 },
   dark: { dense: [0.925, 0.91, 0.882], thin: [0.67, 0.7, 0.78], alpha: 0.85 },

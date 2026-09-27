@@ -186,8 +186,9 @@ function setVisible(on: boolean) {
   document.documentElement.classList.toggle(ROOT_CLASS, visible)
 }
 
+/** The site is paper: dark ink everywhere, light ink only on a surface marked dark. */
 function onPaper(x: number, y: number): boolean {
-  return !!document.elementFromPoint(x, y)?.closest('[data-ink-surface="paper"]')
+  return !document.elementFromPoint(x, y)?.closest('[data-ink-surface="dark"]')
 }
 
 function onMove(event: MouseEvent) {
