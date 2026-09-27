@@ -113,6 +113,28 @@ onBeforeUnmount(() => {
     border: 1px solid rgb(16 18 20 / 16%);
     border-radius: 50%;
     box-shadow: 0 6px 18px rgb(16 18 20 / 16%);
+    transition:
+      color 0.2s,
+      background-color 0.2s,
+      border-color 0.2s,
+      transform 0.15s ease;
+  }
+
+  // as the site nav's call to action: the seal's cinnabar on hover, filled with
+  // it while its panel is open, and pressed in a little under the finger
+  &__trigger:hover {
+    color: var(--popover-button-sun);
+    border-color: rgb(199 56 38 / 60%);
+  }
+
+  &__trigger[aria-expanded='true'] {
+    color: var(--popover-button-paper);
+    background: var(--popover-button-sun);
+    border-color: var(--popover-button-sun);
+  }
+
+  &__trigger:active {
+    transform: scale(0.93);
   }
 
   &__icon {
@@ -161,8 +183,13 @@ onBeforeUnmount(() => {
   }
 
   @media (prefers-reduced-motion: reduce) {
+    &__trigger,
     &__icon {
       transition: none;
+    }
+
+    &__trigger:active {
+      transform: none;
     }
   }
 }
