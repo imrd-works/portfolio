@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { pageHero } from '@/shared/lib/pageHero'
 import { ConsentMenu, ScrollTopButton, SettingsMenu } from '@/shared/ui'
 import ConsentBanner from './ConsentBanner.vue'
 import GraphicsOffer from './GraphicsOffer.vue'
@@ -21,13 +22,16 @@ let frame = 0
 
 function update() {
   frame = 0
-  const hero = document.getElementById('top')
+  const hero = pageHero.value
   gear.value = !hero || scrollY > hero.offsetTop + hero.offsetHeight * 0.6
   up.value = gear.value && scrollY > innerHeight
 }
 function onScroll() {
   if (!frame) frame = requestAnimationFrame(update)
 }
+
+// a hero coming (the page arriving) or going: the buttons follow it at once
+watch(pageHero, () => update())
 
 onMounted(() => {
   update()

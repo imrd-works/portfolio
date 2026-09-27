@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { INK_IMAGE } from './hero/config'
 import type { Caption, InkScene } from './hero/lib/scene'
 import { onGraphicsChange } from '@/shared/lib/graphics'
+import { pageHero, registerPageHero } from '@/shared/lib/pageHero'
 import { LocaleSwitch } from '@/shared/ui'
 
 const { t } = useI18n()
@@ -39,6 +40,8 @@ let unmounted = false
 let offGraphics = () => {}
 
 onMounted(async () => {
+  // the page corner keeps its buttons off the hero while it is here
+  registerPageHero(root.value)
   // Kept out of the initial chunk's critical path: the scroll is rolled up on
   // load, so nothing needs the renderer before the first scroll.
   const { mountInkScene } = await import('./hero/lib/scene')
@@ -71,6 +74,7 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  if (pageHero.value === root.value) registerPageHero(null)
   unmounted = true
   offGraphics()
   scene?.destroy()
