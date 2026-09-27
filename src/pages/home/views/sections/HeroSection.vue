@@ -76,10 +76,6 @@ onBeforeUnmount(() => {
   scene?.destroy()
   scene = null
 })
-
-function replay() {
-  scene?.replay()
-}
 </script>
 
 <template>
@@ -192,16 +188,8 @@ function replay() {
           >
             {{ t('home.hero.seal') }}
           </div>
-          <button
-            class="hero__control"
-            :class="{ 'hero__control--shown': shown.controls }"
-            type="button"
-            @click="replay"
-          >
-            {{ t('home.hero.replay') }}
-          </button>
           <LocaleSwitch
-            class="hero__control hero__control--lang"
+            class="hero__control"
             :class="{ 'hero__control--shown': shown.controls }"
           />
         </div>
@@ -485,30 +473,22 @@ function replay() {
     }
   }
 
+  // the language switch, a link, in the scroll's top corner
   &__control {
     position: absolute;
     top: clamp(30px, 9.4vh, 114px);
     right: clamp(20px, 5vw, 84px);
     z-index: 2;
     padding: 4px 0;
-    font: inherit;
     font-size: 12px;
     color: var(--hero-ink);
+    text-decoration: none;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    cursor: pointer;
-    background: none;
-    border: 0;
     border-bottom: 1px solid currentcolor;
     opacity: 0;
     transition: opacity 0.6s ease;
     pointer-events: none;
-
-    // the language switch, a link, under "paint it again"
-    &--lang {
-      top: calc(clamp(30px, 9.4vh, 114px) + 30px);
-      text-decoration: none;
-    }
 
     &--shown {
       pointer-events: auto;
@@ -565,11 +545,6 @@ function replay() {
       right: auto;
       bottom: 52px;
       left: clamp(20px, 5.5vw, 96px);
-
-      &--lang {
-        top: auto;
-        bottom: 28px;
-      }
     }
 
     &__seal {

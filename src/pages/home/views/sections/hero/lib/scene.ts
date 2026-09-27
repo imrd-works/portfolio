@@ -46,7 +46,7 @@ export interface SceneElements {
 
 export interface SceneHooks {
   show(caption: Caption): void
-  /** Hides every caption again (replay, or the scroll rolled back up). */
+  /** Hides every caption again (the scene reset). */
   hideCaptions(): void
   /** WebGL2 is out: drop the canvas, unroll the flat scroll with the plain image. */
   useImageFallback(): void
@@ -55,7 +55,6 @@ export interface SceneHooks {
 }
 
 export interface InkScene {
-  replay(): void
   setFog(on: boolean): void
   destroy(): void
 }
@@ -720,10 +719,6 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
   layout()
 
   return {
-    replay() {
-      reset()
-      play()
-    },
     setFog(on) {
       FOG.on = on
       schedule()

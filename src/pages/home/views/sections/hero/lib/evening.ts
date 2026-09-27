@@ -45,7 +45,7 @@ export interface Evening {
     dt: number,
     hold?: (s0: number, m0: number, s: number, m: number) => [number, number]
   ): { s: number; m: number; moving: boolean }
-  /** Back to the day, disarmed (a replay of the drawing). */
+  /** Back to the day, disarmed (the scene reset). */
   reset(): void
   dispose(): void
 }
