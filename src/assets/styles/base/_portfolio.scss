@@ -19,6 +19,9 @@
   /* the paper under every page: what shows between two of them, or past the
      edge of an overscroll */
   --page-paper: #ece8e1;
+
+  /* the room on each side of a seal between two sections (SectionSeal) */
+  --section-seal-gap: clamp(64px, 7vw, 100px);
 }
 
 html {

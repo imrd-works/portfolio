@@ -7,6 +7,7 @@ import SkillsSection from './sections/SkillsSection.vue'
 import WorkSection from './sections/WorkSection.vue'
 import ExperienceSection from './sections/ExperienceSection.vue'
 import ContactSection from './sections/ContactSection.vue'
+import SectionSeal from './sections/SectionSeal.vue'
 
 usePageSeo()
 </script>
@@ -20,6 +21,7 @@ usePageSeo()
     </ExperienceSection>
     <AboutSection />
     <SkillsSection />
+    <SectionSeal />
     <ContactSection />
   </div>
 </template>

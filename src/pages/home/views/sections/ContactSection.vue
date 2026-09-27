@@ -569,7 +569,9 @@ onBeforeUnmount(() => {
   --contact-rule: rgb(107 92 80 / 35%);
 
   position: relative;
-  padding: clamp(80px, 9vw, 130px) var(--page-pad) clamp(40px, 6vw, 80px);
+  // as much room above as the skills leave below: the seal between them is
+  // centred (their last row keeps 12px of its own under the tags)
+  padding: calc(var(--section-seal-gap) + 12px) var(--page-pad) clamp(40px, 6vw, 80px);
   overflow: hidden;
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   line-height: normal;

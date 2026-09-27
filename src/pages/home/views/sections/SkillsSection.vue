@@ -218,7 +218,8 @@ const found = computed(() => allChips.filter(matches).length)
   --skills-seal: #c23b2a;
 
   position: relative;
-  padding: 0 var(--page-pad) 140px;
+  // the seal between it and the contacts takes the rest of the gap (SectionSeal)
+  padding: 0 var(--page-pad) var(--section-seal-gap);
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   line-height: normal;
   color: var(--skills-ink);
