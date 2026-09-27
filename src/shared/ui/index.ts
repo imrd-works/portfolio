@@ -4,6 +4,9 @@ export { default as CustomCursor } from './CustomCursor/CustomCursor.vue'
 export { default as CountUp } from './CountUp/CountUp.vue'
 export { default as LocaleSwitch } from './LocaleSwitch/LocaleSwitch.vue'
 export { default as SettingsMenu } from './SettingsMenu/SettingsMenu.vue'
+export { default as ConsentMenu } from './ConsentMenu/ConsentMenu.vue'
+export { default as PopoverButton } from './PopoverButton/PopoverButton.vue'
+export { default as ToggleSwitch } from './ToggleSwitch/ToggleSwitch.vue'
 
 // Layout primitives
 export { default as Section } from '@/shared/layout/Section/Section.vue'

@@ -31,5 +31,13 @@
     "label": "Settings",
     "light": "Light mode",
     "lightHint": "Simpler graphics: no mist, no river current, no swinging paintings. For weak devices and saving battery."
+  },
+  "consent": {
+    "label": "Cookies and analytics",
+    "text": "Mind if I see what's interesting here? Yandex Metrica and Google Analytics count visits and record sessions, so they load only with your consent. Changed your mind? The cookie icon in the corner.",
+    "accept": "Sure",
+    "decline": "No thanks",
+    "analytics": "Analytics",
+    "analyticsHint": "Visits, clicks and session replays. Turning it off deletes the cookies and reloads the page."
   }
 }

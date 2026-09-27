@@ -1,7 +1,11 @@
-import { onMounted } from 'vue'
+import { onBeforeUnmount, onMounted } from 'vue'
+import { consent, onConsentChange } from '@/shared/lib/consent'
 
 /**
  * Google Analytics 4. Everything about the tag is here: change it in this file.
+ *
+ * Only with the visitor's consent (lib/consent.ts): until they allow it nothing of
+ * Google is on the page, not even its data layer; once they do, it starts right away.
  *
  * On the published site only: the measurement ID comes from `VITE_GA_MEASUREMENT_ID`
  * (a build secret, like the site's address), so nothing loads in development, in the
@@ -46,9 +50,17 @@ export function useGoogleAnalytics({
 }: Options = {}) {
   const on = enabled && /^G-[A-Z0-9]+$/.test(id ?? '')
 
+  let unwatch = () => {}
+  const begin = () => {
+    if (!window.gtag) start(id!)
+  }
+
   onMounted(() => {
-    if (on && !window.gtag) start(id!)
+    if (!on) return
+    if (consent.granted) begin()
+    else unwatch = onConsentChange((value) => value === 'granted' && begin())
   })
+  onBeforeUnmount(() => unwatch())
 
   function event(name: string, params?: Record<string, unknown>) {
     if (on) window.gtag?.('event', name, params)

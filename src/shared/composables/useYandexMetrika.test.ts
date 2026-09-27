@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
+import { reloadConsent, setConsent } from '@/shared/lib/consent'
 import { YANDEX_METRIKA, useYandexMetrika } from './useYandexMetrika'
 
 /** The app's root, with the counter; its button reaches a goal. */
@@ -21,6 +22,9 @@ const sent = () => window.ym?.a ?? []
 describe('useYandexMetrika', () => {
   beforeEach(() => {
     vi.useFakeTimers()
+    // the visitor has allowed analytics, unless a test says otherwise
+    localStorage.setItem('consent:analytics', JSON.stringify({ value: 'granted', at: Date.now() }))
+    reloadConsent()
     delete window.ym
     history.replaceState(null, '', '/')
     document.head.querySelectorAll('script').forEach((s) => s.remove())
@@ -93,6 +97,30 @@ describe('useYandexMetrika', () => {
     const wrapper = app({ id: '113106427', enabled: true })
     wrapper.find('button').trigger('click')
     expect(sent().at(-1)).toEqual([113106427, 'reachGoal', 'cv_download', undefined])
+    wrapper.unmount()
+  })
+
+  it("loads nothing at all without the visitor's consent", () => {
+    localStorage.clear()
+    reloadConsent()
+    const wrapper = app({ id: '113106427', enabled: true })
+    vi.runAllTimers()
+    expect(window.ym).toBeUndefined()
+    expect(document.querySelector('script')).toBeNull()
+    wrapper.unmount()
+  })
+
+  it('loads nothing after the visitor declines, and starts once they allow it', () => {
+    localStorage.clear()
+    reloadConsent()
+    const wrapper = app({ id: '113106427', enabled: true })
+    setConsent('denied')
+    vi.runAllTimers()
+    expect(window.ym).toBeUndefined()
+    setConsent('granted')
+    expect(window.ym).toBeDefined()
+    vi.runAllTimers()
+    expect(document.querySelector('script')?.src).toContain('tag_ww.js')
     wrapper.unmount()
   })
 })

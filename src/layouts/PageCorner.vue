@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { SettingsMenu } from '@/shared/ui'
+import { ConsentMenu, SettingsMenu } from '@/shared/ui'
+import ConsentBanner from './ConsentBanner.vue'
 import GraphicsOffer from './GraphicsOffer.vue'
 
 /*
- * The page's bottom right corner: the settings gear, where it is always at hand,
- * and over it the offer of the light mode when the page stutters, so the visitor
- * sees where that setting lives. The gear keeps off the hero, which has the seal
- * and its own controls in its corners: it comes once most of the hero has
- * scrolled away (as the site nav does), and on a page without a hero it is there.
+ * The page's bottom right corner: the cookie (consent to analytics) and the settings
+ * gear, where they are always at hand, and over them the notes that ask the visitor
+ * something (analytics, the light mode when the page stutters), so the visitor sees
+ * where to change the answer later. The notes show wherever the page is; the buttons
+ * keep off the hero, which has the seal and its own controls in its corners: they
+ * come once most of the hero has scrolled away (as the site nav does), and on a page
+ * without a hero they are there.
  */
 const gear = ref(false)
 let frame = 0
@@ -36,18 +39,21 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="page-corner">
+    <ConsentBanner class="page-corner__offer" />
     <GraphicsOffer class="page-corner__offer" />
     <Transition
-      enter-active-class="page-corner__gear--moving"
-      leave-active-class="page-corner__gear--moving"
-      enter-from-class="page-corner__gear--away"
-      leave-to-class="page-corner__gear--away"
+      enter-active-class="page-corner__buttons--moving"
+      leave-active-class="page-corner__buttons--moving"
+      enter-from-class="page-corner__buttons--away"
+      leave-to-class="page-corner__buttons--away"
     >
-      <SettingsMenu
+      <div
         v-show="gear"
-        class="page-corner__gear"
-        round
-      />
+        class="page-corner__buttons"
+      >
+        <ConsentMenu />
+        <SettingsMenu />
+      </div>
     </Transition>
   </div>
 </template>
@@ -71,18 +77,23 @@ onBeforeUnmount(() => {
   }
 
   // it rises a little into place as it comes, and sinks back as it goes
-  &__gear--moving {
+  &__buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  &__buttons--moving {
     transition:
       opacity 0.3s ease,
       transform 0.3s ease;
   }
 
-  &__gear--away {
+  &__buttons--away {
     opacity: 0;
     transform: translateY(8px);
   }
 
-  // on a phone the offer takes the width, the gear stays in the corner
+  // on a phone the notes take the width, the buttons stay in the corner
   @media (width <= 700px) {
     left: 16px;
 
@@ -92,7 +103,12 @@ onBeforeUnmount(() => {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    &__gear--moving {
+    &__buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    &__buttons--moving {
       transition: none;
     }
   }

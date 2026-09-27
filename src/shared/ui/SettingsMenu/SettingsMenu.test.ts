@@ -34,18 +34,18 @@ describe('SettingsMenu', () => {
 
   it('opens its panel from the gear', async () => {
     const wrapper = mount(SettingsMenu, { attachTo: document.body })
-    const gear = wrapper.find('.settings-menu__gear')
+    const gear = wrapper.find('.popover-button__trigger')
     expect(gear.attributes('aria-expanded')).toBe('false')
-    expect(wrapper.find('.settings-menu__panel').exists()).toBe(false)
+    expect(wrapper.find('.popover-button__panel').exists()).toBe(false)
     await gear.trigger('click')
     expect(gear.attributes('aria-expanded')).toBe('true')
-    expect(wrapper.find('.settings-menu__panel').exists()).toBe(true)
+    expect(wrapper.find('.popover-button__panel').exists()).toBe(true)
     wrapper.unmount()
   })
 
   it('turns the light mode on and back off', async () => {
     const wrapper = mount(SettingsMenu, { attachTo: document.body })
-    await wrapper.find('.settings-menu__gear').trigger('click')
+    await wrapper.find('.popover-button__trigger').trigger('click')
     const light = wrapper.find('[role="switch"]')
     expect(light.attributes('aria-checked')).toBe('false')
 
@@ -62,7 +62,7 @@ describe('SettingsMenu', () => {
   it('shows the light mode already on for a visitor who took it', async () => {
     state.low = true
     const wrapper = mount(SettingsMenu, { attachTo: document.body })
-    await wrapper.find('.settings-menu__gear').trigger('click')
+    await wrapper.find('.popover-button__trigger').trigger('click')
     expect(wrapper.find('[role="switch"]').attributes('aria-checked')).toBe('true')
     wrapper.unmount()
   })

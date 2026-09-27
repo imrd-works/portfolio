@@ -1,7 +1,11 @@
 import { onBeforeUnmount, onMounted } from 'vue'
+import { consent, onConsentChange } from '@/shared/lib/consent'
 
 /**
  * Yandex Metrica. Everything about the counter is here: change it in this file.
+ *
+ * Only with the visitor's consent (lib/consent.ts): until they allow it nothing of
+ * Metrica is on the page, not even its queue; once they do, it starts right away.
  *
  * On the published site only: the counter's number comes from
  * `VITE_YANDEX_METRIKA_ID` (a build secret, like the site's address), so nothing
@@ -55,11 +59,21 @@ export function useYandexMetrika({
   const counter = Number(id)
   const on = enabled && Boolean(id) && Number.isInteger(counter)
   let stop = () => {}
+  let unwatch = () => {}
+
+  const begin = () => {
+    if (!window.ym) stop = start(counter)
+  }
 
   onMounted(() => {
-    if (on && !window.ym) stop = start(counter)
+    if (!on) return
+    if (consent.granted) begin()
+    else unwatch = onConsentChange((value) => value === 'granted' && begin())
   })
-  onBeforeUnmount(() => stop())
+  onBeforeUnmount(() => {
+    unwatch()
+    stop()
+  })
 
   function reachGoal(target: string, params?: Record<string, unknown>) {
     if (on) window.ym?.(counter, 'reachGoal', target, params)
