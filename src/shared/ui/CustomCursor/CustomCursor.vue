@@ -31,6 +31,8 @@ const dropTemplate = ref<HTMLElement | null>(null)
 
 const INTERACTIVE = 'a, button, [role="button"], label, summary, [data-cursor-grow]'
 const TEXT_FIELD = 'input, textarea, select, [contenteditable="true"]'
+/** Notes and panels laid over the page (the corner's): not its paper, no ink on them. */
+const NO_INK = '[data-no-ink]'
 const ROOT_CLASS = 'has-brush-cursor'
 
 // Angles are measured clockwise from "up", from the tip towards the handle.
@@ -224,6 +226,9 @@ function onScroll() {
 
 function onRest() {
   if (!splashes || !visible || restAt) return
+  // a control answers the pointer resting on it; ink dripping over it would be in the way
+  const under = document.elementFromPoint(pos.x, pos.y)
+  if (under?.closest(`${INTERACTIVE}, ${TEXT_FIELD}, ${NO_INK}`)) return
   restAt = { x: pos.x, y: pos.y }
   splashes.rest(pos.x, pos.y, onPaper(pos.x, pos.y))
 }
@@ -285,7 +290,9 @@ function onDown(event: MouseEvent) {
   pressed = true
   // Ink only falls on the page itself: a button or a link already answers the
   // click, and a blot over it would be in the way.
-  const onControl = (event.target as HTMLElement | null)?.closest(`${INTERACTIVE}, ${TEXT_FIELD}`)
+  const onControl = (event.target as HTMLElement | null)?.closest(
+    `${INTERACTIVE}, ${TEXT_FIELD}, ${NO_INK}`
+  )
   if (visible && event.button === 0 && !onControl) dropInk(event.clientX, event.clientY)
   schedule()
 }

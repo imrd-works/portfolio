@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import CustomCursor from './CustomCursor.vue'
 
 // the ink is WebGL: not what is checked here
+const rest = vi.fn()
 vi.mock('./splash-layer', () => ({
   CLICK_SCALE: 0.5,
   inkUnit: () => 1,
@@ -10,7 +11,7 @@ vi.mock('./splash-layer', () => ({
     resize() {},
     release() {},
     scrolled() {},
-    rest() {},
+    rest: (...args: unknown[]) => rest(...args),
     hit() {},
     destroy() {},
   }),
@@ -31,6 +32,7 @@ const move = (target: EventTarget = document.body) => {
 
 describe('CustomCursor', () => {
   beforeEach(() => {
+    rest.mockClear()
     pointer.fine = true
     pointer.listeners.length = 0
     vi.stubGlobal('matchMedia', (query: string) => ({
@@ -97,5 +99,35 @@ describe('CustomCursor', () => {
     move()
     expect(hidden()).toBe(false)
     wrapper.unmount()
+  })
+
+  it('lets ink gather under a resting brush on the paper, not on a control', () => {
+    vi.useFakeTimers()
+    const wrapper = mount(CustomCursor, { attachTo: document.body })
+    const button = document.createElement('button')
+    const panel = document.createElement('div')
+    panel.setAttribute('data-no-ink', '')
+    document.body.append(button, panel)
+    const under = { el: document.body as Element }
+    const elementFromPoint = document.elementFromPoint
+    document.elementFromPoint = () => under.el
+
+    move()
+    vi.advanceTimersByTime(300)
+    expect(rest).toHaveBeenCalledTimes(1)
+
+    for (const el of [button, panel]) {
+      rest.mockClear()
+      under.el = el
+      window.dispatchEvent(new MouseEvent('mousemove', { clientX: 90, clientY: 90 }))
+      vi.advanceTimersByTime(300)
+      expect(rest).not.toHaveBeenCalled()
+    }
+
+    button.remove()
+    panel.remove()
+    document.elementFromPoint = elementFromPoint
+    wrapper.unmount()
+    vi.useRealTimers()
   })
 })

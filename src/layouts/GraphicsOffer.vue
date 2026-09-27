@@ -44,6 +44,7 @@ function answer(level: GraphicsLevel) {
       <aside
         v-if="open"
         class="graphics-offer__note"
+        data-no-ink
         :aria-label="t('home.graphics.label')"
       >
         <p class="graphics-offer__text">{{ t('home.graphics.offer') }}</p>

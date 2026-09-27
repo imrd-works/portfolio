@@ -43,6 +43,7 @@ function answer(value: ConsentValue) {
       <aside
         v-if="open"
         class="consent-banner__note"
+        data-no-ink
         :aria-label="t('consent.label')"
       >
         <p class="consent-banner__text">{{ t('consent.text') }}</p>

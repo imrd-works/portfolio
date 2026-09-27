@@ -84,6 +84,7 @@ onBeforeUnmount(() => {
       }"
       role="group"
       :aria-label="label"
+      data-no-ink
     >
       <slot />
     </div>
