@@ -122,6 +122,10 @@ void main(){
     a = a + mist * .1 * (1. - a) * (1. - smoothstep(.05, .3, inkS));   // the wisp over bare paper
   }
 
+  // the painting ends in the page's paper at its sides, never on a line: wet ink spreads
+  // wider than the drawing and would otherwise be cut off at the edge of the rectangle
+  a *= smoothstep(0., .05, uv.x) * smoothstep(1., .95, uv.x);
+
   float conc = max(ink * arrive, strokeD);
   vec3 col = mix(vec3(.21, .26, .35), vec3(.035, .04, .05), pow(conc, .7));
   gl_FragColor = vec4(col * a, a);
