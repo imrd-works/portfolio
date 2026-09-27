@@ -47,6 +47,23 @@ export function localeUrlPath(locale: AppLocale): string {
   return LOCALE_CANONICAL_PATH[locale]
 }
 
+/** The privacy policy, in the default locale (`localizedPath` gives the others). */
+export const PRIVACY_PATH = '/privacy/'
+
+/** A page's path in its canonical form: always with a trailing slash. */
+function withSlash(path: string): string {
+  return path.endsWith('/') ? path : `${path}/`
+}
+
+/**
+ * The same page in `locale`, in its canonical form: `/privacy` in English is
+ * `/en/privacy/`, `/en/` in Russian is `/`.
+ */
+export function localizedPath(path: string, locale: AppLocale): string {
+  const page = withSlash(localeFromPath(path) === 'en' ? path.slice(3) || '/' : path)
+  return locale === DEFAULT_LOCALE ? page : `/${locale}${page}`
+}
+
 /** `/en`, `/en/`, `/en/foo` -> `en`; anything else -> the default locale. */
 export function localeFromPath(path: string): AppLocale {
   return path === '/en' || path.startsWith('/en/') ? 'en' : DEFAULT_LOCALE

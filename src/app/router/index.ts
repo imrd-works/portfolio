@@ -1,7 +1,7 @@
 import { createMemoryHistory, createRouter, createWebHistory, START_LOCATION } from 'vue-router'
 import type { Router, RouteRecordRaw } from 'vue-router'
 import { setupRouterMiddleware } from './middleware'
-import { portfolioRoutes, notFoundRoute } from '@/pages'
+import { portfolioRoutes, privacyRoutes, notFoundRoute } from '@/pages'
 import { localeFromPath } from '@/app/config/site'
 
 /**
@@ -9,7 +9,7 @@ import { localeFromPath } from '@/app/config/site'
  * English. Two crawlable URLs mean two prerendered documents, real `hreflang`
  * alternates and a shareable link per language.
  */
-const routes: RouteRecordRaw[] = [...portfolioRoutes, notFoundRoute]
+const routes: RouteRecordRaw[] = [...portfolioRoutes, ...privacyRoutes, notFoundRoute]
 
 export function createAppRouter(ssr = false): Router {
   const router = createRouter({

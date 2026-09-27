@@ -38,6 +38,7 @@
     "accept": "Sure",
     "decline": "No thanks",
     "analytics": "Analytics",
-    "analyticsHint": "Visits, clicks and session replays. Turning it off deletes the cookies and reloads the page."
+    "analyticsHint": "Visits, clicks and session replays. Turning it off deletes the cookies and reloads the page.",
+    "more": "Details"
   }
 }

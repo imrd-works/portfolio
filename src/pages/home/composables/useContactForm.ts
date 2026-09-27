@@ -60,6 +60,8 @@ const schema = yup.object({
     .when('stack', ([stack], text) =>
       stack?.length ? text : text.required('home.contact.form.errorAbout')
     ),
+  // consent to the processing of what is sent, given apart from anything else
+  agree: yup.boolean().oneOf([true], 'home.contact.form.errorAgree').default(false),
 })
 
 export function useContactForm() {
@@ -72,6 +74,7 @@ export function useContactForm() {
       contact: '',
       message: '',
       stack: [] as string[],
+      agree: false,
     },
   })
 
@@ -79,6 +82,7 @@ export function useContactForm() {
   const [contact, contactAttrs] = defineField('contact')
   const [message, messageAttrs] = defineField('message')
   const [stack] = defineField('stack')
+  const [agree] = defineField('agree')
 
   /** Everything the letter needs is there: the seal can be pressed. */
   const ready = computed(() =>
@@ -87,6 +91,7 @@ export function useContactForm() {
       contact: contact.value,
       message: message.value,
       stack: stack.value,
+      agree: agree.value,
     })
   )
 
@@ -128,6 +133,7 @@ export function useContactForm() {
     messageAttrs,
     stack,
     toggleStack,
+    agree,
     ready,
     errors,
     loading: isSubmitting,

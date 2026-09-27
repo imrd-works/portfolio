@@ -6,8 +6,12 @@ import { contactChannels, rowsFor, socials, type StackId } from '../../model/por
 import type { Paper } from './contact/lib/paper'
 import type { EnvelopeScene } from './contact/lib/envelope'
 import { useInkBloom } from '../../composables/useInkBloom'
+import { useLocale } from '@/composables/useLocale'
+import { PRIVACY_PATH, localizedPath } from '@/app/config/site'
 
 const { t } = useI18n()
+const { locale } = useLocale()
+const privacyPath = computed(() => localizedPath(PRIVACY_PATH, locale.value))
 const {
   name,
   nameAttrs,
@@ -17,6 +21,7 @@ const {
   messageAttrs,
   stack,
   toggleStack,
+  agree,
   ready,
   errors,
   loading,
@@ -247,7 +252,7 @@ onBeforeUnmount(() => {
                     id="contact-name"
                     v-model="name"
                     v-bind="nameAttrs"
-                    class="contact__blank-input"
+                    class="contact__blank-input ym-disable-keys"
                     :class="{ 'contact__blank-input--bad': errors.name }"
                     type="text"
                     :size="fit(name, t('home.contact.form.phName'))"
@@ -266,7 +271,7 @@ onBeforeUnmount(() => {
                     id="contact-handle"
                     v-model="contact"
                     v-bind="contactAttrs"
-                    class="contact__blank-input"
+                    class="contact__blank-input ym-disable-keys"
                     :class="{ 'contact__blank-input--bad': errors.contact }"
                     type="text"
                     :size="fit(contact, t('home.contact.form.phContact'))"
@@ -371,7 +376,7 @@ onBeforeUnmount(() => {
               id="contact-about"
               v-model="message"
               v-bind="messageAttrs"
-              class="contact__area"
+              class="contact__area ym-disable-keys"
               :class="{ 'contact__area--bad': errors.message }"
               rows="4"
               :placeholder="t('home.contact.form.phAbout')"
@@ -380,7 +385,7 @@ onBeforeUnmount(() => {
           </label>
 
           <p
-            v-if="errors.name || errors.contact || errors.message"
+            v-if="errors.name || errors.contact || errors.message || errors.agree"
             class="contact__errors"
             role="alert"
           >
@@ -392,7 +397,38 @@ onBeforeUnmount(() => {
               })
             }}</span>
             <span v-if="errors.message">{{ t(errors.message) }}</span>
+            <span v-if="errors.agree">{{ t(errors.agree) }}</span>
           </p>
+
+          <!-- the consent to what is sent, a box of its own that the seal waits for;
+               the ym-disable-keys fields above keep Metrica's session replays from
+               recording what is typed -->
+          <label
+            class="contact__agree"
+            for="contact-agree"
+          >
+            <input
+              id="contact-agree"
+              v-model="agree"
+              class="contact__agree-box"
+              type="checkbox"
+              :aria-invalid="Boolean(errors.agree)"
+            />
+            <i18n-t
+              keypath="home.contact.form.consent"
+              scope="global"
+              tag="span"
+              class="contact__agree-text"
+            >
+              <template #policy>
+                <RouterLink
+                  class="contact__consent-link"
+                  :to="privacyPath"
+                  >{{ t('home.contact.form.consentLink') }}</RouterLink
+                >
+              </template>
+            </i18n-t>
+          </label>
 
           <div class="contact__send">
             <button
@@ -505,6 +541,11 @@ onBeforeUnmount(() => {
 
       <footer class="contact__sign">
         <span>{{ t('home.footer.name') }}</span>
+        <RouterLink
+          class="contact__sign-link"
+          :to="privacyPath"
+          >{{ t('home.footer.privacy') }}</RouterLink
+        >
         <span>{{ t('home.footer.note') }}</span>
       </footer>
     </div>
@@ -1125,16 +1166,106 @@ onBeforeUnmount(() => {
     user-select: none;
   }
 
+  /* the name, the policy and the note: the policy in the very middle, whatever
+     the length of the other two */
   &__sign {
-    display: flex;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px 24px;
     align-items: center;
-    justify-content: space-between;
     margin-top: clamp(36px, 5vw, 64px);
     font-size: 11px;
     color: var(--contact-ink-soft);
     text-transform: uppercase;
     letter-spacing: 0.1em;
+  }
+
+  &__sign > :first-child {
+    justify-self: start;
+  }
+
+  &__sign > :last-child {
+    justify-self: end;
+    text-align: right;
+  }
+
+  &__sign-link,
+  &__consent-link {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid var(--contact-rule);
+    transition: border-color 0.2s;
+  }
+
+  &__sign-link:hover,
+  &__consent-link:hover {
+    border-bottom-color: var(--contact-seal);
+  }
+
+  &__sign-link:focus-visible,
+  &__consent-link:focus-visible {
+    outline: 2px solid var(--contact-sun);
+    outline-offset: 3px;
+  }
+
+  /* the consent: a small square drawn in the letter's ink, ticked in the seal's
+     cinnabar */
+  &__agree {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    max-width: 52ch;
+    margin-top: 28px;
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--contact-ink-soft);
+    cursor: pointer;
+  }
+
+  &__agree-box {
+    display: grid;
+    flex: none;
+    place-content: center;
+    width: 16px;
+    height: 16px;
+    margin: 1px 0 0;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid var(--contact-ink-soft);
+    border-radius: 2px;
+    appearance: none;
+    transition:
+      background-color 0.2s,
+      border-color 0.2s;
+  }
+
+  &__agree-box::after {
+    width: 8px;
+    height: 4px;
+    margin-top: -2px;
+    content: '';
+    border-bottom: 1.5px solid var(--contact-paper);
+    border-left: 1.5px solid var(--contact-paper);
+    opacity: 0;
+    transform: rotate(-45deg);
+  }
+
+  &__agree-box:checked {
+    background: var(--contact-seal);
+    border-color: var(--contact-seal);
+  }
+
+  &__agree-box:checked::after {
+    opacity: 1;
+  }
+
+  &__agree-box[aria-invalid='true'] {
+    border-color: var(--contact-seal);
+  }
+
+  &__agree-box:focus-visible {
+    outline: 2px solid var(--contact-sun);
+    outline-offset: 3px;
   }
 
   &__sr {
@@ -1157,6 +1288,18 @@ onBeforeUnmount(() => {
   }
 
   @media (width < 700px) {
+    &__sign {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+    }
+
+    &__sign > :first-child,
+    &__sign > :last-child {
+      justify-self: center;
+      text-align: center;
+    }
+
     &__address {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -1167,6 +1310,10 @@ onBeforeUnmount(() => {
   }
 
   @media (prefers-reduced-motion: reduce) {
+    &__agree-box {
+      transition: none;
+    }
+
     &__envelope-body,
     &__envelope-flap,
     &__envelope-birds,

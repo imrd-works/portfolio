@@ -2,6 +2,8 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { consent, onConsentChange, setConsent, type ConsentValue } from '@/shared/lib/consent'
+import { useLocale } from '@/composables/useLocale'
+import { PRIVACY_PATH, localizedPath } from '@/app/config/site'
 
 /*
  * The question about analytics (lib/consent.ts), for a visitor who has not answered
@@ -10,6 +12,7 @@ import { consent, onConsentChange, setConsent, type ConsentValue } from '@/share
  * shown after mounting only, so the prerendered page never has it.
  */
 const { t } = useI18n()
+const { locale } = useLocale()
 const open = ref(false)
 let off = () => {}
 
@@ -58,6 +61,12 @@ function answer(value: ConsentValue) {
           >
             {{ t('consent.decline') }}
           </button>
+          <RouterLink
+            class="consent-banner__more"
+            :to="localizedPath(PRIVACY_PATH, locale)"
+          >
+            {{ t('consent.more') }}
+          </RouterLink>
         </div>
       </aside>
     </Transition>
@@ -128,8 +137,23 @@ function answer(value: ConsentValue) {
     border-color: var(--consent-banner-ink);
   }
 
+  // the policy, for whoever wants the details first: a link, not a third choice
+  &__more {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--consent-banner-ink-soft);
+    text-decoration: none;
+    border-bottom: 1px solid rgb(58 68 84 / 40%);
+  }
+
+  &__more:hover {
+    color: var(--consent-banner-ink);
+    border-bottom-color: var(--consent-banner-sun);
+  }
+
   &__yes:focus-visible,
-  &__no:focus-visible {
+  &__no:focus-visible,
+  &__more:focus-visible {
     outline: 2px solid var(--consent-banner-sun);
     outline-offset: 3px;
   }

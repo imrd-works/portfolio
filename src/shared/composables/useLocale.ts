@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { localeFromPath, localeUrlPath, type AppLocale } from '@/app/config/site'
+import { localeFromPath, localizedPath, type AppLocale } from '@/app/config/site'
 
 export type { AppLocale }
 
@@ -21,7 +21,7 @@ export function useLocale() {
    * `rel=canonical` and static hosting have it), the open painting kept.
    */
   function pathFor(target: AppLocale): string {
-    return `${localeUrlPath(target)}${route.hash}`
+    return `${localizedPath(route.path, target)}${route.hash}`
   }
 
   return { locale, other, pathFor }

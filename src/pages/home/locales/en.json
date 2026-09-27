@@ -239,7 +239,10 @@
       "stackEmpty": "Not on the shelf — mention it below",
       "stackRemove": "Remove {name}",
       "stackSent": "Stack",
-      "stackPicker": "Technologies for the letter"
+      "stackPicker": "Technologies for the letter",
+      "consent": "I agree to the processing of my name, contact and message so that Daniel can reply. Details are in the {policy}.",
+      "consentLink": "privacy policy",
+      "errorAgree": "Tick the consent to data processing — the letter cannot be sent without it"
     },
     "success": {
       "text": "The letter is sealed · I'll answer within a day or two. If no reply comes, message me directly on Telegram — that way we won't miss each other.",
@@ -248,6 +251,7 @@
   },
   "footer": {
     "name": "Daniel Rassomakhin",
+    "privacy": "Privacy policy",
     "note": "© 2026 · Crafted with attention to detail"
   },
   "a11y": {

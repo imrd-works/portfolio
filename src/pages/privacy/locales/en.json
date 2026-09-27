@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "title": "Privacy policy — Daniel Rassomakhin",
+    "description": "What data Daniel Rassomakhin's portfolio site collects, why, and how to control it: the contact form, and Yandex Metrica and Google Analytics only with your consent."
+  },
+  "back": "Home",
+  "title": "Privacy policy",
+  "updated": "Last updated 27 September 2026",
+  "lead": "This is my personal portfolio site. Here, briefly and in plain words, is what data it collects, why, and how you can control it. I do not sell data or share it with anyone but the services named below.",
+  "contacts": {
+    "email": "Email",
+    "telegram": "Telegram"
+  },
+  "sources": {
+    "label": "The services' own policies",
+    "yandex": "Yandex",
+    "google": "Google",
+    "telegram": "Telegram"
+  },
+  "sections": {
+    "owner": {
+      "title": "Who handles the data",
+      "text": "Daniel Rassomakhin, the owner of this site. For anything about your data, write to me directly:"
+    },
+    "data": {
+      "title": "What is collected",
+      "text": "Only what I need to answer you and to see what people find interesting here:",
+      "items": "what you send through the “Write me a letter” form — only what you typed yourself;\nvisit statistics — only if you allowed analytics;\ntwo settings in your browser — they are never sent anywhere.",
+      "note": "I do not ask for or collect passport or payment details, phone numbers or other sensitive information."
+    },
+    "form": {
+      "title": "The contact form",
+      "facts": {
+        "what": {
+          "label": "What",
+          "text": "Your name, a contact to reply to (email or Telegram), your message and the technologies you picked."
+        },
+        "why": {
+          "label": "Why",
+          "text": "To reply to you and talk about your project. Nothing else: no mailing lists."
+        },
+        "how": {
+          "label": "How",
+          "text": "The request goes to a Yandex Cloud function (servers in Russia), which forwards it straight to my Telegram through a bot. The function itself stores nothing. Telegram is run by a foreign company, so the form's data leaves Russia."
+        },
+        "keep": {
+          "label": "How long",
+          "text": "It stays in our conversation while we talk, and is deleted if you ask."
+        },
+        "basis": {
+          "label": "Basis",
+          "text": "Your consent: you give it with a separate checkbox before sending, and can withdraw it at any time by writing to me."
+        }
+      }
+    },
+    "analytics": {
+      "title": "Analytics and cookies",
+      "text": "The site uses Yandex Metrica and Google Analytics so I can see which projects people look at and where they leave. Until you allow analytics, their scripts do not load at all and no cookies are set.",
+      "facts": {
+        "what": {
+          "label": "What",
+          "text": "Pages and navigation, clicks and scrolling, time on the site, where you came from, device and browser type, approximate location from the IP address. Metrica also records sessions (Webvisor): how the cursor moves and what gets clicked. What you type into the form is not recorded."
+        },
+        "who": {
+          "label": "Who",
+          "text": "Yandex Metrica — Yandex LLC, Russia. Google Analytics — Google LLC, USA: this data leaves Russia."
+        },
+        "cookies": {
+          "label": "Cookies",
+          "text": "_ym_uid, _ym_d and other _ym* — Yandex Metrica, up to 1 year. _ga and _ga_* — Google Analytics, up to 2 years."
+        },
+        "basis": {
+          "label": "Basis",
+          "text": "Your consent in the note at the bottom of the page. The answer is kept for half a year, then the site asks again."
+        },
+        "change": {
+          "label": "Change it",
+          "text": "With the switch below or the cookie icon in the bottom right corner. Turning analytics off deletes the counters' cookies and reloads the page."
+        }
+      }
+    },
+    "browser": {
+      "title": "What is stored in your browser",
+      "text": "Two entries in localStorage. They are not cookies: they are never sent anywhere and only let the site remember your choices. Clearing the site's data in your browser settings removes them.",
+      "items": "consent:analytics — your answer about analytics and when you gave it;\ngraphics:choice — whether the light graphics mode is on."
+    },
+    "hosting": {
+      "title": "Hosting",
+      "text": "The site is hosted on Yandex Cloud, with servers in Russia. Like any web server, the host receives the technical details of a request (IP address, browser, time) in order to serve the page. I do not collect or analyse them. Fonts and images load from this site itself, with no third-party services."
+    },
+    "rights": {
+      "title": "Your rights",
+      "text": "You can find out what data of yours I have, ask me to correct or delete it, and withdraw your consent. Write to the email or Telegram in the first section — I will reply within 10 working days. If you believe your rights have been violated, you can complain to Roskomnadzor, the Russian data protection authority."
+    },
+    "changes": {
+      "title": "Changes",
+      "text": "If anything in this policy changes, the date at the top of the page will change too. The current version is always here."
+    }
+  }
+}
