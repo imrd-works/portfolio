@@ -374,12 +374,13 @@ export const projects: Project[] = [
     years: '2022–2023',
     art: '/work/monitoring.webp',
     tools: {
-      main: ['Vue 3', 'TypeScript'],
+      main: ['Vue 3', 'JavaScript'],
       groups: {
-        data: ['Pinia'],
+        data: ['Pinia', 'Vee-validate'],
         visual: ['SVG', 'Data Viz'],
-        styles: ['BEM'],
+        styles: ['SCSS', 'BEM'],
         api: ['GraphQL'],
+        quality: ['ESLint', 'Prettier'],
       },
     },
   },

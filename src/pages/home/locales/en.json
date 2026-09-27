@@ -149,9 +149,9 @@
       },
       "monitoring": {
         "title": "Financial Monitoring Portal",
-        "about": "A financial monitoring portal for a public-sector client featuring interactive SVG diagrams, KPI monitoring, large data tables, reports and GraphQL integrations.",
-        "role": "Frontend Developer",
-        "did": "Owned portal modules end to end\nBuilt interactive SVG visualisations and dashboards\nIntegrated data through GraphQL"
+        "about": "A budget monitoring portal for a government client: it gathers data from hundreds of organisations across a large region — their budgets and what the money is spent on.\n\nInteractive charts show the trends over chosen periods. A click on any bar drills down into detailed charts, all the way to money flows and single organisations. The rest is large tables for monitoring cash flows.\n\nThe portal runs in a closed network and is built to the Russian requirements for government systems: security and accessibility. The backend was rigid and let almost nothing change, so the work went on within very narrow limits. The team was five: three frontend developers, a layout developer and a backend developer.",
+        "role": "Frontend Developer / Team Lead",
+        "did": "Led a frontend team of four, a layout developer I trained among them: gave out the tasks by each one's strengths, reviewed the code and signed off the work\nTook the hardest part myself — dynamic charts written from scratch in plain SVG, with no library\nMade the charts responsive and interactive: a click on a bar opens the detailed level, all the way to money flows and single organisations\nBuilt comparisons of the trends across periods\nBuilt authorisation for several role models, each with its own level of access to the data, and data export\nWorked within an inflexible backend: whatever the API did not give, I solved on the frontend\nGave the junior developers the tables and page layouts and helped them through their tasks\nBrought the portal up to the government client's requirements: a closed network, security and accessibility to the Russian requirements for government systems\nIntegrated the data through GraphQL"
       },
       "documents": {
         "title": "Document Management System",
@@ -189,7 +189,7 @@
       "complexSystems": {
         "period": "February 2022 — February 2023",
         "role": "Middle Frontend Developer",
-        "desc": "From doing tasks to owning modules: I carried them whole, from the brief to the release, and agreed the decisions with the team and the backend. I often worked as an outstaffed developer — joining other teams, finding my way through heavy legacy and systems like 1C-Bitrix, where part of the server logic had to live on the frontend. I learned to find a way within any limits."
+        "desc": "From doing tasks to owning modules: I carried them whole, from the brief to the release, and agreed the decisions with the team and the backend. I often worked as an outstaffed developer — joining other teams, finding my way through heavy legacy and systems like 1C-Bitrix, where part of the server logic had to live on the frontend. I learned to find a way within any limits. On one project, still a middle developer, I led a frontend team of four."
       },
       "commercialStart": {
         "period": "March 2021 — January 2022",
