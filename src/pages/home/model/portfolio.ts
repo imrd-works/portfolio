@@ -410,6 +410,7 @@ export const projects: Project[] = [
         styles: ['SCSS', 'BEM'],
         design: ['Figma', 'Pixel Perfect'],
         api: ['REST API', 'Axios'],
+        architecture: ['Component-based'],
         quality: ['ESLint', 'Prettier'],
         repo: ['GitHub'],
       },
