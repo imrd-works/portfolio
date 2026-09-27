@@ -21,12 +21,6 @@ const tabs: Tab[] = ['about', 'tools', 'role']
 // sheets of different lengths, pinned a little askew, so the wall does not read as a grid
 const RATIOS = ['2 / 3', '3 / 5', '3 / 4', '5 / 8', '2 / 3', '4 / 5']
 const TILTS = [-1.6, 1.2, -0.8, 1.8, -1.3, 0.9]
-// the gallery: details of the painting until each project gets its own set
-const DETAILS = [
-  { pos: '30% 25%', tilt: -2 },
-  { pos: '70% 60%', tilt: 1.5 },
-  { pos: '45% 85%', tilt: -1 },
-]
 
 const filter = ref<Filter>('all')
 const live = ref(false)
@@ -34,7 +28,6 @@ const opened = reactive<Record<string, boolean>>({})
 const current = ref<Project | null>(null)
 const activeId = ref<string | null>(null)
 const tab = ref<Tab>('about')
-const lightbox = ref<string | null>(null)
 const state = reactive({ on: false, ready: false, covering: false, bleeding: false, noFade: false })
 
 const lines = (key: string) => t(key).split('\n').filter(Boolean)
@@ -145,7 +138,6 @@ async function enter(p: Project, e?: MouseEvent, { push = true, instant = false 
   const opening = sheetOf(p.id)
   if (opening) swing?.still(opening)
   tab.value = 'about'
-  lightbox.value = null
   if (push) history.pushState({ work: p.id }, '', `#/work/${p.id}`)
   pushed = push
   lockPage(true)
@@ -191,7 +183,6 @@ async function leave({ pop = false } = {}) {
   const id = current.value.id
   const sheet = sheetOf(id)
   const img = pictureOf(id)
-  lightbox.value = null
   state.ready = false
   // keep the history in step (popstate is ignored while busy); a deep link just drops its hash
   if (!pop) {
@@ -231,7 +222,6 @@ async function switchTo(p: Project) {
   if (busy || !current.value) return
   busy = true
   state.ready = false
-  lightbox.value = null
   await painting?.to(-0.1, 600)
   current.value = p
   tab.value = 'about'
@@ -256,8 +246,7 @@ function onTabKey(e: KeyboardEvent) {
 function onKey(e: KeyboardEvent) {
   if (!current.value) return
   if (e.key === 'Escape') {
-    if (lightbox.value) lightbox.value = null
-    else leave()
+    leave()
   }
   // keep the focus inside the painting
   if (e.key === 'Tab' && inside.value) {
@@ -637,27 +626,6 @@ onBeforeUnmount(() => {
               </ul>
             </template>
           </div>
-          <div
-            v-if="current.art"
-            class="work__gallery"
-          >
-            <button
-              v-for="d in DETAILS"
-              :key="d.pos"
-              class="work__detail"
-              type="button"
-              :style="{ '--work-tilt': d.tilt + 'deg' }"
-              :aria-label="t('home.work.zoom')"
-              @click="lightbox = current.art!"
-            >
-              <img
-                class="work__detail-img"
-                :src="current.art"
-                :style="{ objectPosition: d.pos }"
-                alt=""
-              />
-            </button>
-          </div>
           <div class="work__nav">
             <button
               class="work__nav-btn"
@@ -690,19 +658,6 @@ onBeforeUnmount(() => {
         @click="leave()"
       >
         ✕
-      </button>
-      <button
-        v-if="lightbox"
-        class="work__lightbox"
-        type="button"
-        :aria-label="t('home.work.close')"
-        @click="lightbox = null"
-      >
-        <img
-          class="work__lightbox-img"
-          :src="lightbox"
-          alt=""
-        />
       </button>
     </div>
   </section>
@@ -1201,7 +1156,6 @@ onBeforeUnmount(() => {
   &__sheet:focus-visible,
   &__close:focus-visible,
   &__nav-btn:focus-visible,
-  &__detail:focus-visible,
   &__panel:focus-visible {
     outline: 2px solid var(--work-seal);
     outline-offset: 4px;
@@ -1289,51 +1243,6 @@ onBeforeUnmount(() => {
     }
   }
 
-  &__gallery {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-top: 44px;
-  }
-
-  &__detail {
-    position: relative;
-    padding: 0;
-    cursor: zoom-in;
-    background: var(--work-sheet);
-    border: 0;
-    box-shadow: 0 10px 20px -10px rgb(0 0 0 / 30%);
-    transform: rotate(var(--work-tilt, 0deg));
-    transition: transform 0.4s cubic-bezier(0.2, 1.4, 0.4, 1);
-
-    &::before {
-      position: absolute;
-      top: -6px;
-      left: 50%;
-      z-index: 1;
-      width: 9px;
-      height: 9px;
-      margin-left: -4.5px;
-      content: '';
-      background: var(--work-seal);
-      filter: url('#work-rough');
-      border-radius: 50%;
-    }
-
-    &:hover {
-      transform: rotate(0) scale(1.04);
-    }
-  }
-
-  &__detail-img {
-    display: block;
-    width: 100%;
-    max-width: none;
-    aspect-ratio: 1;
-    object-fit: cover;
-    mix-blend-mode: multiply;
-  }
-
   &__nav {
     display: flex;
     gap: 20px;
@@ -1411,26 +1320,6 @@ onBeforeUnmount(() => {
     opacity: 0;
   }
 
-  &__lightbox {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    display: grid;
-    place-items: center;
-    padding: 0;
-    cursor: zoom-out;
-    background: rgb(236 232 225 / 94%);
-    border: 0;
-    animation: work-wet 0.4s ease;
-  }
-
-  &__lightbox-img {
-    max-width: 86vw;
-    max-height: 86vh;
-    mix-blend-mode: multiply;
-    box-shadow: 0 20px 40px -20px rgb(0 0 0 / 35%);
-  }
-
   @media (width < 900px) {
     &__scene {
       left: 0;
@@ -1453,10 +1342,6 @@ onBeforeUnmount(() => {
       max-width: none;
       padding: calc(52vh - 30px) var(--work-inset) 60px;
       margin-left: 0;
-    }
-
-    &__gallery {
-      grid-template-columns: repeat(2, 1fr);
     }
   }
 
