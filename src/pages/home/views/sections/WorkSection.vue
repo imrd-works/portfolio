@@ -414,7 +414,13 @@ onBeforeUnmount(() => {
     </svg>
 
     <div class="work__inner">
-      <p class="work__eyebrow">{{ t('home.work.eyebrow') }}</p>
+      <!-- the river's seal centres itself between its last step and this line -->
+      <p
+        class="work__eyebrow"
+        data-river-next
+      >
+        {{ t('home.work.eyebrow') }}
+      </p>
       <h2 class="work__title">{{ t('home.work.title') }}</h2>
       <p class="work__lead">{{ t('home.work.lead') }}</p>
 

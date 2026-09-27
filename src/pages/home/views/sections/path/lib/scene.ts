@@ -185,9 +185,25 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
     })
     Object.assign(seal.style, {
       left: px0 + RIVER_SEAL.x * s + 'px',
-      top: (mobile ? H - 90 : padTop + RIVER_SEAL.y * s) + 'px',
+      top: (mobile ? H - 90 : sealTop()) + 'px',
     })
     schedule()
+  }
+
+  /**
+   * Desktop: the seal closes the river halfway between its last step and what
+   * comes next (marked `data-river-next`: the work wall's eyebrow), so it sits
+   * in the middle of the gap between the two sections. Its place on the
+   * painting, if nothing follows.
+   */
+  function sealTop(): number {
+    const onPainting = padTop + RIVER_SEAL.y * s
+    const last = steps[steps.length - 1]
+    const next = document.querySelector<HTMLElement>('[data-river-next]')
+    if (!last || !next) return onPainting
+    const lastBottom = last.offsetTop + last.offsetHeight / 2 // the step is centred on its top
+    const nextTop = next.getBoundingClientRect().top - root.getBoundingClientRect().top
+    return nextTop > lastBottom ? (lastBottom + nextTop) / 2 : onPainting
   }
 
   /** Desktop: keep the band around the screen; it only moves near its edge. */
