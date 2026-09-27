@@ -29,10 +29,29 @@ function heroBottom() {
   return hero ? hero.offsetTop + hero.offsetHeight * 0.6 : innerHeight
 }
 
+const SECTIONS: SectionId[] = [...LINKS, 'contact']
+
+/**
+ * Which section is being read: the one across the middle of the screen, or none
+ * (the hero). Measured on every frame the page scrolls rather than left to an
+ * IntersectionObserver on a zero-height line, which browsers (Safari above all)
+ * report unreliably when a jump flies past several sections at once: the mark
+ * then stayed on the section the jump started from.
+ */
+function spy() {
+  const middle = innerHeight / 2
+  current.value =
+    SECTIONS.find((id) => {
+      const box = document.getElementById(id)?.getBoundingClientRect()
+      return box && box.top <= middle && box.bottom > middle
+    }) ?? null
+}
+
 function onScroll() {
   if (frame) return
   frame = requestAnimationFrame(() => {
     frame = 0
+    spy()
     const y = scrollY
     const dy = y - lastY
     lastY = y
@@ -53,30 +72,18 @@ function onScroll() {
   })
 }
 
-// which section is being read: the one across the middle of the screen
-let spy: IntersectionObserver | null = null
-
 onMounted(() => {
   lastY = scrollY
+  spy()
   addEventListener('scroll', onScroll, { passive: true })
-  spy = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) current.value = entry.target.id as SectionId
-      }
-    },
-    { rootMargin: '-50% 0px -50% 0px' }
-  )
-  for (const id of [...LINKS, 'contact']) {
-    const el = document.getElementById(id)
-    if (el) spy.observe(el)
-  }
+  // the window resized: the sections moved under the middle of the screen
+  addEventListener('resize', onScroll)
 })
 
 onBeforeUnmount(() => {
   removeEventListener('scroll', onScroll)
+  removeEventListener('resize', onScroll)
   cancelAnimationFrame(frame)
-  spy?.disconnect()
 })
 
 // a link was followed: the page travels to the section without writing its
