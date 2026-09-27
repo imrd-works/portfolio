@@ -25,6 +25,7 @@ jobs:
           VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
           VITE_GOOGLE_SITE_VERIFICATION: ${{ secrets.VITE_GOOGLE_SITE_VERIFICATION }}
           VITE_YANDEX_VERIFICATION: ${{ secrets.VITE_YANDEX_VERIFICATION }}
+          VITE_YANDEX_METRIKA_ID: ${{ secrets.VITE_YANDEX_METRIKA_ID }}
         run: |
           npm ci
           npm run build
