@@ -102,7 +102,6 @@
       "site": "Website"
     },
     "toolGroups": {
-      "base": "Foundation",
       "data": "Data, state, forms",
       "ui": "UI and components",
       "visual": "Visualisation and motion",

@@ -1201,7 +1201,8 @@ onBeforeUnmount(() => {
   &__sheet:focus-visible,
   &__close:focus-visible,
   &__nav-btn:focus-visible,
-  &__detail:focus-visible {
+  &__detail:focus-visible,
+  &__panel:focus-visible {
     outline: 2px solid var(--work-seal);
     outline-offset: 4px;
   }

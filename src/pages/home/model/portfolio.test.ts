@@ -238,6 +238,8 @@ describe('project tools', () => {
       'Postman',
     ])
     for (const p of projects) {
+      // inked: what it is written in, the same way everywhere
+      expect(p.tools.main).toContain('TypeScript')
       const all = allToolsOf(p)
       expect(all.slice(0, p.tools.main.length)).toEqual(p.tools.main)
       expect(new Set(all).size).toBe(all.length)

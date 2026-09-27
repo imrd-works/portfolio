@@ -255,15 +255,15 @@ export interface Project {
    */
   art: string
   /**
-   * Latin stack names, identical in both locales: `main` are shown inked, the rest by
-   * group, each under its caption (`home.work.toolGroups.*`).
+   * Latin stack names, identical in both locales. `main`, shown inked, is what the project
+   * is written in: its framework and language, the same way for every project; the rest
+   * comes by group, each under its caption (`home.work.toolGroups.*`).
    */
   tools: { main: string[]; groups: Partial<Record<ToolGroup, string[]>> }
 }
 
 /** The groups a project's tools are shown in, in this order. */
 export type ToolGroup =
-  | 'base'
   | 'data'
   | 'ui'
   | 'visual'
@@ -280,7 +280,6 @@ export type ToolGroup =
   | 'repo'
 
 export const toolGroups: ToolGroup[] = [
-  'base',
   'data',
   'ui',
   'visual',
@@ -325,9 +324,8 @@ export const projects: Project[] = [
     years: '2024–2026',
     art: '/work/education.webp',
     tools: {
-      main: ['Nuxt 3 / 4', 'TypeScript'],
+      main: ['Nuxt 3 / 4', 'Vue 3', 'TypeScript'],
       groups: {
-        base: ['Vue 3'],
         data: ['Pinia', 'Vue Query', 'VueUse', 'Vee-validate / Yup'],
         ui: ['Vuetify', 'Vue Cal', 'Vue Datepicker', 'Vuedraggable', 'Maska'],
         visual: ['Highcharts'],
@@ -358,13 +356,12 @@ export const projects: Project[] = [
     years: '2026',
     art: '/work/bitcoin.webp',
     tools: {
-      main: ['Next.js', 'GSAP'],
+      main: ['Next.js', 'React', 'TypeScript'],
       groups: {
-        base: ['React', 'TypeScript'],
-        visual: ['Lottie', 'Swiper'],
+        visual: ['GSAP', 'Lottie', 'Swiper'],
         styles: ['SCSS', 'CSS Modules', 'BEM'],
         content: ['Sanity CMS', 'Portable Text'],
-        quality: ['ESLint'],
+        quality: ['ESLint', 'Prettier'],
         seo: ['SEO', 'Google Tag Manager', 'Google Analytics', 'Microsoft Clarity', 'HubSpot'],
         delivery: ['Vercel', 'CI/CD', 'Telegram Bot API'],
       },
@@ -376,12 +373,12 @@ export const projects: Project[] = [
     years: '2022–2023',
     art: '/work/monitoring.webp',
     tools: {
-      main: ['Vue 3', 'GraphQL'],
+      main: ['Vue 3', 'TypeScript'],
       groups: {
-        base: ['TypeScript'],
         data: ['Pinia'],
         visual: ['SVG', 'Data Viz'],
         styles: ['BEM'],
+        api: ['GraphQL'],
       },
     },
   },
@@ -391,9 +388,9 @@ export const projects: Project[] = [
     years: '2022–2023',
     art: '/work/documents.webp',
     tools: {
-      main: ['Vue 3', 'Pinia'],
+      main: ['Vue 3', 'TypeScript'],
       groups: {
-        base: ['TypeScript'],
+        data: ['Pinia'],
         visual: ['Highcharts'],
         styles: ['BEM'],
         api: ['REST API'],
@@ -406,8 +403,8 @@ export const projects: Project[] = [
     years: '2022–2023',
     art: '/work/process.webp',
     tools: {
-      main: ['Vue 2.7', 'Pinia'],
-      groups: { base: ['TypeScript'], styles: ['BEM'], api: ['REST API', 'WebSocket'] },
+      main: ['Vue 2.7', 'TypeScript'],
+      groups: { data: ['Pinia'], styles: ['BEM'], api: ['REST API', 'WebSocket'] },
     },
   },
 ]
