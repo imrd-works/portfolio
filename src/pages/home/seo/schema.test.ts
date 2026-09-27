@@ -40,7 +40,7 @@ describe('portfolio JSON-LD', () => {
     expect(String(ru.ProfilePage.url).endsWith('/')).toBe(true)
     expect(en.ProfilePage.inLanguage).toBe('en-US')
     expect(ru.ProfilePage.inLanguage).toBe('ru-RU')
-    expect(String(en.ProfilePage.primaryImageOfPage)).toContain('/og-en.jpg')
+    expect(String(en.ProfilePage.primaryImageOfPage)).toMatch(/^https?:\/\/.+\/og\.jpg$/)
   })
 
   it('links the person to reachable profiles only', () => {

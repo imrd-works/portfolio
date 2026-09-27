@@ -1,11 +1,14 @@
 /**
- * Renders the social preview images (`public/og-ru.jpg`, `public/og-en.jpg`)
- * and the PNG app icons with headless Chromium.
+ * Renders the social preview image (`public/og.jpg`) and the PNG app icons with
+ * headless Chromium.
  *
- * The cards are built from the same tokens as the site — background, accent
- * gradient, Geologica/Manrope — so a link shared in Telegram, LinkedIn or
- * Slack looks like the page it points to. Output is committed; rerun this
- * only when the copy or the design changes:
+ * One card for every page and both languages, in English: a link is previewed
+ * by the messenger's own robot, once, the same for everyone who sees it, so the
+ * card cannot follow a reader's language; English reads for all of them. It is
+ * the site's paper and ink: the name and the role in the site's type, the
+ * traveller on the ledge (`scripts/og/traveller.webp`, the painting already
+ * toned to the paper), and the only colour the site's cinnabar, the sun and the
+ * seal. Output is committed; rerun this only when the card changes:
  *
  *   npx playwright install chromium && npm run og:generate
  */
@@ -23,131 +26,93 @@ const publicDir = path.join(root, 'public')
 
 // The card prints the site's own host, so it follows VITE_SITE_URL.
 const env = loadEnv('production', root, '')
-const siteLabel = (process.env.VITE_SITE_URL || env.VITE_SITE_URL || 'localhost')
+const siteLabel = (process.env.VITE_SITE_URL || env.VITE_SITE_URL || 'https://rassomakhin.com')
   .replace(/^https?:\/\//, '')
   .replace(/\/+$/, '')
 
-const CARDS = {
-  ru: {
-    eyebrow: 'Открыт к предложениям · Vue / Nuxt · Team Lead',
-    name: 'Даниил Рассомахин',
-    role: 'Frontend-разработчик · Fullstack · Team Lead',
-    lead: 'Корпоративные и государственные системы, дашборды, запуск продуктов с нуля.',
-    chips: ['Vue 3', 'Nuxt 4', 'TypeScript', 'DDD / FSD', 'Data Viz'],
-  },
-  en: {
-    eyebrow: 'Open to opportunities · Vue / Nuxt · Team Lead',
-    name: 'Daniel Rassomakhin',
-    role: 'Frontend Developer · Fullstack · Team Lead',
-    lead: 'Enterprise and public-sector systems, dashboards, products built from scratch.',
-    chips: ['Vue 3', 'Nuxt 4', 'TypeScript', 'DDD / FSD', 'Data Viz'],
-  },
+const CARD = {
+  eyebrow: 'Portfolio',
+  name: ['Daniel', 'Rassomakhin'],
+  role: ['Senior Frontend Developer', 'Fullstack · Team Lead'],
+  seal: 'DR',
 }
 
 async function dataUri(file, mime) {
-  const buffer = await readFile(path.join(publicDir, file))
+  const buffer = await readFile(path.isAbsolute(file) ? file : path.join(publicDir, file))
   return `data:${mime};base64,${buffer.toString('base64')}`
-}
-
-// the role in two lines, the title and the rest ("Fullstack · Team Lead"), as in the hero
-// on a narrow screen: never a word or a dot left hanging at a line's end
-function roleLines(role) {
-  const [title, ...rest] = role.split(' · ')
-  return [title, rest.join(' · ')]
-    .filter(Boolean)
-    .map((line) => `<span class="role-line">${escapeHtml(line)}</span>`)
-    .join('')
 }
 
 function escapeHtml(value) {
   return value.replace(/[&<>"]/g, (char) => `&#${char.charCodeAt(0)};`)
 }
 
-async function cardHtml(locale, fonts, avatar, logo) {
-  const card = CARDS[locale]
+const lines = (parts) => parts.map(escapeHtml).join('<br>')
 
+function cardHtml(fonts, art) {
   return `<!doctype html>
-<html lang="${locale}">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <style>
-  @font-face { font-family: Geologica; font-weight: 200 800; src: url(${fonts.geologicaLatin}) format('woff2-variations'); unicode-range: U+0000-00FF; }
-  @font-face { font-family: Geologica; font-weight: 200 800; src: url(${fonts.geologicaCyrillic}) format('woff2-variations'); unicode-range: U+0400-045F; }
-  @font-face { font-family: Manrope; font-weight: 200 800; src: url(${fonts.manropeLatin}) format('woff2-variations'); unicode-range: U+0000-00FF; }
-  @font-face { font-family: Manrope; font-weight: 200 800; src: url(${fonts.manropeCyrillic}) format('woff2-variations'); unicode-range: U+0400-045F; }
+  @font-face { font-family: Unbounded; font-weight: 200 900; src: url(${fonts.unbounded}) format('woff2'); }
+  @font-face { font-family: 'JetBrains Mono'; font-weight: 100 800; src: url(${fonts.mono}) format('woff2'); }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  /* the site's paper and ink */
   body {
     width: 1200px; height: 630px;
-    display: flex; align-items: center; gap: 64px;
-    padding: 76px 80px;
     position: relative; overflow: hidden;
-    background: #06050d;
-    color: #f4f2ff;
-    font-family: Manrope, sans-serif;
+    background: #ece8e1;
+    color: #101214;
     -webkit-font-smoothing: antialiased;
   }
-  .blob { position: absolute; border-radius: 50%; filter: blur(90px); }
-  .blob--a { width: 620px; height: 620px; top: -240px; left: -160px;
-    background: radial-gradient(circle at 30% 30%, rgb(99 102 241 / 62%), transparent 66%); }
-  .blob--b { width: 560px; height: 560px; right: -140px; top: 120px;
-    background: radial-gradient(circle at 50% 50%, rgb(167 139 250 / 52%), transparent 66%); }
-  .grid { position: absolute; inset: 0;
-    background-image: radial-gradient(rgb(255 255 255 / 5%) 1px, transparent 1px);
-    background-size: 44px 44px;
-    mask-image: radial-gradient(ellipse at 40% 30%, #000, transparent 78%); }
 
-  .content { position: relative; flex: 1; min-width: 0; }
+  /* the painting fades into the paper at its edges: no frame, no seam */
+  .art { position: absolute; left: 520px; top: -18px; width: 680px; height: 680px; }
 
-  .eyebrow { display: inline-flex; align-items: center; gap: 12px;
-    padding: 9px 18px; margin-bottom: 30px;
-    font-size: 19px; color: #b9b4d6;
-    background: rgb(255 255 255 / 4%);
-    border: 1px solid rgb(255 255 255 / 12%); border-radius: 30px; }
-  .dot { width: 9px; height: 9px; border-radius: 50%; background: #4ade80; }
+  /* the hero's sun over the mountains, soft-edged */
+  .sun { position: absolute; left: 650px; top: 78px; width: 50px; height: 50px; border-radius: 50%;
+    background: radial-gradient(circle, rgb(214 86 66 / 82%) 0 55%, rgb(214 86 66 / 45%) 66%, rgb(214 86 66 / 0%) 72%);
+    filter: blur(1.4px); mix-blend-mode: multiply; }
 
-  .name { font-family: Geologica, sans-serif; font-weight: 800;
-    font-size: 74px; line-height: 1.02; letter-spacing: -0.03em;
-    background: linear-gradient(100deg, #ffffff 10%, #a78bfa 92%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .role { margin-top: 18px; font-size: 30px; font-weight: 600; color: #d7d3ef; }
-  .role-line { display: block; white-space: nowrap; }
-  .lead { margin-top: 18px; font-size: 22px; line-height: 1.45; color: #9d98bd; max-width: 620px; }
+  .text { position: absolute; left: 76px; top: 0; bottom: 0; width: 520px;
+    display: flex; flex-direction: column; justify-content: center; }
+  .eyebrow { display: flex; align-items: center; gap: 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 15px; letter-spacing: 0.34em;
+    text-transform: uppercase; color: #3a4454; }
+  .eyebrow::before { content: ''; width: 28px; height: 2px; background: #c73826; }
+  .name { margin-top: 26px; font-family: Unbounded, sans-serif; font-weight: 300;
+    font-size: 66px; line-height: 1.04; letter-spacing: -0.025em; }
+  .role { margin-top: 28px; font-family: 'JetBrains Mono', monospace; font-size: 16px;
+    line-height: 1.75; letter-spacing: 0.12em; text-transform: uppercase; color: #2a2f36; }
+  .site { position: absolute; left: 76px; bottom: 52px;
+    font-family: 'JetBrains Mono', monospace; font-size: 15px; letter-spacing: 0.08em; color: #3a4454; }
 
-  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 34px; }
-  .chip { padding: 9px 16px; font-size: 18px; color: #cfcae8;
-    background: rgb(255 255 255 / 4%);
-    border: 1px solid rgb(255 255 255 / 12%); border-radius: 30px; }
-
-  .aside { position: relative; display: flex; flex-direction: column; align-items: center; gap: 26px; }
-  .portrait { position: relative; width: 300px; height: 340px; border-radius: 34px; overflow: hidden;
-    border: 1px solid rgb(255 255 255 / 16%); box-shadow: 0 30px 90px rgb(0 0 0 / 55%); }
-  .portrait img { width: 100%; height: 100%; object-fit: cover; object-position: center 42%; }
-  .glow { position: absolute; inset: -22px; border-radius: 44px; z-index: -1;
-    background: linear-gradient(135deg, rgb(99 102 241 / 55%), rgb(167 139 250 / 25%), transparent);
-    filter: blur(30px); }
-  .site { display: flex; align-items: center; gap: 12px; font-size: 19px; color: #8f8ab0; }
-  .site img { width: 26px; height: 26px; }
+  /* the seal, pressed in askew, its edge made rough as on the site */
+  .seal { position: absolute; right: 64px; bottom: 48px; width: 58px; height: 58px;
+    display: grid; place-items: center;
+    font-family: Unbounded, sans-serif; font-weight: 500; font-size: 19px; letter-spacing: -0.04em;
+    color: #ece8e1; background: #c23b2a; border-radius: 4px;
+    transform: rotate(-5deg); filter: url(#rough); opacity: 0.94; mix-blend-mode: multiply; }
 </style>
 </head>
 <body>
-  <div class="blob blob--a"></div>
-  <div class="blob blob--b"></div>
-  <div class="grid"></div>
-
-  <div class="content">
-    <div class="eyebrow"><span class="dot"></span>${escapeHtml(card.eyebrow)}</div>
-    <div class="name">${escapeHtml(card.name)}</div>
-    <div class="role">${roleLines(card.role)}</div>
-    <div class="lead">${escapeHtml(card.lead)}</div>
-    <div class="chips">${card.chips.map((chip) => `<span class="chip">${escapeHtml(chip)}</span>`).join('')}</div>
+  <svg width="0" height="0" style="position: absolute">
+    <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3" result="n" />
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3" />
+    </filter>
+  </svg>
+  <img class="art" src="${art}" alt="">
+  <div class="sun"></div>
+  <div class="text">
+    <div class="eyebrow">${escapeHtml(CARD.eyebrow)}</div>
+    <div class="name">${lines(CARD.name)}</div>
+    <div class="role">${lines(CARD.role)}</div>
   </div>
-
-  <div class="aside">
-    <div class="portrait"><span class="glow"></span><img src="${avatar}" alt=""></div>
-    <div class="site"><img src="${logo}" alt="">${escapeHtml(siteLabel)}</div>
-  </div>
+  <div class="site">${escapeHtml(siteLabel)}</div>
+  <div class="seal">${escapeHtml(CARD.seal)}</div>
 </body>
 </html>`
 }
@@ -171,12 +136,10 @@ function iconHtml(logo, { size, maskable }) {
 }
 
 const fonts = {
-  geologicaLatin: await dataUri('fonts/geologica-latin.woff2', 'font/woff2'),
-  geologicaCyrillic: await dataUri('fonts/geologica-cyrillic.woff2', 'font/woff2'),
-  manropeLatin: await dataUri('fonts/manrope-latin.woff2', 'font/woff2'),
-  manropeCyrillic: await dataUri('fonts/manrope-cyrillic.woff2', 'font/woff2'),
+  unbounded: await dataUri('fonts/unbounded-latin.woff2', 'font/woff2'),
+  mono: await dataUri('fonts/jetbrains-mono-latin.woff2', 'font/woff2'),
 }
-const avatar = await dataUri('avatar.webp', 'image/webp')
+const art = await dataUri(path.join(root, 'scripts/og/traveller.webp'), 'image/webp')
 const logo = await dataUri('favicon.svg', 'image/svg+xml')
 
 // `CHROMIUM_PATH` lets CI point at a Chromium that is already on the image.
@@ -190,15 +153,13 @@ try {
     deviceScaleFactor: 1,
   })
 
-  for (const locale of Object.keys(CARDS)) {
-    await page.setContent(await cardHtml(locale, fonts, avatar, logo), { waitUntil: 'load' })
-    await page.evaluate(() => document.fonts.ready)
-    // JPEG, not PNG: the card is a photo over gradients, where JPEG is
-    // roughly a third of the bytes at a quality nobody can see the difference in.
-    const buffer = await page.screenshot({ type: 'jpeg', quality: 90 })
-    await writeFile(path.join(publicDir, `og-${locale}.jpg`), buffer)
-    console.log(`og: public/og-${locale}.jpg (${(buffer.length / 1024).toFixed(0)} kB)`)
-  }
+  await page.setContent(cardHtml(fonts, art), { waitUntil: 'load' })
+  await page.evaluate(() => document.fonts.ready)
+  // JPEG, not PNG: a wash of ink over paper, where JPEG is a fraction of the
+  // bytes at a quality nobody can see the difference in.
+  const buffer = await page.screenshot({ type: 'jpeg', quality: 90 })
+  await writeFile(path.join(publicDir, 'og.jpg'), buffer)
+  console.log(`og: public/og.jpg (${(buffer.length / 1024).toFixed(0)} kB)`)
 
   const ICONS = [
     { file: 'apple-touch-icon.png', size: 180, maskable: false },

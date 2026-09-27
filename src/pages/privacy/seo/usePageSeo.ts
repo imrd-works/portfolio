@@ -14,7 +14,7 @@ export function usePageSeo() {
     title: t('privacy.meta.title'),
     description: t('privacy.meta.description'),
     canonicalPath: localizedPath(PRIVACY_PATH, locale.value),
-    ogImagePath: `/og-${locale.value}.jpg`,
+    ogImagePath: '/og.jpg',
     ogImageAlt: t('privacy.title'),
     alternates: {
       ru: localizedPath(PRIVACY_PATH, 'ru'),

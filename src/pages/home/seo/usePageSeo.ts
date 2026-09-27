@@ -22,7 +22,7 @@ export function usePageSeo() {
       title: t('home.meta.title'),
       description: t('home.meta.description'),
       canonicalPath: localeUrlPath(active),
-      ogImagePath: `/og-${active}.jpg`,
+      ogImagePath: '/og.jpg',
       ogImageAlt: t('home.meta.ogAlt'),
       ogType: 'profile' as const,
       alternates: true,

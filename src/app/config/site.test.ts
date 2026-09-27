@@ -29,7 +29,7 @@ describe('site config', () => {
   it('builds absolute URLs without doubling slashes', () => {
     expect(absoluteUrl('/')).toMatch(/^https?:\/\/[^/]+\/$/)
     expect(absoluteUrl('en/')).toBe(absoluteUrl('/en/'))
-    expect(absoluteUrl('/og-ru.jpg').endsWith('//og-ru.jpg')).toBe(false)
+    expect(absoluteUrl('/og.jpg').endsWith('//og.jpg')).toBe(false)
   })
 
   it('finds the same page in the other language, in the canonical form', () => {

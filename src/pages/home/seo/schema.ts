@@ -100,7 +100,7 @@ export function buildPortfolioSchema(input: PersonSchemaInput): Record<string, u
         isPartOf: { '@id': websiteId },
         about: { '@id': personId },
         mainEntity: { '@id': personId },
-        primaryImageOfPage: absoluteUrl(`/og-${input.locale}.jpg`),
+        primaryImageOfPage: absoluteUrl('/og.jpg'),
       },
       {
         '@type': 'ItemList',
