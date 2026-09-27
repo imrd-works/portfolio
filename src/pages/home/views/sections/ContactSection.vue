@@ -115,7 +115,7 @@ onMounted(async () => {
 
   const [{ mountPaper }, { makePaw }] = await Promise.all([
     import('./contact/lib/paper'),
-    import('./path/lib/paw'),
+    import('@/shared/lib/ink/paw'),
   ])
   if (unmounted) return
 

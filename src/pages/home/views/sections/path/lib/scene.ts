@@ -16,7 +16,7 @@
  */
 import { RIVER_COURSE, RIVER_FLOW, RIVER_IMAGE, RIVER_SEAL, RIVER_STEPS } from '../config'
 import { createRiverRenderer, type RiverRenderer } from './renderer'
-import { CINNABAR, makePaw, type PawSprite } from './paw'
+import { CINNABAR, makePaw, type PawSprite } from '@/shared/lib/ink/paw'
 import { drawingRatio, graphics, onGraphicsChange, probeGraphics } from '@/shared/lib/graphics'
 
 export interface RiverElements {

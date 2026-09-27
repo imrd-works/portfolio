@@ -2,7 +2,8 @@
  * A wolverine's front print, painted in cinnabar (the hero's sun): five toes on a wide arc (the
  * inner one smaller and set back), claw nicks ahead of them, a broad chevron
  * pad. The paint pools at the edges as it dries, and a faint wet halo soaks into
- * the paper around it. Drawn toes-up; the scene turns it to walk downstream.
+ * the paper around it. Drawn toes-up; whoever lays a trail (the river, the
+ * 404 page) turns it the way the wolverine walks.
  */
 export interface PawSprite {
   canvas: HTMLCanvasElement
