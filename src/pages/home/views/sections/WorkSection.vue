@@ -693,8 +693,16 @@ onBeforeUnmount(() => {
     position: absolute;
   }
 
+  // the river's painting ends in empty paper below its seal, and the portrait
+  // after the wall begins in it: the wall keeps close to both
   &__inner {
-    padding: 120px var(--page-pad) 120px;
+    padding: 56px var(--page-pad) 64px;
+  }
+
+  @media (width < 700px) {
+    &__inner {
+      padding-bottom: 40px;
+    }
   }
 
   &__eyebrow {

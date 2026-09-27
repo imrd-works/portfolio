@@ -109,7 +109,8 @@ useInkBloom(art, { from: { x: 0.45, y: 0.62 } })
   --about-seal: #c23b2a;
 
   position: relative;
-  padding: 120px var(--page-pad);
+  // the portrait opens on its own empty paper: less padding above it
+  padding: 72px var(--page-pad) 120px;
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   line-height: normal;
   color: var(--about-ink);
@@ -293,6 +294,11 @@ useInkBloom(art, { from: { x: 0.45, y: 0.62 } })
       max-width: 420px;
       margin: 0 auto;
     }
+  }
+
+  // a phone's column is narrow: the same gaps look twice as wide there
+  @media (width < 700px) {
+    padding-top: 32px;
   }
 
   @media (prefers-reduced-motion: reduce) {
