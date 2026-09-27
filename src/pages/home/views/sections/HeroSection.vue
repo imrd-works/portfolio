@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { INK_IMAGE } from './hero/config'
 import type { Caption, InkScene } from './hero/lib/scene'
 import { onGraphicsChange } from '@/shared/lib/graphics'
+import { LocaleSwitch } from '@/shared/ui'
 
 const { t } = useI18n()
 // the role in two parts, the title and the rest ("Fullstack · Team Lead"): on a narrow
@@ -198,6 +199,10 @@ function replay() {
           >
             {{ t('home.hero.replay') }}
           </button>
+          <LocaleSwitch
+            class="hero__control hero__control--lang"
+            :class="{ 'hero__control--shown': shown.controls }"
+          />
         </div>
       </div>
       <div class="hero__roller"></div>
@@ -498,6 +503,12 @@ function replay() {
     transition: opacity 0.6s ease;
     pointer-events: none;
 
+    // the language switch, a link, under "paint it again"
+    &--lang {
+      top: calc(clamp(30px, 9.4vh, 114px) + 30px);
+      text-decoration: none;
+    }
+
     &--shown {
       pointer-events: auto;
       opacity: 0.75;
@@ -553,6 +564,11 @@ function replay() {
       right: auto;
       bottom: 52px;
       left: clamp(20px, 5.5vw, 96px);
+
+      &--lang {
+        top: auto;
+        bottom: 28px;
+      }
     }
 
     &__seal {

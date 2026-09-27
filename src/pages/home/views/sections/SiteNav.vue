@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { LocaleSwitch } from '@/shared/ui'
 
 const { t } = useI18n()
 
@@ -130,6 +131,8 @@ function go(event: MouseEvent) {
           >{{ t(`home.nav.${id}`) }}</a
         >
       </div>
+
+      <LocaleSwitch class="site-nav__lang" />
 
       <a
         class="site-nav__write"
@@ -285,6 +288,24 @@ function go(event: MouseEvent) {
     transform: none;
   }
 
+  /* the other language: quiet, like the section links, stays on phones too */
+  &__lang {
+    padding: 6px 0;
+    font-size: 11.5px;
+    color: var(--site-nav-ink-soft);
+    text-decoration: none;
+    letter-spacing: 0.12em;
+    border-bottom: 1px solid rgb(58 68 84 / 35%);
+    transition:
+      color 0.2s,
+      border-color 0.2s;
+  }
+
+  &__lang:hover {
+    color: var(--site-nav-ink);
+    border-bottom-color: var(--site-nav-sun);
+  }
+
   /* the one call to action: a stamp in the sun's colour */
   &__write {
     padding: 7px 12px 6px;
@@ -323,6 +344,7 @@ function go(event: MouseEvent) {
   &__link:focus-visible,
   &__brand:focus-visible,
   &__write:focus-visible,
+  &__lang:focus-visible,
   &__menu:focus-visible {
     outline: 2px solid var(--site-nav-sun);
     outline-offset: 4px;

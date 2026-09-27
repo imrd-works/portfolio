@@ -2,6 +2,7 @@ import { createMemoryHistory, createRouter, createWebHistory, START_LOCATION } f
 import type { Router, RouteRecordRaw } from 'vue-router'
 import { setupRouterMiddleware } from './middleware'
 import { portfolioRoutes, notFoundRoute } from '@/pages'
+import { localeFromPath } from '@/app/config/site'
 
 /**
  * Locale lives in the URL, not in localStorage: `/` is Russian, `/en/` is
@@ -22,8 +23,9 @@ export function createAppRouter(ssr = false): Router {
       if (/^#[\w-]+$/.test(to.hash)) return { el: to.hash, behavior: 'smooth' }
       // the router remembers the scroll only for going back and forward
       if (savedPosition) return savedPosition
-      // Switching RU <-> EN is the same page in another language: stay put.
-      if (to.path !== from.path && to.name === from.name) return false
+      // Switching RU <-> EN is the same page in another language: stay put. The two
+      // routes have their own names (Home, HomeEn), so it is told by the language.
+      if (localeFromPath(to.path) !== localeFromPath(from.path)) return false
       return { top: 0 }
     },
   })

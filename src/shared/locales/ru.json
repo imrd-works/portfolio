@@ -9,5 +9,8 @@
   "errors": {
     "network": "Ошибка запроса",
     "unauthorized": "Требуется авторизация"
+  },
+  "language": {
+    "name": "Русский"
   }
 }
