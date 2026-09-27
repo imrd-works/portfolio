@@ -315,6 +315,8 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
   let head = REDUCED ? 1 : 0
   /** Where the current stopped on a weak device (seconds), or null while it runs. */
   let stillAt: number | null = null
+  /** How long the current stood still, so it goes on from where it stopped, not with a jump. */
+  let stillFor = 0
   let dry = REDUCED ? 1 : 0
   const reached: number[] = []
   let sealed = false
@@ -416,8 +418,12 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
 
     // the current keeps the water moving; with reduced motion it stands still, and on a
     // weak device it stops where it is (no jump) and the painting is left alone at rest
-    if (graphics.low) stillAt ??= now / 1000
-    const time = REDUCED ? 0 : (stillAt ?? now / 1000)
+    if (graphics.low) stillAt ??= now / 1000 - stillFor
+    else if (stillAt !== null) {
+      stillFor = now / 1000 - stillAt
+      stillAt = null
+    }
+    const time = REDUCED ? 0 : (stillAt ?? now / 1000 - stillFor)
     renderer!.draw({ rect: { left: px0, top, width: pw, height: ph }, head, dry, time })
     const wet = drawPrints(now, top)
 

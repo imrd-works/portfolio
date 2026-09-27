@@ -26,5 +26,10 @@
   },
   "language": {
     "name": "English"
+  },
+  "settings": {
+    "label": "Settings",
+    "light": "Light mode",
+    "lightHint": "Simpler graphics: no mist, no river current, no swinging paintings. For weak devices and saving battery."
   }
 }

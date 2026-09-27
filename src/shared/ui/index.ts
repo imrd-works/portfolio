@@ -3,6 +3,7 @@ export { default as AuroraBackdrop } from './AuroraBackdrop/AuroraBackdrop.vue'
 export { default as CustomCursor } from './CustomCursor/CustomCursor.vue'
 export { default as CountUp } from './CountUp/CountUp.vue'
 export { default as LocaleSwitch } from './LocaleSwitch/LocaleSwitch.vue'
+export { default as SettingsMenu } from './SettingsMenu/SettingsMenu.vue'
 
 // Layout primitives
 export { default as Section } from '@/shared/layout/Section/Section.vue'

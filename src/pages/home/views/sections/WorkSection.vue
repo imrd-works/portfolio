@@ -311,8 +311,12 @@ onMounted(async () => {
   const swings = () =>
     !REDUCED && !graphics.low && window.matchMedia?.('(hover: hover) and (pointer: fine)').matches
   if (wall.value && swings()) swing = createSwing(wall.value)
+  // on and off with the light mode, both ways
   offGraphics = onGraphicsChange(() => {
-    if (swings()) return
+    if (swings()) {
+      if (!swing && wall.value) swing = createSwing(wall.value)
+      return
+    }
     swing?.dispose()
     swing = null
   })

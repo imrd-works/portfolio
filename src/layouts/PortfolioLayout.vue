@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { AuroraBackdrop, CustomCursor } from '@/shared/ui'
-import GraphicsOffer from './GraphicsOffer.vue'
+import PageCorner from './PageCorner.vue'
 
 const { t } = useI18n()
 </script>
@@ -19,7 +19,7 @@ const { t } = useI18n()
 
     <AuroraBackdrop />
     <CustomCursor />
-    <GraphicsOffer />
+    <PageCorner />
     <main
       id="main-content"
       class="portfolio-layout__main"

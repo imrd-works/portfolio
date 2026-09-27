@@ -45,7 +45,8 @@ onMounted(async () => {
   if (unmounted) return
   // the light mode drops the mist (the scene starts without it when already in it)
   offGraphics = onGraphicsChange((level) => {
-    if (level === 'low') scene?.setFog(false)
+    // off in the light mode, and back when it is turned off (not with reduced motion)
+    scene?.setFog(level !== 'low' && !matchMedia('(prefers-reduced-motion: reduce)').matches)
   })
   scene = mountInkScene(
     {

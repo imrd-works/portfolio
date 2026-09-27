@@ -77,11 +77,8 @@ function answer(level: GraphicsLevel) {
   --graphics-offer-ink-soft: #3a4454;
   --graphics-offer-sun: #c73826;
 
+  // placed by PageCorner, over the settings gear
   &__note {
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
-    z-index: 9400;
     max-width: 340px;
     padding: 16px 18px 14px;
     color: var(--graphics-offer-ink);
@@ -143,7 +140,6 @@ function answer(level: GraphicsLevel) {
 
   @media (width <= 700px) {
     &__note {
-      left: 16px;
       max-width: none;
     }
   }
