@@ -242,7 +242,7 @@ export const stats: StatItem[] = [
   { id: 'lead', value: 2, suffix: '' },
 ]
 
-export type ProjectKind = 'system' | 'product' | 'landing'
+export type ProjectKind = 'system' | 'product' | 'site'
 
 export interface Project {
   id: 'sigma' | 'education' | 'bitcoin' | 'moex' | 'irlix' | 'baccasoft'
@@ -297,7 +297,7 @@ export const toolGroups: ToolGroup[] = [
   'repo',
 ]
 
-export const projectKinds: ProjectKind[] = ['system', 'product', 'landing']
+export const projectKinds: ProjectKind[] = ['system', 'product', 'site']
 
 export const projects: Project[] = [
   {
@@ -354,17 +354,19 @@ export const projects: Project[] = [
   },
   {
     id: 'bitcoin',
-    kind: 'landing',
+    kind: 'site',
     years: '2026',
     art: '/work/bitcoin.webp',
     tools: {
       main: ['Next.js', 'GSAP'],
       groups: {
-        base: ['TypeScript'],
-        styles: ['BEM'],
-        content: ['Sanity CMS'],
-        seo: ['SEO', 'Analytics'],
-        delivery: ['Docker', 'CI/CD'],
+        base: ['React', 'TypeScript'],
+        visual: ['Lottie', 'Swiper'],
+        styles: ['SCSS', 'CSS Modules', 'BEM'],
+        content: ['Sanity CMS', 'Portable Text'],
+        quality: ['ESLint'],
+        seo: ['SEO', 'Google Tag Manager', 'Google Analytics', 'Microsoft Clarity', 'HubSpot'],
+        delivery: ['Vercel', 'CI/CD', 'Telegram Bot API'],
       },
     },
   },

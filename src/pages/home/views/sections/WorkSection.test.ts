@@ -37,7 +37,7 @@ describe('WorkSection', () => {
       'home.work.filters.all',
       'home.work.filters.system',
       'home.work.filters.product',
-      'home.work.filters.landing',
+      'home.work.filters.site',
     ])
   })
 
