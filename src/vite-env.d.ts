@@ -13,6 +13,8 @@ interface ImportMetaEnv {
   readonly VITE_YANDEX_VERIFICATION?: string
   /** Yandex Metrica's counter number; without it no analytics loads. */
   readonly VITE_YANDEX_METRIKA_ID?: string
+  /** Google Analytics 4 measurement ID (`G-…`); without it the tag does not load. */
+  readonly VITE_GA_MEASUREMENT_ID?: string
 }
 
 declare module 'virtual:svg-icons-register' {
