@@ -422,12 +422,14 @@ export const projects: Project[] = [
     years: '2022–2023',
     art: '/work/process.webp',
     tools: {
-      main: ['Vue 2.7', 'TypeScript'],
+      main: ['Vue 2.7', 'JavaScript → TypeScript'],
       groups: {
-        data: ['Pinia'],
-        styles: ['BEM'],
+        data: ['Vuex → Pinia', 'VueUse', 'Vee-validate / Yup'],
+        styles: ['Sass', 'BEM'],
         design: ['Figma', 'Pixel Perfect'],
-        api: ['REST API', 'WebSocket'],
+        api: ['REST API', 'Axios', 'Swagger', 'WebSocket'],
+        architecture: ['Component-based', 'Options API → Composition API'],
+        quality: ['ESLint', 'Prettier'],
         repo: ['GitLab'],
       },
     },

@@ -162,9 +162,9 @@
       },
       "processes": {
         "title": "Business Process Management System",
-        "about": "An enterprise system for the mining and metals sector covering business processes, complex forms, filtering, chat and legacy product development.",
+        "about": "A corporate business process management system for the mining and metals sector: business processes, complex forms, filtering and chat.\n\nMost of the code came from early versions: vanilla JavaScript in ES5 and classes, modules with logic nested up to nine levels deep, where everything was passed down through props. The system reacted badly to any change, the tech debt kept piling up, and new features had to ship at the same time.\n\nThe project was moved to a modern approach and TypeScript step by step, module by module. The team was three: a senior developer, me as a middle developer, and a junior developer.",
         "role": "Frontend Developer",
-        "did": "Owned business-process modules and complex forms\nBuilt filtering and chat\nEvolved the legacy Vue 2.7 codebase"
+        "did": "Came to help the senior developer when he could no longer keep up: worked through the tech debt and built new modules side by side\nMoved the legacy from ES5 to ES6 and rewrote old components from the Options API to the Composition API and TypeScript — the names, the logic and the structure, from the first line; new modules I wrote with the Composition API and TypeScript from the start\nUntangled modules with logic nested up to nine levels deep, where data went down through props alone, and moved them to provide/inject and stores\nFixed broken modules and wrote new ones in a system that reacted badly to any change\nTogether with the senior developer, caught up with the deadlines and rewrote a huge layer of legacy code"
       }
     }
   },
