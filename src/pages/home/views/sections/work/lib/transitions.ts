@@ -178,7 +178,10 @@ export interface Painting {
   /** Reveal progress: -0.1 blank .. 1.45 drawn and dry; `from` is where the ink starts (0..1, y up). */
   set(p: number, from?: [number, number]): void
   get(): number
-  /** Runs the ink to `to`; a new run cancels the previous one. */
+  /**
+   * Runs the ink to `to`. A new run (or `clear`) cuts the previous one short and
+   * settles its promise, so whoever waits on it goes on instead of waiting forever.
+   */
   to(to: number, ms: number): Promise<void>
   fit(): void
   clear(): void
@@ -203,6 +206,14 @@ export function createPainting(canvas: HTMLCanvasElement): Painting | null {
   let from: [number, number] = [0.55, 0.5]
   let ready = false
   let raf = 0
+  /** The running `to`'s promise, settled when it ends or is cut short. */
+  let settle: (() => void) | null = null
+  const stop = () => {
+    cancelAnimationFrame(raf)
+    const done = settle
+    settle = null
+    done?.()
+  }
 
   function fit() {
     const w = canvas.clientWidth
@@ -260,17 +271,18 @@ export function createPainting(canvas: HTMLCanvasElement): Painting | null {
     },
     get: () => p,
     to(target, ms) {
-      cancelAnimationFrame(raf)
+      stop()
       const start = p
       const t0 = performance.now()
       return new Promise((done) => {
+        settle = done
         const step = (now: number) => {
           const t = Math.min(1, (now - t0) / ms)
           const e = target > start ? 1 - Math.pow(1 - t, 1.6) : 1 - Math.pow(1 - t, 1.4)
           p = start + (target - start) * e
           draw()
           if (t < 1) raf = requestAnimationFrame(step)
-          else done()
+          else stop()
         }
         raf = requestAnimationFrame(step)
       })
@@ -280,7 +292,7 @@ export function createPainting(canvas: HTMLCanvasElement): Painting | null {
       draw()
     },
     clear() {
-      cancelAnimationFrame(raf)
+      stop()
       ready = false
       draw()
     },

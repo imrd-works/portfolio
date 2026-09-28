@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  shallowRef,
+  useTemplateRef,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   projects,
@@ -33,7 +42,10 @@ const state = reactive({ on: false, ready: false, covering: false, bleeding: fal
 const lines = (key: string) => t(key).split('\n').filter(Boolean)
 // by id: `current` holds Vue's reactive proxy of the project, never the object in the list
 // itself, so indexOf was always -1 (the number read 00, "next" was the first project)
-const index = computed(() => projects.findIndex((p) => p.id === current.value?.id))
+// "next" and "back" count from where the painting is heading, not from the one
+// still washing off: two quick clicks go two projects on
+const aim = shallowRef<Project | null>(null)
+const index = computed(() => projects.findIndex((p) => p.id === (aim.value ?? current.value)?.id))
 const neighbour = (step: number) =>
   projects[(index.value + step + projects.length) % projects.length]
 const visible = (p: Project) => filter.value === 'all' || p.kind === filter.value
@@ -61,6 +73,10 @@ let swing: Swing | null = null
 let offGraphics = () => {}
 let REDUCED = false
 let busy = false
+/** Esc or the close button pressed mid-switch: the painting closes once it is done. */
+let leaveNext = false
+/** Bumped for every painting drawn: an image that loads late for one no longer shown is dropped. */
+let drawn = 0
 let pushed = false
 let lastAt: [number, number] | null = null
 const timers: number[] = []
@@ -130,11 +146,14 @@ const BLOOM_AT = (): [number, number] => (window.innerWidth < 900 ? [0.5, 0.45] 
 
 async function drawPainting(p: Project, instant = false, from?: [number, number]) {
   if (!painting || !lib) return
+  const turn = ++drawn
   if (!p.art) {
     painting.clear()
     return
   }
-  painting.load(await lib.loadImage(p.art))
+  const img = await lib.loadImage(p.art)
+  if (turn !== drawn) return // another painting was asked for while this one loaded
+  painting.load(img)
   // the ink follows the water: it spreads from where the water came from
   let at = BLOOM_AT()
   if (from && artCanvas.value) {
@@ -152,6 +171,7 @@ async function drawPainting(p: Project, instant = false, from?: [number, number]
 async function enter(p: Project, e?: MouseEvent, { push = true, instant = false } = {}) {
   if (busy) return
   busy = true
+  aim.value = null
   current.value = p
   activeId.value = p.id
   // the sheet stops swinging as it opens: the water spreads from a still picture
@@ -198,8 +218,14 @@ async function enter(p: Project, e?: MouseEvent, { push = true, instant = false 
 }
 
 async function leave({ pop = false } = {}) {
-  if (!current.value || busy) return
+  if (!current.value) return
+  if (busy) {
+    leaveNext = true
+    return
+  }
   busy = true
+  leaveNext = false
+  drawn++ // a painting still loading is not drawn over the closing one
   const id = current.value.id
   const sheet = sheetOf(id)
   const img = pictureOf(id)
@@ -237,21 +263,40 @@ async function leave({ pop = false } = {}) {
   busy = false
 }
 
-// from one painting to the next without leaving: the ink washes off, the next one blooms
+// From one painting to the next without leaving, in order: the words go, the ink
+// washes off, the next painting blooms, and its words come back one after another
+// once it is there. Clicks during a switch are not lost: the last one asked for is
+// where it goes next, straight from there.
 async function switchTo(p: Project) {
-  if (busy || !current.value) return
+  if (!current.value) return
+  aim.value = p
+  if (busy) return
   busy = true
-  state.ready = false
-  await painting?.to(-0.1, 600)
-  current.value = p
-  tab.value = 'about'
-  history.replaceState({ work: p.id }, '', `#/work/${p.id}`)
-  await nextTick()
-  if (scroller.value) scroller.value.scrollTop = 0
-  drawPainting(p)
-  await wait(REDUCED ? 0 : 1000)
+  while (aim.value && aim.value.id !== current.value?.id) {
+    const next: Project = aim.value
+    state.ready = false
+    await Promise.all([painting?.to(-0.1, 600), wait(REDUCED ? 0 : 350)])
+    current.value = next
+    tab.value = 'about'
+    history.replaceState({ work: next.id }, '', `#/work/${next.id}`)
+    await nextTick()
+    if (scroller.value) scroller.value.scrollTop = 0
+    if (REDUCED) {
+      drawPainting(next, true)
+      break
+    }
+    // the words wait for the ink: the painting is loaded first (once, then it is at
+    // hand), blooms, and they come in when it is well on its way
+    if (next.art && lib) await lib.loadImage(next.art).catch(() => undefined)
+    if (aim.value && aim.value.id !== next.id) continue // clicked on meanwhile: straight on
+    drawPainting(next)
+    await wait(700)
+    if (aim.value && aim.value.id !== next.id) continue
+  }
+  aim.value = null
   state.ready = true
   busy = false
+  if (leaveNext) leave()
 }
 
 /* ---------------- keyboard and history ---------------- */
@@ -595,67 +640,69 @@ onBeforeUnmount(() => {
               {{ t(`home.work.tabs.${id}`) }}
             </button>
           </div>
-          <div
-            id="work-panel"
-            :key="current.id + tab"
-            class="work__panel"
-            role="tabpanel"
-            tabindex="0"
-            :aria-labelledby="`work-tab-${tab}`"
-          >
-            <template v-if="tab === 'about'">
-              <p
-                v-for="(para, k) in t(`home.work.items.${current.id}.about`).split('\n\n')"
-                :key="k"
-                class="work__para"
-              >
-                {{ para }}
-              </p>
-            </template>
+          <Transition enter-active-class="work__panel--wet">
             <div
-              v-else-if="tab === 'tools'"
-              class="work__tools"
+              id="work-panel"
+              :key="current.id + tab"
+              class="work__panel"
+              role="tabpanel"
+              tabindex="0"
+              :aria-labelledby="`work-tab-${tab}`"
             >
-              <div class="work__brands">
-                <span
-                  v-for="x in current.tools.main"
-                  :key="x"
-                  class="work__stamp work__brand work__brand--main"
-                  >{{ x }}</span
+              <template v-if="tab === 'about'">
+                <p
+                  v-for="(para, k) in t(`home.work.items.${current.id}.about`).split('\n\n')"
+                  :key="k"
+                  class="work__para"
                 >
-              </div>
-              <!-- the rest by group, each under its caption -->
-              <dl class="work__groups">
-                <div
-                  v-for="g in toolGroupsOf(current)"
-                  :key="g.id"
-                  class="work__group"
-                >
-                  <dt class="work__group-name">{{ t(`home.work.toolGroups.${g.id}`) }}</dt>
-                  <dd class="work__brands work__group-tools">
-                    <span
-                      v-for="x in g.tools"
-                      :key="x"
-                      class="work__stamp work__brand"
-                      >{{ x }}</span
-                    >
-                  </dd>
+                  {{ para }}
+                </p>
+              </template>
+              <div
+                v-else-if="tab === 'tools'"
+                class="work__tools"
+              >
+                <div class="work__brands">
+                  <span
+                    v-for="x in current.tools.main"
+                    :key="x"
+                    class="work__stamp work__brand work__brand--main"
+                    >{{ x }}</span
+                  >
                 </div>
-              </dl>
+                <!-- the rest by group, each under its caption -->
+                <dl class="work__groups">
+                  <div
+                    v-for="g in toolGroupsOf(current)"
+                    :key="g.id"
+                    class="work__group"
+                  >
+                    <dt class="work__group-name">{{ t(`home.work.toolGroups.${g.id}`) }}</dt>
+                    <dd class="work__brands work__group-tools">
+                      <span
+                        v-for="x in g.tools"
+                        :key="x"
+                        class="work__stamp work__brand"
+                        >{{ x }}</span
+                      >
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+              <template v-else>
+                <p class="work__para work__role">{{ t(`home.work.items.${current.id}.role`) }}</p>
+                <ul class="work__did">
+                  <li
+                    v-for="line in lines(`home.work.items.${current.id}.did`)"
+                    :key="line"
+                    class="work__did-item"
+                  >
+                    {{ line }}
+                  </li>
+                </ul>
+              </template>
             </div>
-            <template v-else>
-              <p class="work__para work__role">{{ t(`home.work.items.${current.id}.role`) }}</p>
-              <ul class="work__did">
-                <li
-                  v-for="line in lines(`home.work.items.${current.id}.did`)"
-                  :key="line"
-                  class="work__did-item"
-                >
-                  {{ line }}
-                </li>
-              </ul>
-            </template>
-          </div>
+          </Transition>
           <div class="work__nav">
             <button
               class="work__nav-btn"
@@ -1108,23 +1155,28 @@ onBeforeUnmount(() => {
     padding: 90px 0 80px clamp(20px, 2.5vw, 40px);
     margin-left: calc(var(--work-inset) + var(--work-scene));
 
+    // the words go quickly and together, before the ink washes off...
     > * {
       filter: blur(10px);
       opacity: 0;
       transition:
-        opacity 0.9s ease,
-        filter 1.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+        opacity 0.3s ease,
+        filter 0.4s ease;
     }
   }
 
+  // ...and come back slowly, one after another, as the painting blooms
   &__inside--ready &__body > * {
     filter: blur(0);
     opacity: 1;
+    transition:
+      opacity 0.8s ease,
+      filter 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
   @for $i from 2 through 6 {
     &__inside--ready &__body > :nth-child(#{$i}) {
-      transition-delay: ($i - 1) * 0.08s;
+      transition-delay: ($i - 1) * 0.14s;
     }
   }
 
@@ -1207,9 +1259,9 @@ onBeforeUnmount(() => {
     color: var(--work-text);
   }
 
-  // the wet switch between tabs; until the painting is drawn the panel waits
-  // with the rest of the text, so the animation must not show it early
-  &__inside--ready &__panel {
+  // the wet switch between tabs (a <Transition> on the panel: only a tab changed
+  // under the reader's eyes plays it, not the words coming back with the painting)
+  &__panel--wet {
     animation: work-wet 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
