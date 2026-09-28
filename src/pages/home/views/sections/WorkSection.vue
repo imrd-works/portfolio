@@ -642,7 +642,10 @@ onBeforeUnmount(() => {
               {{ t(`home.work.tabs.${id}`) }}
             </button>
           </div>
-          <Transition enter-active-class="work__panel--wet">
+          <Transition
+            enter-active-class="work__panel--wet"
+            leave-active-class="work__panel--gone"
+          >
             <div
               id="work-panel"
               :key="current.id + tab"
@@ -1265,6 +1268,12 @@ onBeforeUnmount(() => {
   // under the reader's eyes plays it, not the words coming back with the painting)
   &__panel--wet {
     animation: work-wet 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  // the tab left goes at once: it would otherwise wait out the words' own fade
+  // (a transition the <Transition> finds on it) and stand beside the new one
+  &__panel--gone {
+    display: none;
   }
 
   &__para {
