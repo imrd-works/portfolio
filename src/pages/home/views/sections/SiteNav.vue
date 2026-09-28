@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { LocaleSwitch } from '@/shared/ui'
 
@@ -15,6 +15,7 @@ type SectionId = (typeof LINKS)[number] | 'contact'
 // something.
 const shown = ref(false)
 const open = ref(false)
+const menuButton = useTemplateRef<HTMLButtonElement>('menuButton')
 const current = ref<SectionId | null>(null)
 
 const UP = 12 // px up before it comes back: a nudge, not a twitch
@@ -72,7 +73,15 @@ function onScroll() {
   })
 }
 
+// Escape closes the menu and gives the focus back to its button
+function onKey(e: KeyboardEvent) {
+  if (e.key !== 'Escape' || !open.value) return
+  open.value = false
+  menuButton.value?.focus()
+}
+
 onMounted(() => {
+  addEventListener('keydown', onKey)
   lastY = scrollY
   spy()
   addEventListener('scroll', onScroll, { passive: true })
@@ -81,6 +90,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  removeEventListener('keydown', onKey)
   removeEventListener('scroll', onScroll)
   removeEventListener('resize', onScroll)
   cancelAnimationFrame(frame)
@@ -149,14 +159,22 @@ function go(event: MouseEvent) {
         >{{ t('home.nav.contact') }}</a
       >
 
+      <!-- an icon, not a word: "Menu" and "Close" differ in width and moved the bar -->
       <button
+        ref="menuButton"
         class="site-nav__menu"
         type="button"
         :aria-expanded="open"
         aria-controls="site-nav-links"
+        :aria-label="open ? t('home.nav.close') : t('home.nav.menu')"
         @click="open = !open"
       >
-        {{ open ? t('home.nav.close') : t('home.nav.menu') }}
+        <span
+          v-for="n in 3"
+          :key="n"
+          class="site-nav__menu-line"
+          aria-hidden="true"
+        ></span>
       </button>
     </nav>
   </header>
@@ -334,18 +352,55 @@ function go(event: MouseEvent) {
     background: var(--site-nav-sun);
   }
 
+  // three strokes of ink that cross into an X while the menu is open, in a box of
+  // one size either way
   &__menu {
+    position: relative;
     display: none;
-    padding: 6px 0;
-    font: inherit;
-    font-size: 11.5px;
+    flex: none;
+    width: 32px;
+    height: 32px;
+    padding: 0;
     color: var(--site-nav-ink);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
     cursor: pointer;
     background: none;
     border: 0;
-    border-bottom: 1px solid currentcolor;
+  }
+
+  &__menu-line {
+    position: absolute;
+    left: 7px;
+    right: 7px;
+    height: 1.5px;
+    background: currentcolor;
+    border-radius: 1px;
+    transition:
+      transform 0.25s ease,
+      opacity 0.2s ease;
+
+    &:nth-child(1) {
+      top: 10px;
+    }
+
+    &:nth-child(2) {
+      top: 15.25px;
+    }
+
+    &:nth-child(3) {
+      top: 20.5px;
+    }
+  }
+
+  &--open &__menu-line:nth-child(1) {
+    transform: translateY(5.25px) rotate(45deg);
+  }
+
+  &--open &__menu-line:nth-child(2) {
+    opacity: 0;
+  }
+
+  &--open &__menu-line:nth-child(3) {
+    transform: translateY(-5.25px) rotate(-45deg);
   }
 
   &__link:focus-visible,
@@ -367,20 +422,30 @@ function go(event: MouseEvent) {
       display: block;
     }
 
+    // the sections drop down under the bar, softly
     &__links {
       position: absolute;
       top: 100%;
       right: 0;
       left: 0;
-      display: none;
+      display: flex;
       flex-direction: column;
       gap: 0;
       padding: 8px var(--page-pad) 18px;
+      visibility: hidden;
       background: rgb(236 232 225 / 97%);
+      opacity: 0;
+      transform: translateY(-6px);
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0.2s;
     }
 
     &--open &__links {
-      display: flex;
+      visibility: visible;
+      opacity: 1;
+      transform: none;
     }
 
     &__link {
@@ -392,6 +457,11 @@ function go(event: MouseEvent) {
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
+
+    &__menu-line,
+    &__links {
+      transition: none;
+    }
   }
 }
 </style>
