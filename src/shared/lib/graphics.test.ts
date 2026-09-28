@@ -22,10 +22,12 @@ describe('medianFrame', () => {
 })
 
 /** A fresh module (it keeps its state per page), with frames every `frameMs`. */
-async function page(frameMs: number | null) {
+async function page(frameMs: number | null, dpr = 1, stored: Record<string, string> = {}) {
   vi.resetModules()
   vi.useFakeTimers()
   localStorage.clear()
+  for (const [k, v] of Object.entries(stored)) localStorage.setItem(k, v)
+  vi.stubGlobal('devicePixelRatio', dpr)
   let now = 0
   let pending: FrameRequestCallback | null = null
   vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
@@ -63,7 +65,7 @@ describe('the probe', () => {
     expect(offered).not.toHaveBeenCalled()
     run() // slow again
     expect(offered).toHaveBeenCalledTimes(1)
-    expect(g.graphics.offered).toBe(true)
+    expect(g.graphics.offered).toBe('light')
     expect(g.graphics.level).toBe('high')
     expect(changed).not.toHaveBeenCalled()
   })
@@ -87,8 +89,7 @@ describe('the probe', () => {
 
 describe('the choice', () => {
   it('applies the light mode at once and keeps it', async () => {
-    Object.defineProperty(window, 'devicePixelRatio', { value: 3, configurable: true })
-    const { g, changed } = await page(33)
+    const { g, changed } = await page(33, 3)
     expect(g.drawingRatio()).toBe(2)
     g.chooseGraphics('low')
     expect(g.graphics.low).toBe(true)
@@ -115,6 +116,57 @@ describe('the choice', () => {
     run()
     expect(offered).not.toHaveBeenCalled()
     expect(g.graphics.level).toBe('high')
+  })
+})
+
+describe('the offer on a dense screen', () => {
+  it('offers the lower clarity first, which keeps every animation', async () => {
+    const { g, offered, run } = await page(33, 2)
+    g.probeGraphics()
+    run()
+    run()
+    expect(offered).toHaveBeenLastCalledWith('clarity')
+    expect(g.graphics.offered).toBe('clarity')
+    expect(g.drawingRatio()).toBe(2) // nothing changed by itself
+  })
+
+  it('offers the light mode next, if the page still stutters at 1x', async () => {
+    const { g, offered, run } = await page(33, 2)
+    g.probeGraphics()
+    run()
+    run()
+    g.chooseClarity(1)
+    expect(g.graphics.offered).toBeNull()
+    expect(g.drawingRatio()).toBe(1)
+    run() // measured again, on its own
+    run()
+    expect(offered).toHaveBeenLastCalledWith('light')
+    expect(g.graphics.low).toBe(false) // still only offered
+  })
+
+  it('offers nothing again once turned down, and remembers it', async () => {
+    const { g, offered, run } = await page(33, 2)
+    g.probeGraphics()
+    run()
+    run()
+    g.declineOffer()
+    expect(g.graphics.offered).toBeNull()
+    expect(localStorage.getItem('graphics:choice')).toBe('high')
+    expect(localStorage.getItem('graphics:clarity')).toBe('2')
+    offered.mockClear()
+    g.probeGraphics()
+    run()
+    run()
+    expect(offered).not.toHaveBeenCalled()
+  })
+
+  it('goes straight to the light mode when the clarity is set already', async () => {
+    const { g, offered, run } = await page(33, 2, { 'graphics:clarity': '1.5' })
+    g.probeGraphics()
+    run()
+    run()
+    expect(offered).toHaveBeenCalledWith('light')
+    expect(offered).not.toHaveBeenCalledWith('clarity')
   })
 })
 

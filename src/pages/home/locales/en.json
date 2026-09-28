@@ -265,7 +265,12 @@
     "label": "Light mode",
     "offer": "The animations on this page are stuttering. Switch to the light mode? It will run smoother: the graphics get simpler, and the mist and the river's current stop.",
     "accept": "Switch",
-    "decline": "Keep as is"
+    "decline": "Keep as is",
+    "clarity": {
+      "label": "Clarity",
+      "offer": "The animations on this page are stuttering. Lower the paintings' clarity to ×1? Every animation stays, the paintings get a little softer. You can change it in the settings, in the corner.",
+      "accept": "Lower it"
+    }
   },
   "nav": {
     "label": "Page sections",

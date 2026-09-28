@@ -1,31 +1,44 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
+  chooseClarity,
   chooseGraphics,
+  declineOffer,
   graphics,
   onGraphicsOffer,
-  type GraphicsLevel,
+  type GraphicsOffer,
 } from '@/shared/lib/graphics'
 
 /*
- * The offer of the light mode, when the page stutters (lib/graphics.ts decides
- * when). A note in the corner, not a dialog: the page goes on under it, and
- * nothing changes until the visitor answers. The answer is kept.
+ * What the page offers when it stutters (lib/graphics.ts decides when and what):
+ * on a dense screen first a lower clarity, which keeps every animation, then the
+ * light mode if the page still stutters. A note in the corner, not a dialog: the
+ * page goes on under it, and nothing changes until the visitor answers. The
+ * answer is kept; turned down, nothing is offered again.
  */
 const { t } = useI18n()
-const open = ref(false)
+const kind = ref<GraphicsOffer | null>(null)
 let off = () => {}
 
+// the copy for what is offered: home.graphics.* for the light mode, .clarity.* for the clarity
+const copy = computed(() => (kind.value === 'clarity' ? 'home.graphics.clarity' : 'home.graphics'))
+
 onMounted(() => {
-  open.value = graphics.offered
-  off = onGraphicsOffer(() => (open.value = true))
+  kind.value = graphics.offered
+  off = onGraphicsOffer((next) => (kind.value = next))
 })
 onBeforeUnmount(() => off())
 
-function answer(level: GraphicsLevel) {
-  chooseGraphics(level)
-  open.value = false
+function accept() {
+  if (kind.value === 'clarity') chooseClarity(1)
+  else chooseGraphics('low')
+  kind.value = null
+}
+
+function decline() {
+  declineOffer()
+  kind.value = null
 }
 </script>
 
@@ -42,24 +55,25 @@ function answer(level: GraphicsLevel) {
       leave-to-class="graphics-offer__note--away"
     >
       <aside
-        v-if="open"
+        v-if="kind"
+        :key="kind"
         class="graphics-offer__note"
         data-no-ink
-        :aria-label="t('home.graphics.label')"
+        :aria-label="t(`${copy}.label`)"
       >
-        <p class="graphics-offer__text">{{ t('home.graphics.offer') }}</p>
+        <p class="graphics-offer__text">{{ t(`${copy}.offer`) }}</p>
         <div class="graphics-offer__actions">
           <button
             class="graphics-offer__yes"
             type="button"
-            @click="answer('low')"
+            @click="accept"
           >
-            {{ t('home.graphics.accept') }}
+            {{ t(`${copy}.accept`) }}
           </button>
           <button
             class="graphics-offer__no"
             type="button"
-            @click="answer('high')"
+            @click="decline"
           >
             {{ t('home.graphics.decline') }}
           </button>

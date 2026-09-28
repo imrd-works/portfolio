@@ -45,6 +45,14 @@ export type Clarity = 1 | 1.5 | 2
 export const CLARITIES: readonly Clarity[] = [1, 1.5, 2]
 const CLARITY_KEY = 'graphics:clarity'
 
+function hasStored(key: string): boolean {
+  try {
+    return localStorage.getItem(key) !== null
+  } catch {
+    return false
+  }
+}
+
 function readClarity(): Clarity {
   try {
     const v = Number(localStorage.getItem(CLARITY_KEY))
@@ -67,12 +75,20 @@ function readChoice(): GraphicsLevel | null {
 let choice: GraphicsLevel | null = typeof window === 'undefined' ? null : readChoice()
 let level: GraphicsLevel = choice ?? 'high'
 let clarity: Clarity = typeof window === 'undefined' ? 2 : readClarity()
-let offered = false
+/** The visitor has set the clarity (then the offer goes straight to the light mode). */
+let clarityChosen = typeof window !== 'undefined' && hasStored(CLARITY_KEY)
+/**
+ * What the page offers a visitor whose page stutters, in turn: first a lower
+ * clarity on a dense screen (every animation kept), and the light mode if that
+ * was not enough. `null` while nothing is offered.
+ */
+export type GraphicsOffer = 'clarity' | 'light'
+let offered: GraphicsOffer | null = null
 let probes = 0
 let probing = false
 let slowInARow = 0
 const listeners = new Set<Listener>()
-const offerListeners = new Set<() => void>()
+const offerListeners = new Set<(kind: GraphicsOffer) => void>()
 
 /** The browser's own hints that the device is weak or the visitor saves data. */
 function hintsWeak(): boolean {
@@ -93,9 +109,9 @@ export const graphics = {
   get low(): boolean {
     return level === 'low'
   },
-  /** The light mode is being offered and the visitor has not answered yet. */
-  get offered(): boolean {
-    return offered && !choice
+  /** What is being offered and not answered yet, if anything. */
+  get offered(): GraphicsOffer | null {
+    return choice ? null : offered
   },
   get clarity(): Clarity {
     return clarity
@@ -123,9 +139,28 @@ export function chooseClarity(next: Clarity): void {
   } catch {
     // private mode: it still holds for this page
   }
+  clarityChosen = true
+  const lowered = offered === 'clarity' && next < clarity
+  if (offered === 'clarity') offered = null
+  if (lowered) {
+    // the lower clarity was taken from the offer: measure again, and if the page
+    // still stutters, the light mode is offered next
+    probes = 0
+    slowInARow = 0
+    window.setTimeout(probeGraphics, RECHECK_MS)
+  }
   if (next === clarity) return
   clarity = next
   listeners.forEach((fn) => fn(level))
+}
+
+/**
+ * The visitor turned the offer down, whichever it was: the page as it is, kept,
+ * and nothing is offered again.
+ */
+export function declineOffer(): void {
+  if (offered === 'clarity') chooseClarity(clarity)
+  chooseGraphics('high')
 }
 
 /**
@@ -137,8 +172,8 @@ export function onGraphicsChange(fn: Listener): () => void {
   return () => listeners.delete(fn)
 }
 
-/** Calls `fn` when the light mode is offered; returns the unsubscribe. */
-export function onGraphicsOffer(fn: () => void): () => void {
+/** Calls `fn` when something is offered (and says what); returns the unsubscribe. */
+export function onGraphicsOffer(fn: (kind: GraphicsOffer) => void): () => void {
   offerListeners.add(fn)
   return () => offerListeners.delete(fn)
 }
@@ -162,9 +197,12 @@ export function chooseGraphics(next: GraphicsLevel): void {
 
 function offer() {
   if (choice || offered) return
-  offered = true
-  if (import.meta.env.DEV) console.info('[graphics] offering the light mode')
-  offerListeners.forEach((fn) => fn())
+  // on a dense screen the clarity comes first: smoother, and nothing stops moving
+  const kind: GraphicsOffer =
+    !clarityChosen && clarity > 1 && screenRatio() > 1 ? 'clarity' : 'light'
+  offered = kind
+  if (import.meta.env.DEV) console.info(`[graphics] offering the ${kind}`)
+  offerListeners.forEach((fn) => fn(kind))
 }
 
 /**
