@@ -80,26 +80,46 @@ function lockPage(on: boolean) {
 
 /* ---------------- the wall ---------------- */
 
+/** Bumped by every filter picked: what an earlier pick scheduled is dropped. */
+let picked = 0
+/** The filter being gone to (it becomes `filter` once the sheets are rolled up). */
+let picking: Filter | null = null
+
 function unrollAll(stagger = 0) {
-  projects.forEach((p, i) => {
-    if (!visible(p)) return
+  const turn = picked
+  // one after another in the order they are shown, whatever their place in the full list
+  projects.filter(visible).forEach((p, i) => {
     if (REDUCED || !stagger) opened[p.id] = true
-    else timers.push(window.setTimeout(() => (opened[p.id] = true), i * stagger))
+    else
+      timers.push(
+        window.setTimeout(() => {
+          if (turn === picked) opened[p.id] = true
+        }, i * stagger)
+      )
   })
 }
 
 function pick(f: Filter) {
-  if (f === filter.value) return
+  if (f === (picking ?? filter.value)) return
   if (!live.value || REDUCED) {
     filter.value = f
     return
   }
-  // roll them up, show the matching ones, unroll them again
+  // roll them up, show the matching ones, unroll them again. Every time from the
+  // start: a sheet coming out of `display: none` is painted rolled up first, and
+  // only unrolls on a later frame, or it would appear already open, with no
+  // animation (a transition does not run from an element that was not drawn).
+  const turn = ++picked
+  picking = f
   projects.forEach((p) => (opened[p.id] = false))
   timers.push(
     window.setTimeout(() => {
+      if (turn !== picked) return
       filter.value = f
-      nextTick(() => unrollAll(60))
+      picking = null
+      nextTick(() =>
+        requestAnimationFrame(() => requestAnimationFrame(() => turn === picked && unrollAll(60)))
+      )
     }, 420)
   )
 }
