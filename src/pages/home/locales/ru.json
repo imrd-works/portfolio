@@ -91,13 +91,11 @@
     "filters": {
       "all": "Все",
       "system": "Системы",
-      "product": "Продукты",
       "site": "Сайты"
     },
     "filterLabel": "Фильтр проектов",
     "kinds": {
       "system": "Система",
-      "product": "Продукт",
       "site": "Сайт"
     },
     "toolGroups": {

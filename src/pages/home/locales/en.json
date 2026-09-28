@@ -91,13 +91,11 @@
     "filters": {
       "all": "All",
       "system": "Systems",
-      "product": "Products",
       "site": "Websites"
     },
     "filterLabel": "Filter projects",
     "kinds": {
       "system": "System",
-      "product": "Product",
       "site": "Website"
     },
     "toolGroups": {

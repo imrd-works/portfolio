@@ -36,7 +36,6 @@ describe('WorkSection', () => {
     expect(wrapper.findAll('.work__filter').map((f) => f.text())).toEqual([
       'home.work.filters.all',
       'home.work.filters.system',
-      'home.work.filters.product',
       'home.work.filters.site',
     ])
   })

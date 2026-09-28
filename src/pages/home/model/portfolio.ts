@@ -245,7 +245,8 @@ export const stats: StatItem[] = [
   { id: 'lead', value: 2, suffix: '' },
 ]
 
-export type ProjectKind = 'system' | 'product' | 'site'
+/** Two kinds: a system (a platform, a product, the logic behind it) or a website. */
+export type ProjectKind = 'system' | 'site'
 
 export interface Project {
   /** Neutral: it is in the painting's address (#/work/<id>), and the clients are under NDA. */
@@ -302,7 +303,7 @@ export const toolGroups: ToolGroup[] = [
   'repo',
 ]
 
-export const projectKinds: ProjectKind[] = ['system', 'product', 'site']
+export const projectKinds: ProjectKind[] = ['system', 'site']
 
 export const projects: Project[] = [
   {
@@ -327,7 +328,7 @@ export const projects: Project[] = [
   },
   {
     id: 'education',
-    kind: 'product',
+    kind: 'system',
     years: '2024–2026',
     art: '/work/education.webp',
     tools: {
