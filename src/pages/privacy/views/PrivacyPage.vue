@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { LocaleSwitch, ToggleSwitch } from '@/shared/ui'
 import { useLocale } from '@/composables/useLocale'
@@ -25,16 +25,51 @@ const number = (index: number) => String(index + 1).padStart(2, '0')
 
 const granted = ref(false)
 let off = () => {}
+
+// Each section comes up through the paper as the reader gets to it, like words on
+// wet paper. Whatever is on screen already when the page opens stays as it was
+// painted (it was there before the scripts): only what is further down comes up.
+// Without scripts, and with less motion, it is all simply there.
+const live = ref(false)
+const shown = reactive(new Set<string>())
+let observer: IntersectionObserver | null = null
+const sectionEls: HTMLElement[] = []
+const watchSection = (el: unknown) => {
+  if (el instanceof HTMLElement && !sectionEls.includes(el)) sectionEls.push(el)
+}
+
 onMounted(() => {
   granted.value = consent.granted
   off = onConsentChange((value) => (granted.value = value === 'granted'))
+
+  if (typeof IntersectionObserver === 'undefined') return
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  for (const el of sectionEls) {
+    if (el.getBoundingClientRect().top < innerHeight) shown.add(el.dataset.section!)
+  }
+  observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue
+        shown.add((entry.target as HTMLElement).dataset.section!)
+        observer?.unobserve(entry.target)
+      }
+    },
+    { rootMargin: '0px 0px -10% 0px' }
+  )
+  for (const el of sectionEls) if (!shown.has(el.dataset.section!)) observer.observe(el)
+  live.value = true
 })
-onBeforeUnmount(() => off())
+onBeforeUnmount(() => {
+  off()
+  observer?.disconnect()
+})
 </script>
 
 <template>
   <article
     class="privacy"
+    :class="{ 'privacy--live': live }"
     data-ink-surface="paper"
   >
     <div class="privacy__sheet">
@@ -57,7 +92,10 @@ onBeforeUnmount(() => off())
       <section
         v-for="(section, index) in policySections"
         :key="section.id"
+        :ref="watchSection"
         class="privacy__section"
+        :class="{ 'privacy__section--shown': shown.has(section.id) }"
+        :data-section="section.id"
         :aria-labelledby="`privacy-${section.id}`"
       >
         <h2
@@ -253,6 +291,23 @@ onBeforeUnmount(() => off())
   &__section {
     padding: clamp(32px, 5vw, 48px) 0;
     border-bottom: 1px solid var(--privacy-rule);
+  }
+  // not reached yet: blurred and faint, as ink not yet come through the paper...
+  &--live &__section {
+    filter: blur(6px);
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 0.9s ease,
+      filter 1.1s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  // ...then it comes through
+  &--live &__section--shown {
+    filter: none;
+    opacity: 1;
+    transform: none;
   }
 
   &__heading {
