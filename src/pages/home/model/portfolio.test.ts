@@ -111,8 +111,9 @@ describe('portfolio CV data', () => {
     expect(en.meta.title).toContain('Vue / Nuxt')
   })
 
-  it('includes six named CV projects with their stacks and full details', () => {
+  it('includes the CV projects with their stacks and full details', () => {
     expect(projects.map(({ id }) => id)).toEqual([
+      'corporate',
       'energy',
       'education',
       'finance',
@@ -122,6 +123,7 @@ describe('portfolio CV data', () => {
     ])
     // NDA: the paintings stand in for the products, no screens or links
     expect(projects.map(({ art }) => art)).toEqual([
+      '/work/corporate.webp',
       '/work/energy.webp',
       '/work/education.webp',
       '/work/finance.webp',

@@ -270,7 +270,7 @@ export type ProjectKind = 'system' | 'site'
 
 export interface Project {
   /** Neutral: it is in the painting's address (#/work/<id>), and the clients are under NDA. */
-  id: 'energy' | 'education' | 'finance' | 'monitoring' | 'documents' | 'processes'
+  id: 'corporate' | 'energy' | 'education' | 'finance' | 'monitoring' | 'documents' | 'processes'
   kind: ProjectKind
   /** Years of work on it, as shown on the sheet. */
   years: string
@@ -326,6 +326,30 @@ export const toolGroups: ToolGroup[] = [
 export const projectKinds: ProjectKind[] = ['system', 'site']
 
 export const projects: Project[] = [
+  {
+    id: 'corporate',
+    kind: 'site',
+    years: '2026',
+    art: '/work/corporate.webp',
+    tools: {
+      main: ['Nuxt 3', 'Vue 3', 'TypeScript'],
+      groups: {
+        data: ['Vee-validate', 'Yup', 'libphonenumber-js'],
+        ui: ['@nuxt/image', 'nuxt-svgo', 'nuxt-viewport', '@nuxtjs/device'],
+        visual: ['GSAP', 'Anime.js', 'Lenis', 'WebGL'],
+        styles: ['SCSS'],
+        design: ['Figma', 'Pixel Perfect'],
+        api: ['reCAPTCHA v3'],
+        backend: ['PHP', 'nginx'],
+        content: ['Sanity CMS'],
+        build: ['pnpm', 'Vitest', 'Playwright'],
+        quality: ['ESLint', 'Prettier'],
+        seo: ['SEO', 'Lighthouse', 'Google Analytics', 'Yandex Metrica'],
+        delivery: ['GitHub Actions', 'CI/CD'],
+        repo: ['GitHub'],
+      },
+    },
+  },
   {
     id: 'energy',
     kind: 'system',
