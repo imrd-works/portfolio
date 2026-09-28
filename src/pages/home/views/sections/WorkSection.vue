@@ -378,6 +378,8 @@ onMounted(async () => {
   if (wall.value && swings()) swing = createSwing(wall.value)
   // on and off with the light mode, both ways
   offGraphics = onGraphicsChange(() => {
+    // an open painting is drawn again at the new pixel ratio (the clarity changed)
+    if (current.value) painting?.fit()
     if (swings()) {
       if (!swing && wall.value) swing = createSwing(wall.value)
       return

@@ -1,19 +1,32 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { chooseGraphics, graphics, onGraphicsChange } from '@/shared/lib/graphics'
+import {
+  chooseClarity,
+  chooseGraphics,
+  clarityChoices,
+  graphics,
+  onGraphicsChange,
+  type Clarity,
+} from '@/shared/lib/graphics'
 import PopoverButton from '../PopoverButton/PopoverButton.vue'
 import ToggleSwitch from '../ToggleSwitch/ToggleSwitch.vue'
+import SegmentedSwitch from '../SegmentedSwitch/SegmentedSwitch.vue'
 
 defineOptions({ name: 'UiSettingsMenu' })
 
 /*
- * A gear that opens the page's settings: for now the light mode (lib/graphics.ts),
- * on and off. It is also the way back for a visitor who took the light mode when the
- * page offered it.
+ * A gear that opens the page's settings (lib/graphics.ts): the light mode, on and
+ * off, and the clarity the paintings are drawn at, on a dense screen, where the
+ * visitor can keep every animation and trade a little sharpness for smoothness.
+ * It is also the way back for a visitor who took the light mode when the page
+ * offered it.
  */
 const { t } = useI18n()
 const light = ref(false)
+const clarity = ref<Clarity>(2)
+// only the clarities this screen can tell apart; on a 1x screen, none to choose
+const clarities = ref<{ value: Clarity; label: string }[]>([])
 let off = () => {}
 
 function setLight(on: boolean) {
@@ -22,7 +35,19 @@ function setLight(on: boolean) {
 
 onMounted(() => {
   light.value = graphics.low
-  off = onGraphicsChange((level) => (light.value = level === 'low'))
+  clarity.value = graphics.clarity
+  const choices = clarityChoices()
+  clarities.value =
+    choices.length > 1
+      ? choices.map((c) => ({
+          value: c,
+          label: `×${t(`settings.clarityValue.${String(c).replace('.', '_')}`)}`,
+        }))
+      : []
+  off = onGraphicsChange((level) => {
+    light.value = level === 'low'
+    clarity.value = graphics.clarity
+  })
 })
 onBeforeUnmount(() => off())
 </script>
@@ -59,6 +84,16 @@ onBeforeUnmount(() => off())
       :label="t('settings.light')"
       :hint="t('settings.lightHint')"
       @update:model-value="setLight"
+    />
+
+    <SegmentedSwitch
+      v-if="clarities.length"
+      :model-value="clarity"
+      :options="clarities"
+      :label="t('settings.clarity')"
+      :hint="t(light ? 'settings.clarityLight' : 'settings.clarityHint')"
+      :disabled="light"
+      @update:model-value="chooseClarity"
     />
   </PopoverButton>
 </template>

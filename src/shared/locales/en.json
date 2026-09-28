@@ -5,7 +5,15 @@
   "settings": {
     "label": "Settings",
     "light": "Light mode",
-    "lightHint": "Simpler graphics: no mist, no river current, no swinging paintings. For weak devices and saving battery."
+    "lightHint": "Simpler graphics: no mist, no river current, no swinging paintings. For weak devices and saving battery.",
+    "clarity": "Clarity",
+    "clarityValue": {
+      "1": "1",
+      "1_5": "1.5",
+      "2": "2"
+    },
+    "clarityHint": "Lower is smoother on high-density screens: every animation stays, the paintings are a little softer.",
+    "clarityLight": "The light mode draws the paintings at ×1."
   },
   "consent": {
     "label": "Cookies and analytics",

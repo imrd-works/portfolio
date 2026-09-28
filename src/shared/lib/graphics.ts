@@ -35,6 +35,25 @@ const PROBE_MAX_MS = 10000
 
 const STORE_KEY = 'graphics:choice'
 
+/**
+ * How sharp the paintings are drawn, the visitor's own setting: the pixel ratio
+ * the scenes draw at, at most. On a dense (Retina) screen the scenes cost four
+ * times the pixels at 2x; 1x keeps every animation and draws them softer.
+ * Nothing lowers it but the visitor: 2x until they choose.
+ */
+export type Clarity = 1 | 1.5 | 2
+export const CLARITIES: readonly Clarity[] = [1, 1.5, 2]
+const CLARITY_KEY = 'graphics:clarity'
+
+function readClarity(): Clarity {
+  try {
+    const v = Number(localStorage.getItem(CLARITY_KEY))
+    return (CLARITIES as readonly number[]).includes(v) ? (v as Clarity) : 2
+  } catch {
+    return 2
+  }
+}
+
 function readChoice(): GraphicsLevel | null {
   try {
     const v = localStorage.getItem(STORE_KEY)
@@ -47,6 +66,7 @@ function readChoice(): GraphicsLevel | null {
 /** What the visitor chose, if they have: then they are never asked again. */
 let choice: GraphicsLevel | null = typeof window === 'undefined' ? null : readChoice()
 let level: GraphicsLevel = choice ?? 'high'
+let clarity: Clarity = typeof window === 'undefined' ? 2 : readClarity()
 let offered = false
 let probes = 0
 let probing = false
@@ -77,9 +97,41 @@ export const graphics = {
   get offered(): boolean {
     return offered && !choice
   },
+  get clarity(): Clarity {
+    return clarity
+  },
 }
 
-/** Calls `fn` whenever the level changes; returns the unsubscribe. */
+/** The screen's pixel ratio (1 outside a browser). */
+function screenRatio(): number {
+  return typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1
+}
+
+/**
+ * The clarities this screen can tell apart: none above its own pixel ratio. A
+ * screen of 1x has only one, and then there is nothing to choose.
+ */
+export function clarityChoices(): Clarity[] {
+  const dpr = screenRatio()
+  return CLARITIES.filter((c) => c <= dpr + 0.01)
+}
+
+/** The visitor's clarity: kept, and the scenes are drawn again at once. */
+export function chooseClarity(next: Clarity): void {
+  try {
+    localStorage.setItem(CLARITY_KEY, String(next))
+  } catch {
+    // private mode: it still holds for this page
+  }
+  if (next === clarity) return
+  clarity = next
+  listeners.forEach((fn) => fn(level))
+}
+
+/**
+ * Calls `fn` whenever the level or the clarity changes (the scenes are laid out
+ * again at the new pixel ratio); returns the unsubscribe.
+ */
 export function onGraphicsChange(fn: Listener): () => void {
   listeners.add(fn)
   return () => listeners.delete(fn)
@@ -115,10 +167,13 @@ function offer() {
   offerListeners.forEach((fn) => fn())
 }
 
-/** The pixel ratio to draw at: the screen's, capped at 2, and 1x in the light mode. */
+/**
+ * The pixel ratio to draw at: the screen's, capped at 2 and at the visitor's
+ * clarity, and 1x in the light mode.
+ */
 export function drawingRatio(): number {
-  const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1
-  return level === 'low' ? Math.min(dpr, 1) : Math.min(dpr, 2)
+  const dpr = screenRatio()
+  return level === 'low' ? Math.min(dpr, 1) : Math.min(dpr, 2, clarity)
 }
 
 /** The median of the frame times, the ones that are not gaps. */

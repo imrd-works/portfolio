@@ -117,3 +117,47 @@ describe('the choice', () => {
     expect(g.graphics.level).toBe('high')
   })
 })
+
+describe('clarity', () => {
+  /** A fresh module on a screen of `dpr`, with what storage already holds. */
+  async function screen(dpr: number, stored: Record<string, string> = {}) {
+    vi.resetModules()
+    localStorage.clear()
+    for (const [k, v] of Object.entries(stored)) localStorage.setItem(k, v)
+    vi.stubGlobal('devicePixelRatio', dpr)
+    return import('./graphics')
+  }
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('draws at the screen ratio, capped at 2, until the visitor chooses', async () => {
+    expect((await screen(2)).drawingRatio()).toBe(2)
+    expect((await screen(3)).drawingRatio()).toBe(2)
+    expect((await screen(1)).drawingRatio()).toBe(1)
+  })
+
+  it('draws at the clarity chosen, keeps it, and lays the scenes out again', async () => {
+    const g = await screen(2)
+    const heard = vi.fn()
+    g.onGraphicsChange(heard)
+    g.chooseClarity(1.5)
+    expect(g.drawingRatio()).toBe(1.5)
+    expect(heard).toHaveBeenCalledOnce()
+    expect(localStorage.getItem('graphics:clarity')).toBe('1.5')
+    expect((await screen(2, { 'graphics:clarity': '1.5' })).drawingRatio()).toBe(1.5)
+  })
+
+  it('offers only the clarities the screen can show', async () => {
+    expect((await screen(2)).clarityChoices()).toEqual([1, 1.5, 2])
+    expect((await screen(1.5)).clarityChoices()).toEqual([1, 1.5])
+    expect((await screen(1)).clarityChoices()).toEqual([1])
+  })
+
+  it('draws at 1x in the light mode, whatever the clarity', async () => {
+    const g = await screen(2, { 'graphics:choice': 'low' })
+    expect(g.drawingRatio()).toBe(1)
+  })
+
+  it('ignores a clarity it does not know', async () => {
+    expect((await screen(2, { 'graphics:clarity': '4' })).graphics.clarity).toBe(2)
+  })
+})
