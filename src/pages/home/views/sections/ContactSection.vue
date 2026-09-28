@@ -6,6 +6,7 @@ import { contactChannels, rowsFor, socials, type StackId } from '../../model/por
 import type { Paper } from './contact/lib/paper'
 import type { EnvelopeScene } from './contact/lib/envelope'
 import { useInkBloom } from '../../composables/useInkBloom'
+import { CONTACT_LIMITS } from '../../api'
 import { useLocale } from '@/composables/useLocale'
 import { PRIVACY_PATH, localizedPath } from '@/app/config/site'
 
@@ -22,6 +23,7 @@ const {
   stack,
   toggleStack,
   agree,
+  company,
   ready,
   errors,
   loading,
@@ -236,6 +238,23 @@ onBeforeUnmount(() => {
           novalidate
           @submit.prevent="submit"
         >
+          <!-- the honeypot: no person sees or reaches it (off screen, no tab stop), so
+               only a bot fills it in, and the backend then quietly drops the letter -->
+          <label
+            class="contact__trap"
+            for="contact-company"
+            aria-hidden="true"
+          >
+            Company
+            <input
+              id="contact-company"
+              v-model="company"
+              type="text"
+              name="company"
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </label>
           <p class="contact__prose">
             <i18n-t
               keypath="home.contact.letter"
@@ -251,6 +270,7 @@ onBeforeUnmount(() => {
                   <input
                     id="contact-name"
                     v-model="name"
+                    :maxlength="CONTACT_LIMITS.name"
                     v-bind="nameAttrs"
                     class="contact__blank-input ym-disable-keys"
                     :class="{ 'contact__blank-input--bad': errors.name }"
@@ -271,6 +291,7 @@ onBeforeUnmount(() => {
                     id="contact-handle"
                     v-model="contact"
                     v-bind="contactAttrs"
+                    :maxlength="CONTACT_LIMITS.contact"
                     class="contact__blank-input ym-disable-keys"
                     :class="{ 'contact__blank-input--bad': errors.contact }"
                     type="text"
@@ -375,6 +396,7 @@ onBeforeUnmount(() => {
             <textarea
               id="contact-about"
               v-model="message"
+              :maxlength="CONTACT_LIMITS.message"
               v-bind="messageAttrs"
               class="contact__area ym-disable-keys"
               :class="{ 'contact__area--bad': errors.message }"
@@ -1268,6 +1290,15 @@ onBeforeUnmount(() => {
   &__agree-box:focus-visible {
     outline: 2px solid var(--contact-sun);
     outline-offset: 3px;
+  }
+
+  // off the page for people; left in the markup for bots
+  &__trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
   }
 
   &__sr {

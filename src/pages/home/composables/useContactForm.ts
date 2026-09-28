@@ -3,7 +3,8 @@ import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import { contactChannels } from '../model/portfolio'
-import { sendContactRequest } from '../api'
+import { CONTACT_LIMITS, ContactError, sendContactRequest } from '../api'
+import { useToast } from '@/composables/useToast'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 // Telegram username: 5–32 chars, starts with a letter, letters/digits/underscore.
@@ -41,6 +42,7 @@ const schema = yup.object({
     .trim()
     .required('home.contact.form.errorName')
     .min(2, 'home.contact.form.errorName')
+    .max(CONTACT_LIMITS.name, 'home.contact.form.errorName')
     .matches(NAME_RE, {
       message: 'home.contact.form.errorName',
       excludeEmptyString: true,
@@ -49,6 +51,7 @@ const schema = yup.object({
     .string()
     .trim()
     .required('home.contact.form.errorContact')
+    .max(CONTACT_LIMITS.contact, 'home.contact.form.errorContact')
     .test('email-or-telegram', 'home.contact.form.errorContact', isEmailOrTelegram)
     .test('not-own-contact', 'home.contact.form.errorContactOwn', (value) => !isOwnContact(value)),
   // what it is to be built with: tags picked off the technology shelf
@@ -57,6 +60,7 @@ const schema = yup.object({
   message: yup
     .string()
     .trim()
+    .max(CONTACT_LIMITS.message, 'home.contact.form.errorLong')
     .when('stack', ([stack], text) =>
       stack?.length ? text : text.required('home.contact.form.errorAbout')
     ),
@@ -82,6 +86,8 @@ export function useContactForm() {
   const [contact, contactAttrs] = defineField('contact')
   const [message, messageAttrs] = defineField('message')
   const [stack] = defineField('stack')
+  /** The honeypot's value: empty, unless a bot filled in every field it found. */
+  const company = ref('')
   const [agree] = defineField('agree')
 
   /** Everything the letter needs is there: the seal can be pressed. */
@@ -108,15 +114,24 @@ export function useContactForm() {
       picked.length ? `${t('home.contact.form.stackSent')}: ${picked.join(', ')}` : '',
       (values.message ?? '').trim(),
     ]
-    await sendContactRequest(
-      {
+    try {
+      await sendContactRequest({
         name: values.name.trim(),
         contact: values.contact.trim(),
         message: lines.filter(Boolean).join('\n\n'),
-      },
-      t('home.contact.form.sendError')
-    )
-    sent.value = true
+        company: company.value,
+      })
+      sent.value = true
+    } catch (error) {
+      // the letter stays as it was, and the visitor is told what to do about it
+      const kind = error instanceof ContactError ? error.kind : 'network'
+      useToast().error(
+        t(`home.contact.form.send.${kind}`, {
+          email: contactChannels.email,
+          handle: contactChannels.telegramHandle,
+        })
+      )
+    }
   })
 
   function reset() {
@@ -134,6 +149,7 @@ export function useContactForm() {
     stack,
     toggleStack,
     agree,
+    company,
     ready,
     errors,
     loading: isSubmitting,

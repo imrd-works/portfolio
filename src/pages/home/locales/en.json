@@ -228,7 +228,12 @@
       "errorContact": "Enter a valid email or Telegram — e.g. {email} or {handle}",
       "errorContactOwn": "Those are my contacts — please leave your own",
       "errorAbout": "Describe your task",
-      "sendError": "Couldn't send your letter. Please try again.",
+      "errorLong": "Too long: up to 3500 characters",
+      "send": {
+        "invalid": "The letter did not pass the check: look over the name, contact and text, and send it again.",
+        "delivery": "The letter did not get through. Please write to me on Telegram {handle} or at {email}.",
+        "network": "No connection to the server. Check your internet and try again."
+      },
       "stackLabel": "Stack",
       "stackAdd": "+ pick the stack",
       "stackMore": "+ more",
