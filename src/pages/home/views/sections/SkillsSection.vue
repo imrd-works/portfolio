@@ -195,6 +195,27 @@ onBeforeUnmount(() => observer?.disconnect())
           </label>
         </div>
 
+        <!-- what the ink says: filled, every project; outlined, used in projects -->
+        <p
+          v-if="!searching"
+          class="skills__legend"
+        >
+          <span class="skills__legend-item">
+            <span
+              class="skills__legend-mark skills__legend-mark--strong"
+              aria-hidden="true"
+            ></span>
+            {{ t('home.skills.legend.strong') }}
+          </span>
+          <span class="skills__legend-item">
+            <span
+              class="skills__legend-mark"
+              aria-hidden="true"
+            ></span>
+            {{ t('home.skills.legend.used') }}
+          </span>
+        </p>
+
         <p
           v-if="searching"
           class="skills__found"
@@ -535,6 +556,43 @@ onBeforeUnmount(() => observer?.disconnect())
     color: var(--skills-ink-soft);
     text-transform: uppercase;
     letter-spacing: 0.12em;
+  }
+
+  // the legend under the tabs: a filled mark and an outlined one, as the brands are
+  &__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    margin: 18px 0 0;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--skills-ink-soft);
+  }
+
+  &__legend-item {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  &__legend-mark {
+    position: relative;
+    flex: none;
+    width: 22px;
+    height: 12px;
+
+    &::before {
+      position: absolute;
+      inset: 0;
+      content: '';
+      border: 1.5px solid var(--skills-ink);
+      border-radius: 3px;
+      filter: url('#skills-rough');
+    }
+
+    &--strong::before {
+      background: var(--skills-ink);
+    }
   }
 
   &__chips {

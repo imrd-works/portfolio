@@ -75,6 +75,7 @@ export const stackGroups: StackGroup[] = [
           'CSS3',
           'SCSS / SASS',
           'PostCSS',
+          'PostHTML',
           'Pug',
           'BEM',
           'Tailwind CSS',
@@ -207,26 +208,45 @@ export const allChips: string[] = (
   ['frontend', 'backend', 'devops', 'fullstack'] as StackId[]
 ).flatMap((id) => rowsFor(id).flatMap(({ chips }) => chips))
 
-/** Worked with day to day: these are inked solid, the rest are outlines. */
+/**
+ * The core stack, worked with all the time (not all of it in every project):
+ * inked solid; the rest, used in projects when needed, are outlines. The legend
+ * under the tabs says so.
+ */
 export const strongChips: string[] = [
   'Vue 3',
   'Nuxt 3 / 4',
+  'Nitro',
   'SSR / SSG / ISR',
   'TypeScript',
+  'JavaScript ES6+',
+  'Vite',
   'Pinia',
   'TanStack Query',
-  'SCSS / SASS',
-  'Highcharts',
-  'ECharts',
-  'SVG Data Viz',
+  'Axios',
+  'VueUse',
+  'Vee-validate / Yup',
   'REST API',
-  'Node',
-  'PostgreSQL',
-  'Docker',
-  'CI/CD (GitHub Actions / GitLab CI)',
+  'OpenAPI / Swagger',
+  'HTML5',
+  'CSS3',
+  'SCSS / SASS',
+  'PostCSS',
+  'BEM',
+  'GSAP',
+  'Responsive / Cross-browser',
+  'Pixel-perfect',
+  'Figma',
   'DDD',
   'FSD',
-  'Code review',
+  'ESLint / Prettier',
+  'Stylelint',
+  'Husky / lint-staged',
+  'Git (GitHub / GitLab)',
+  'npm / Yarn / PNPM',
+  'CI/CD (GitHub Actions / GitLab CI)',
+  'SEO (sitemap, robots, Open Graph)',
+  'Lighthouse',
 ]
 
 export interface StatItem {

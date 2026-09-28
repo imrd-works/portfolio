@@ -51,6 +51,10 @@
       "fullstack": "Fullstack"
     },
     "searchAll": "The search looks across all directions",
+    "legend": {
+      "strong": "Filled: my core stack, what I work with all the time",
+      "used": "Outlined: used in projects when needed"
+    },
     "clear": "Clear",
     "rows": {
       "frameworks": "Frameworks",
