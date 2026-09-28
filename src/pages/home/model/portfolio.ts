@@ -363,7 +363,7 @@ export const projects: Project[] = [
     id: 'finance',
     kind: 'site',
     years: '2026',
-    art: '/work/bitcoin.webp',
+    art: '/work/finance.webp',
     tools: {
       main: ['Next.js', 'React', 'TypeScript'],
       groups: {

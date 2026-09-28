@@ -1,11 +1,9 @@
 import { createApp, createSSRApp } from 'vue'
 import type { App, Plugin } from 'vue'
 import type { Router } from 'vue-router'
-import { createPinia } from 'pinia'
 import AppRoot from '@/App.vue'
 import { createAppRouter } from '@/router'
 import { createAppI18n, setI18nLocale } from '@/i18n'
-import { portfolioDirectives } from '@/shared/directives'
 import { DEFAULT_LOCALE, localeFromPath, type AppLocale } from '@/app/config/site'
 import '@/assets/styles/main.scss'
 
@@ -40,11 +38,9 @@ export function createPortfolioApp({ ssr = false, hydrate = false, head }: Creat
     setI18nLocale(i18n, (to.meta.locale as AppLocale | undefined) ?? localeFromPath(to.path))
   })
 
-  app.use(createPinia())
   app.use(router)
   app.use(i18n)
   app.use(head)
-  app.use(portfolioDirectives)
 
   return { app, router } satisfies PortfolioApp
 }

@@ -1,6 +1,5 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { fileURLToPath, URL } from 'node:url'
 
@@ -39,14 +38,11 @@ export default defineConfig(({ mode, isSsrBuild }) => {
                   if (id.includes('node_modules/vue/') || id.includes('node_modules/@vue/'))
                     return 'vue'
                   if (id.includes('node_modules/vue-router/')) return 'router'
-                  if (id.includes('node_modules/pinia/')) return 'pinia'
                   // vue-sonner is deliberately absent: it is imported
                   // dynamically the first time a toast fires, and naming it
                   // here would drag it back into the initial payload.
                   if (id.includes('node_modules/vue-i18n/') || id.includes('node_modules/@unhead/'))
                     return 'vendor-ui'
-                  if (id.includes('node_modules/axios/')) return 'vendor-api'
-                  if (id.includes('node_modules/@vueuse/')) return 'vueuse'
                 }
               },
               chunkFileNames: 'assets/[name]-[hash].js',
@@ -66,12 +62,6 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     },
     plugins: [
       vue(),
-      createSvgIconsPlugin({
-        iconDirs: [fileURLToPath(new URL('./src/assets/icons', import.meta.url))],
-        symbolId: 'icon-[name]',
-        inject: 'body-last',
-        svgoOptions: true,
-      }),
       ...(analyze
         ? [
             visualizer({
@@ -92,10 +82,8 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     },
     resolve: {
       alias: {
-        '@/api': fileURLToPath(new URL('./src/app/api', import.meta.url)),
         '@/i18n': fileURLToPath(new URL('./src/app/i18n', import.meta.url)),
         '@/router': fileURLToPath(new URL('./src/app/router', import.meta.url)),
-        '@/stores': fileURLToPath(new URL('./src/shared/stores', import.meta.url)),
         '@/composables': fileURLToPath(new URL('./src/shared/composables', import.meta.url)),
         '@/locales': fileURLToPath(new URL('./src/shared/locales', import.meta.url)),
         '@': fileURLToPath(new URL('./src', import.meta.url)),

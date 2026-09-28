@@ -1,6 +1,5 @@
 import { createMemoryHistory, createRouter, createWebHistory, START_LOCATION } from 'vue-router'
 import type { Router, RouteRecordRaw } from 'vue-router'
-import { setupRouterMiddleware } from './middleware'
 import { portfolioRoutes, privacyRoutes, notFoundRoute } from '@/pages'
 import { localeFromPath } from '@/app/config/site'
 
@@ -29,8 +28,6 @@ export function createAppRouter(ssr = false): Router {
       return { top: 0 }
     },
   })
-
-  setupRouterMiddleware(router)
 
   return router
 }

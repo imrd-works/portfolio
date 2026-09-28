@@ -124,7 +124,7 @@ describe('portfolio CV data', () => {
     expect(projects.map(({ art }) => art)).toEqual([
       '/work/energy.webp',
       '/work/education.webp',
-      '/work/bitcoin.webp',
+      '/work/finance.webp',
       '/work/monitoring.webp',
       '/work/documents.webp',
       '/work/process.webp',

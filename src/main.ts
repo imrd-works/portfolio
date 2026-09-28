@@ -1,8 +1,5 @@
-import { nextTick } from 'vue'
 import { createHead } from '@unhead/vue/client'
 import { createPortfolioApp } from '@/app/create'
-import { completeInitialRender, markPrerenderedHydration } from '@/shared/lib/hydration'
-import 'virtual:svg-icons-register'
 
 const root = document.querySelector<HTMLElement>('#app')
 
@@ -32,8 +29,6 @@ const prerenderedPath = root?.dataset.prerendered
 const canHydrate =
   Boolean(prerenderedPath) && normalize(prerenderedPath!) === normalize(window.location.pathname)
 
-if (canHydrate) markPrerenderedHydration()
-
 const { app, router } = createPortfolioApp({
   hydrate: canHydrate,
   head: createHead(),
@@ -41,5 +36,4 @@ const { app, router } = createPortfolioApp({
 
 router.isReady().then(() => {
   app.mount('#app')
-  void nextTick(completeInitialRender)
 })

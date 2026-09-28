@@ -16,8 +16,3 @@ interface ImportMetaEnv {
   /** Google Analytics 4 measurement ID (`G-…`); without it the tag does not load. */
   readonly VITE_GA_MEASUREMENT_ID?: string
 }
-
-declare module 'virtual:svg-icons-register' {
-  const component: unknown
-  export default component
-}
