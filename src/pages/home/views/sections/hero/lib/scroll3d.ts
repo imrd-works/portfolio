@@ -55,6 +55,11 @@ export interface Scroll3D {
   setUnroll(u: number): number
   /** Re-renders the ink painting (the hero's shader) and the scene. */
   draw(u: InkUniforms): void
+  /**
+   * What the screen really shows: of points in a grid over it, how many are paper (light)
+   * and how many ink (dark). A GPU can build every shader and still draw nothing.
+   */
+  painted(): { paper: number; ink: number }
   dispose(): void
 }
 
@@ -478,6 +483,33 @@ export function createScroll3D(canvas: HTMLCanvasElement): Scroll3D | null {
         renderer.setClearColor(DESK, 1)
       }
       render()
+    },
+
+    painted() {
+      render() // read in the same task as the frame, before the browser presents it
+      const gl = renderer.getContext()
+      const w = gl.drawingBufferWidth
+      const h = gl.drawingBufferHeight
+      const px = new Uint8Array(4)
+      let paper = 0
+      let ink = 0
+      for (let j = 1; j <= 8; j++) {
+        for (let i = 1; i <= 12; i++) {
+          gl.readPixels(
+            Math.floor((w * i) / 13),
+            Math.floor((h * j) / 9),
+            1,
+            1,
+            gl.RGBA,
+            gl.UNSIGNED_BYTE,
+            px
+          )
+          const l = 0.2126 * px[0] + 0.7152 * px[1] + 0.0722 * px[2]
+          if (l > 170) paper++
+          else if (l < 90) ink++
+        }
+      }
+      return { paper, ink }
     },
 
     dispose() {

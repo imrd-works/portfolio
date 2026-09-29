@@ -374,6 +374,35 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     showCaptions()
     hold?.release()
     phase = 'done'
+    checkPainted(600)
+  }
+
+  /**
+   * Some GPUs build every shader and still draw nothing: a blank sheet, or no sheet at all.
+   * Once the ink should be on the paper, a look at the screen: without both paper and ink
+   * on it the 3D scroll is dropped for the plain sheet with the picture, which always shows.
+   */
+  function checkPainted(ms: number) {
+    window.setTimeout(() => {
+      if (destroyed || !renderer || fallback) return
+      const { paper, ink } = renderer.painted()
+      if (paper >= 6 && ink >= 2) return
+      console.warn(
+        `[hero] the 3D scroll draws nothing here (paper ${paper}, ink ${ink}): the picture instead`
+      )
+      renderer.dispose()
+      renderer = null
+      fallback = true
+      evening?.reset()
+      hooks.useImageFallback()
+      cancelAnimationFrame(unrollRaf)
+      unrolled = 1
+      layout()
+      hooks.showArt(true)
+      showCaptions()
+      hold?.release()
+      phase = 'done'
+    }, ms)
   }
 
   // scene state `ts` seconds after the impact (no drawing)
@@ -486,6 +515,8 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
       // and a scroll at the top from now on brings the evening
       hold?.release()
       evening?.arm()
+      // the blot has spread and the sun is on the paper: is any of it on the screen?
+      checkPainted(1200)
     }
   }
 
