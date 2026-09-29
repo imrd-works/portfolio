@@ -3,12 +3,16 @@ import en from '../locales/en.json'
 import ru from '../locales/ru.json'
 import {
   contactChannels,
+  allChips,
   coreSkills,
-  dataChips,
-  frontendChips,
-  platformChips,
-  toolsChips,
+  homeOf,
+  rowsFor,
+  sharedRows,
+  stackGroups,
+  strongChips,
   projects,
+  allToolsOf,
+  toolGroupsOf,
   socials,
   stats,
   timeline,
@@ -37,73 +41,114 @@ describe('portfolio CV data', () => {
     for (const { id } of coreSkills) {
       expect((ru.skills.core as Record<string, string>)[id]?.length ?? 0).toBeGreaterThan(20)
       expect((en.skills.core as Record<string, string>)[id]?.length ?? 0).toBeGreaterThan(20)
+      expect((ru.skills.coreName as Record<string, string>)[id]).toBeTruthy()
+      expect((en.skills.coreName as Record<string, string>)[id]).toBeTruthy()
     }
   })
 
   it('lists no technology the CV does not claim', () => {
-    const chips = [...frontendChips, ...dataChips, ...platformChips, ...toolsChips]
+    const chips = allChips
 
-    expect(new Set(chips).size).toBe(chips.length)
-    // Removed on purpose while aligning the site with the CV — putting any of
-    // them back means adding it to the CV first.
-    for (const absent of [
-      'WebSocket / Socket.io',
-      'Bootstrap',
-      'Material Design',
-      'Storybook',
-      'Photoshop',
-      'Jira',
-      'Notion',
-      'ClickUp',
-    ]) {
-      expect(chips).not.toContain(absent)
+    expect(stackGroups.map(({ id }) => id)).toEqual(['frontend', 'backend', 'devops', 'fullstack'])
+    // every row is named in both locales, and none is left empty
+    for (const { rows } of stackGroups) {
+      for (const row of rows) {
+        expect(row.chips.length).toBeGreaterThan(0)
+        expect((ru.skills.rows as Record<string, string>)[row.id]).toBeTruthy()
+        expect((en.skills.rows as Record<string, string>)[row.id]).toBeTruthy()
+      }
     }
-    // Named in the CV, so they belong on the site too.
-    expect(chips).toEqual(
-      expect.arrayContaining(['Symfony', 'PostgreSQL', 'Nginx', 'Lottie', 'Nuxt 2'])
+    expect(strongChips.every((chip) => chips.includes(chip))).toBe(true)
+    // a shared tool is filed once, on the fullstack tab
+    for (const chip of sharedRows.flatMap(({ chips }) => chips)) {
+      expect(chips.filter((x) => x === chip)).toHaveLength(1)
+      expect(homeOf(chip)).toBe('fullstack')
+    }
+    // every row is named after what is in it, in both locales, and shown once
+    const shown = (['frontend', 'backend', 'devops', 'fullstack'] as const).flatMap((id) =>
+      rowsFor(id).flatMap(({ chips }) => chips)
+    )
+    expect(new Set(shown).size).toBe(shown.length)
+    // versions of one tool go up, so Vue 2 stands before Vue 3
+    const frameworks = rowsFor('frontend').find(({ id }) => id === 'frameworks')?.chips ?? []
+
+    expect(frameworks.indexOf('Vue 2 / 2.7')).toBeLessThan(frameworks.indexOf('Vue 3'))
+    expect(frameworks.indexOf('Nuxt 2')).toBeLessThan(frameworks.indexOf('Nuxt 3 / 4'))
+    // the language and the build tools serve both sides
+    expect(homeOf('JavaScript ES6+')).toBe('fullstack')
+    expect(homeOf('npm / Yarn / PNPM')).toBe('fullstack')
+    expect(homeOf('Google Analytics')).toBe('frontend')
+    // the framework is named once, on the frontend tab; the server work it
+    // carries is filed under fullstack by its own names
+    expect(homeOf('Nuxt 3 / 4')).toBe('frontend')
+    expect(homeOf('SSR / SSG / ISR')).toBe('fullstack')
+    expect(homeOf('Next.js API routes')).toBe('fullstack')
+    // a CMS project is the whole site: templates, admin and the data behind it
+    expect(homeOf('Sanity')).toBe('fullstack')
+    expect(homeOf('WordPress')).toBe('fullstack')
+    expect(rowsFor('frontend').flatMap(({ chips }) => chips)).not.toContain('TypeScript')
+    expect(rowsFor('fullstack').flatMap(({ chips }) => chips)).toEqual(
+      expect.arrayContaining(['TypeScript', 'OpenAPI / Swagger', 'Docker'])
     )
   })
 
   it('backs the headline numbers with things listed on the page', () => {
     expect(stats.map(({ id }) => id)).toEqual(['systems', 'launches', 'lead'])
-    expect(stats.find(({ id }) => id === 'systems')?.value).toBe(projects.length)
+    // Work shows a selection: never more systems than the count claims
+    expect(stats.find(({ id }) => id === 'systems')?.value).toBeGreaterThanOrEqual(projects.length)
     expect(Object.keys(ru.about.stats)).toEqual(['systems', 'launches', 'lead'])
     expect(Object.keys(en.about.stats)).toEqual(['systems', 'launches', 'lead'])
   })
 
   it('represents the Vue and Nuxt specialization from the CV', () => {
-    expect(coreSkills[0]).toEqual({ id: 'vue', label: 'Vue 3 / Nuxt 3–4' })
-    expect(frontendChips).toEqual(expect.arrayContaining(['Vue 3', 'Nuxt 3 / 4', 'Pinia']))
-    expect(ru.hero.status).toContain('Vue / Nuxt')
-    expect(en.hero.status).toContain('Vue / Nuxt')
+    expect(coreSkills[0]).toEqual({ id: 'vue' })
+    expect(ru.skills.coreName.vue).toBe('Vue / Nuxt')
+    const frontend =
+      stackGroups.find(({ id }) => id === 'frontend')?.rows.flatMap(({ chips }) => chips) ?? []
+
+    expect(frontend).toEqual(expect.arrayContaining(['Vue 3', 'Nuxt 3 / 4', 'Pinia']))
+    expect(ru.meta.title).toContain('Vue / Nuxt')
+    expect(en.meta.title).toContain('Vue / Nuxt')
   })
 
-  it('includes six named CV projects and no placeholder links', () => {
+  it('includes the CV projects with their stacks and full details', () => {
     expect(projects.map(({ id }) => id)).toEqual([
-      'sigma',
+      'corporate',
+      'energy',
       'education',
-      'bitcoin',
-      'moex',
-      'irlix',
-      'baccasoft',
+      'finance',
+      'monitoring',
+      'documents',
+      'processes',
     ])
-    expect(projects.flatMap(({ image }) => (image ? [image] : []))).toEqual([
-      '/altai.webp',
-      '/academy.webp',
-      '/twoprime.webp',
-      '/moex.webp',
-      '/transport.webp',
+    // NDA: the paintings stand in for the products, no screens or links
+    expect(projects.map(({ art }) => art)).toEqual([
+      '/work/corporate.webp',
+      '/work/energy.webp',
+      '/work/education.webp',
+      '/work/finance.webp',
+      '/work/monitoring.webp',
+      '/work/documents.webp',
+      '/work/process.webp',
     ])
-    expect(projects.find(({ id }) => id === 'bitcoin')?.image).toBe('/twoprime.webp')
-    expect(projects.find(({ id }) => id === 'moex')?.image).toBe('/moex.webp')
-    expect(projects.find(({ id }) => id === 'baccasoft')?.image).toBe('/transport.webp')
-    expect(projects.every(({ href }) => href === undefined)).toBe(true)
-    expect(ru.work.items.sigma.desc.length).toBeGreaterThan(50)
-    expect(en.work.items.education.desc).toContain('education')
-    expect(ru.work.items.bitcoin.desc).toContain('Next.js')
-    expect(en.work.items.moex.desc).toContain('monitoring')
-    expect(ru.work.items.irlix.placeholder).toContain('Vue 3')
-    expect(en.work.items.baccasoft.placeholder).toContain('Vue 2.7')
+    expect(projects.every((p) => !('href' in p) && !('image' in p))).toBe(true)
+    expect(projects.find(({ id }) => id === 'finance')?.tools.main).toContain('Next.js')
+    expect(projects.find(({ id }) => id === 'processes')?.tools.main).toContain('Vue 2.7')
+    for (const locale of [ru, en]) {
+      for (const { id, kind } of projects) {
+        const item = locale.work.items[id]
+        expect(item.about.length).toBeGreaterThan(80)
+        expect(item.role).toMatch(/Developer/)
+        expect(item.did.split('\n').length).toBeGreaterThanOrEqual(3)
+        expect(locale.work.kinds[kind]).toBeTruthy()
+      }
+      // every group a project uses has its caption
+      for (const p of projects) {
+        for (const g of toolGroupsOf(p)) expect(locale.work.toolGroups[g.id]).toBeTruthy()
+      }
+    }
+    expect(ru.work.items.energy.about).toContain('CryptoPro')
+    expect(en.work.items.monitoring.about).toContain('monitoring')
   })
 
   it('uses neutral localized project titles without company names', () => {
@@ -113,17 +158,17 @@ describe('portfolio CV data', () => {
     expect(ruTitles).toHaveLength(projects.length)
     expect(ruTitles.every((title) => /[\u0400-\u04ff]/.test(title))).toBe(true)
     expect(ruTitles.join(' ')).not.toMatch(/SIGMA-IT|Afterlogic|MOEX|IRLIX|BACCASOFT/)
-    expect(en.work.items.moex.title).toBe('Financial Monitoring Portal')
+    expect(en.work.items.monitoring.title).toBe('Financial Monitoring Portal')
   })
 
-  it('shows six responsibility milestones in reverse chronological order', () => {
+  it('shows six steps in reverse chronological order, one per print on the river', () => {
     expect(timeline.map(({ id }) => id)).toEqual([
       'current',
-      'fullstack',
       'energyLead',
       'educationLead',
       'complexSystems',
       'commercialStart',
+      'startups',
     ])
   })
 
@@ -135,8 +180,15 @@ describe('portfolio CV data', () => {
 
     expect(Object.keys(ruItems)).toEqual(ids)
     expect(Object.keys(enItems)).toEqual(ids)
-    expect(ruItems.fullstack?.role).toBe('Fullstack Developer / Team Lead')
-    expect(enItems.energyLead?.role).toBe('Frontend Developer / Team Lead')
+    // junior, middle, senior and lead, then fullstack and DevOps today
+    expect(ids.map((id) => enItems[id]?.role)).toEqual([
+      'Fullstack / DevOps Developer',
+      'Senior Frontend Developer / Team Lead',
+      'Senior Frontend Developer / Team Lead',
+      'Middle Frontend Developer',
+      'Junior Frontend Developer',
+      'Frontend developer in startups',
+    ])
     expect(enItems.educationLead?.desc).toContain('mentoring')
     expect(ruItems.energyLead?.desc).toContain('code review')
     expect(ids.every((id) => (ruItems[id]?.desc.length ?? 0) > 100)).toBe(true)
@@ -152,10 +204,10 @@ describe('portfolio CV data', () => {
     const enItems = en.experience.items as Record<string, ExperienceCopy>
     const ids = timeline.map(({ id }) => id)
 
-    expect(ruItems.fullstack?.role).toBe('Fullstack Developer / Team Lead')
-    expect(enItems.fullstack?.role).toBe('Fullstack Developer / Team Lead')
     expect(ruItems.educationLead?.period).toContain('2024')
-    expect(enItems.educationLead?.period).toBe('June — November 2024, March 2025 — February 2026')
+    // the two senior steps follow one another instead of overlapping
+    expect(enItems.educationLead?.period).toBe('June — November 2024, March — November 2025')
+    expect(enItems.energyLead?.period).toBe('December 2025 — February 2026')
     // The timeline must reach today, not stop at the last finished project.
     expect(enItems.current?.period).toContain('present')
     expect(
@@ -164,5 +216,40 @@ describe('portfolio CV data', () => {
     expect(ids.every((id) => /team|developers|collaborat/i.test(enItems[id]?.desc ?? ''))).toBe(
       true
     )
+  })
+})
+
+describe('project tools', () => {
+  it('are grouped, in the same order everywhere, each tool once', () => {
+    const energy = projects.find(({ id }) => id === 'energy')!
+    expect(toolGroupsOf(energy).map((g) => g.id)).toEqual([
+      'data',
+      'visual',
+      'styles',
+      'design',
+      'signature',
+      'api',
+      'build',
+      'quality',
+      'repo',
+    ])
+    expect(toolGroupsOf(energy).find((g) => g.id === 'api')?.tools).toEqual([
+      'REST API',
+      'Axios',
+      'OpenAPI',
+      'Swagger',
+      'Postman',
+    ])
+    for (const p of projects) {
+      // inked: what it is written in, the same way everywhere, the language included
+      expect(p.tools.main.some((t) => /TypeScript|JavaScript/.test(t))).toBe(true)
+      const all = allToolsOf(p)
+      expect(all.slice(0, p.tools.main.length)).toEqual(p.tools.main)
+      expect(new Set(all).size).toBe(all.length)
+      expect(toolGroupsOf(p).every((g) => g.tools.length > 0)).toBe(true)
+      // no project is written without version control, or without its mockups
+      expect(p.tools.groups.repo?.length).toBeGreaterThan(0)
+      expect(p.tools.groups.design).toEqual(['Figma', 'Pixel Perfect'])
+    }
   })
 })

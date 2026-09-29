@@ -1,280 +1,313 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { PageSection, Grid, Motion, Text, CountUp } from '@/shared/ui'
+import { useTemplateRef } from 'vue'
+import { useInView } from '@/shared/composables/useInView'
+import { useInkBloom } from '../../composables/useInkBloom'
 import { stats } from '../../model/portfolio'
-import SectionEyebrow from './SectionEyebrow.vue'
 
 const { t } = useI18n()
+// The whole spread comes in at once: the painting soaks into the paper, the
+// text blooms, the counts are stamped.
+const { targetRef: spread, inView: shown } = useInView({ threshold: 0.12 })
+// the painting itself comes in the way the hero's does: ink on wet paper,
+// starting from the two of them on the rock
+const art = useTemplateRef<HTMLImageElement>('art')
+useInkBloom(art, { from: { x: 0.45, y: 0.62 } })
 </script>
 
 <template>
-  <PageSection
+  <section
     id="about"
-    relative
-    padding-top="band"
-    padding-bottom="band"
+    :ref="spread"
+    class="about"
+    :class="{ 'about--shown': shown }"
+    data-ink-surface="paper"
   >
-    <Grid
-      columns="1.3fr 0.9fr"
-      gap="5xl"
-      stack="md"
-      align="start"
+    <svg
+      class="about__defs"
+      width="0"
+      height="0"
+      aria-hidden="true"
     >
-      <Motion
-        preset="fade-up"
-        trigger="visible"
-        tag="div"
+      <filter
+        id="about-rough"
+        x="-10%"
+        y="-10%"
+        width="120%"
+        height="120%"
       >
-        <div class="about__eyebrow">
-          <SectionEyebrow
-            num="01"
-            :label="t('home.about.eyebrow')"
-          />
-        </div>
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency=".9"
+          numOctaves="2"
+          seed="4"
+          result="n"
+        />
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="n"
+          scale="2.6"
+        />
+      </filter>
+    </svg>
 
-        <Text
-          tag="h2"
-          variant="display-m"
-          class="about__title"
-        >
+    <div class="about__spread">
+      <!-- the painting is the ground the text lies on: the wolverine from the
+           path and the man it walks with, soaked into the paper -->
+      <img
+        ref="art"
+        class="about__art"
+        src="/about/portrait.webp"
+        :alt="t('home.about.photo')"
+        width="896"
+        height="1344"
+        loading="lazy"
+        decoding="async"
+      />
+      <p class="about__badge">{{ t('home.about.badge') }}</p>
+
+      <div class="about__body">
+        <p class="about__eyebrow">{{ t('home.about.eyebrow') }}</p>
+        <h2 class="about__title">
           <i18n-t
             keypath="home.about.title"
-            scope="global"
+            tag="span"
           >
             <template #accent>
-              <span class="about__title-accent">{{ t('home.about.titleAccent') }}</span>
+              <em class="about__accent">{{ t('home.about.titleAccent') }}</em>
             </template>
           </i18n-t>
-        </Text>
+        </h2>
+        <p class="about__text">{{ t('home.about.p1') }}</p>
+        <p class="about__text">{{ t('home.about.p2') }}</p>
+        <p class="about__text">{{ t('home.about.p3') }}</p>
 
-        <Text
-          tag="p"
-          variant="body-l"
-          tone="secondary"
-          class="about__text"
-        >
-          {{ t('home.about.p1') }}
-        </Text>
-        <Text
-          tag="p"
-          variant="body-m"
-          tone="tertiary"
-          class="about__text"
-        >
-          {{ t('home.about.p2') }}
-        </Text>
-        <Text
-          tag="p"
-          variant="body-m"
-          tone="tertiary"
-          class="about__text"
-        >
-          {{ t('home.about.p3') }}
-        </Text>
-
-        <Motion
-          preset="fade-up"
-          trigger="visible"
-          target="children"
-          :stagger="80"
-          tag="div"
-          class="about__stats"
-        >
+        <div class="about__stats">
           <div
             v-for="stat in stats"
             :key="stat.id"
             class="about__stat"
           >
-            <div class="about__stat-value">
-              <CountUp
-                :to="stat.value"
-                :suffix="stat.suffix"
-              />
-            </div>
-            <Text
-              tag="div"
-              variant="body-s"
-              tone="tertiary"
-              class="about__stat-label"
-            >
-              {{ t(`home.about.stats.${stat.id}`) }}
-            </Text>
-          </div>
-        </Motion>
-      </Motion>
-
-      <Motion
-        preset="fade-up"
-        trigger="visible"
-        :delay="120"
-        tag="div"
-        class="about__aside"
-      >
-        <div
-          v-tilt
-          class="about__portrait"
-        >
-          <span class="about__portrait-glow"></span>
-          <div class="about__portrait-frame">
-            <img
-              class="about__portrait-image"
-              src="/avatar.webp"
-              :alt="t('home.about.photo')"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <div class="about__portrait-badge">
-            <span class="about__portrait-dot"></span>
-            <Text
-              tag="span"
-              variant="body-s"
-              tone="secondary"
-              class="about__portrait-text"
-            >
-              {{ t('home.about.badge') }}
-            </Text>
+            <span class="about__seal">{{ stat.value }}{{ stat.suffix }}</span>
+            <span class="about__stat-label">{{ t(`home.about.stats.${stat.id}`) }}</span>
           </div>
         </div>
-      </Motion>
-    </Grid>
-  </PageSection>
+      </div>
+    </div>
+  </section>
 </template>
 
 <style lang="scss" scoped>
 /** @define about */
-@use 'assets/styles/mixins' as *;
+.about {
+  // the same paper as the hero, the river and the work wall
+  --about-paper: #ece8e1;
+  --about-sheet: #f4f1ec;
+  --about-ink: #101214;
+  --about-ink-soft: #3a4454;
+  --about-text: #2a2f36;
+  --about-seal: #c23b2a;
 
-.about__eyebrow {
-  margin-bottom: 30px;
-}
-
-.about__title {
-  margin: 0 0 26px;
-
-  &-accent {
-    background: var(--gradient-accent);
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-}
-
-.about__text {
-  max-width: 560px;
-  margin: 0 0 18px;
-
-  &:last-of-type {
-    margin-bottom: 0;
-  }
-}
-
-.about__stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  max-width: 560px;
-  margin-top: 44px;
-
-  // Three columns on a phone leave ~80px per label, so "года как Team Lead"
-  // breaks onto four lines. One card per row instead, with the number and the
-  // label side by side so the block stays compact.
-  @include bp-down(md) {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-  }
-}
-
-.about__stat {
-  padding: 22px 18px;
-  background: var(--color-bg-surface-sunken);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 18px;
-
-  @include bp-down(md) {
-    display: flex;
-    gap: 16px;
-    align-items: baseline;
-    padding: 16px 20px;
-  }
-}
-
-.about__stat-value {
-  font-family: var(--font-family-display);
-  font-size: clamp(30px, 4vw, 46px);
-  font-weight: 800;
-  background: var(--gradient-accent);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.about__stat-label {
-  margin-top: 4px;
-
-  @include bp-down(md) {
-    margin-top: 0;
-  }
-}
-
-.about__aside {
-  display: flex;
-  justify-content: center;
-}
-
-.about__portrait {
   position: relative;
-  width: min(340px, 80vw);
-  aspect-ratio: 4 / 5;
-  will-change: transform;
-}
+  // the portrait opens on its own empty paper: less padding above it
+  padding: 72px var(--page-pad) 120px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  line-height: normal;
+  color: var(--about-ink);
+  background-color: var(--about-paper);
+  -webkit-font-smoothing: antialiased;
 
-.about__portrait-glow {
-  position: absolute;
-  inset: -14px;
-  background: linear-gradient(135deg, rgb(99 102 241 / 50%), rgb(167 139 250 / 20%), transparent);
-  filter: blur(26px);
-  border-radius: 28px;
-}
+  &__defs {
+    position: absolute;
+  }
 
-.about__portrait-frame {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-card);
-}
+  &__spread {
+    display: grid;
+    grid-template-areas:
+      'art body'
+      'badge body';
+    grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    gap: 18px clamp(24px, 4vw, 64px);
+    align-items: start;
+  }
 
-.about__portrait-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 42%;
-}
+  /* ---------- the painting, soaked into the paper ---------- */
+  &__art {
+    grid-area: art;
+    align-self: start;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    // the painting is ink on transparency and already fades out in the file
+    // itself, so it lies on the paper with no edge of any kind
+    filter: blur(6px);
+    opacity: 0;
+    transition:
+      opacity 1.6s ease,
+      filter 2s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
 
-.about__portrait-badge {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
-  left: 16px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 14px 16px;
-  pointer-events: none;
-  background: var(--color-bg-glass);
-  border: 1px solid var(--color-border-default);
-  border-radius: 14px;
-  backdrop-filter: blur(10px);
-}
+  &--shown &__art {
+    filter: blur(0);
+    opacity: 1;
+  }
 
-.about__portrait-dot {
-  flex: none;
-  width: 8px;
-  height: 8px;
-  background: var(--color-success);
-  border-radius: 50%;
-  animation: blink 2s infinite;
+  &__badge {
+    grid-area: badge;
+    margin: 0;
+    font-size: 11px;
+    color: var(--about-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    transition: opacity 1s ease 0.6s;
+  }
+
+  &--shown &__badge {
+    opacity: 1;
+  }
+
+  /* ---------- the text ---------- */
+  &__body {
+    grid-area: body;
+    align-self: center;
+  }
+
+  &__body > * {
+    filter: blur(10px);
+    opacity: 0;
+    transition:
+      opacity 1s ease,
+      filter 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  &--shown &__body > * {
+    filter: blur(0);
+    opacity: 1;
+  }
+
+  @for $i from 2 through 6 {
+    &--shown &__body > :nth-child(#{$i}) {
+      transition-delay: ($i - 1) * 0.1s;
+    }
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: var(--type-eyebrow-size);
+    color: var(--about-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: var(--type-eyebrow-tracking);
+  }
+
+  &__title {
+    max-width: 18ch;
+    margin: 12px 0 0;
+    font-family: var(--type-display);
+    font-size: var(--type-title-size);
+    font-weight: var(--type-title-weight);
+    line-height: var(--type-title-leading);
+    letter-spacing: var(--type-title-tracking);
+  }
+
+  &__accent {
+    font-style: normal;
+    color: var(--about-seal);
+  }
+
+  &__text {
+    max-width: 62ch;
+    margin: 22px 0 0;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--about-text);
+  }
+
+  /* ---------- the counts, stamped in cinnabar ---------- */
+  &__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    margin-top: 40px;
+  }
+
+  &__stat {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  &__seal {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    font-family: Unbounded, sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--about-paper);
+    letter-spacing: -0.04em;
+    background: var(--about-seal);
+    filter: url('#about-rough');
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(1.5) rotate(-6deg);
+  }
+
+  &--shown &__seal {
+    opacity: 0.94;
+    transform: scale(1) rotate(-6deg);
+    transition:
+      opacity 0.12s linear,
+      transform 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+  }
+
+  &--shown &__stat:nth-child(2) &__seal {
+    transition-delay: 0.12s;
+  }
+
+  &--shown &__stat:nth-child(3) &__seal {
+    transition-delay: 0.24s;
+  }
+
+  &__stat-label {
+    max-width: 14ch;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--about-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  @media (width < 860px) {
+    &__spread {
+      grid-template-areas:
+        'art'
+        'badge'
+        'body';
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto auto;
+    }
+
+    &__art {
+      max-width: 420px;
+      margin: 0 auto;
+    }
+  }
+
+  // a phone's column is narrow: the same gaps look twice as wide there
+  @media (width < 700px) {
+    padding-top: 32px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &__art,
+    &__badge,
+    &__body > *,
+    &__seal {
+      transition: none;
+    }
+  }
 }
 </style>

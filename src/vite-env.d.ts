@@ -11,9 +11,8 @@ interface ImportMetaEnv {
   // the meta tag is emitted only when the variable is set.
   readonly VITE_GOOGLE_SITE_VERIFICATION?: string
   readonly VITE_YANDEX_VERIFICATION?: string
-}
-
-declare module 'virtual:svg-icons-register' {
-  const component: unknown
-  export default component
+  /** Yandex Metrica's counter number; without it no analytics loads. */
+  readonly VITE_YANDEX_METRIKA_ID?: string
+  /** Google Analytics 4 measurement ID (`G-…`); without it the tag does not load. */
+  readonly VITE_GA_MEASUREMENT_ID?: string
 }

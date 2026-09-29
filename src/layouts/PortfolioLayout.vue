@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { AuroraBackdrop, CustomCursor, ScrollProgress } from '@/shared/ui'
+import { CustomCursor } from '@/shared/ui'
+import PageCorner from './PageCorner.vue'
 
 const { t } = useI18n()
 </script>
@@ -16,9 +17,8 @@ const { t } = useI18n()
       {{ t('home.a11y.skip') }}
     </a>
 
-    <ScrollProgress />
-    <AuroraBackdrop />
     <CustomCursor />
+    <PageCorner />
     <main
       id="main-content"
       class="portfolio-layout__main"
@@ -42,24 +42,33 @@ const { t } = useI18n()
   position: relative;
   min-height: 100vh; // fallback for browsers without svh / JS
   min-height: var(--app-height, 100svh);
-  overflow: hidden;
+  // `clip`, not `hidden`: it trims the same overflow without turning the
+  // layout into a scroll container, which would break the sticky hero stage.
+  overflow: clip;
   color: var(--color-text-primary);
-  background: var(--color-bg-canvas);
+  background: var(--page-paper);
 
   &__skip {
     position: fixed;
     top: 12px;
     left: 12px;
     z-index: 9500;
-    padding: 12px 20px;
-    color: var(--color-on-accent);
+    padding: 10px 16px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    color: #ece8e1;
     text-decoration: none;
-    background: var(--gradient-primary);
-    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: #101214;
+    border-radius: 2px;
     transform: translateY(-200%);
     transition: transform 0.2s ease;
 
+    // the seal's cinnabar (the hero's sun), not the site's violet
     &:focus-visible {
+      outline: 2px solid #c73826;
+      outline-offset: 3px;
       transform: translateY(0);
     }
   }

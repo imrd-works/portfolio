@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted } from 'vue'
 import ToasterLazy from '@/shared/components/ToasterLazy.vue'
+import { useGoogleAnalytics } from '@/composables/useGoogleAnalytics'
+import { useYandexMetrika } from '@/composables/useYandexMetrika'
+
+// analytics, on the published site only (settings in each composable's file)
+useYandexMetrika()
+useGoogleAnalytics()
 
 // Freeze the visible viewport height into a CSS variable. In-app browsers
 // (Telegram, etc.) resize the WebView when their toolbar shows/hides on

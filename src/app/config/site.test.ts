@@ -5,6 +5,7 @@ import {
   absoluteUrl,
   localeFromPath,
   localeUrlPath,
+  localizedPath,
 } from './site'
 
 describe('site config', () => {
@@ -28,6 +29,15 @@ describe('site config', () => {
   it('builds absolute URLs without doubling slashes', () => {
     expect(absoluteUrl('/')).toMatch(/^https?:\/\/[^/]+\/$/)
     expect(absoluteUrl('en/')).toBe(absoluteUrl('/en/'))
-    expect(absoluteUrl('/og-ru.jpg').endsWith('//og-ru.jpg')).toBe(false)
+    expect(absoluteUrl('/og.jpg').endsWith('//og.jpg')).toBe(false)
+  })
+
+  it('finds the same page in the other language, in the canonical form', () => {
+    expect(localizedPath('/', 'en')).toBe('/en/')
+    expect(localizedPath('/en', 'ru')).toBe('/')
+    expect(localizedPath('/en/', 'en')).toBe('/en/')
+    expect(localizedPath('/privacy', 'en')).toBe('/en/privacy/')
+    expect(localizedPath('/en/privacy/', 'ru')).toBe('/privacy/')
+    expect(localizedPath('/energy', 'ru')).toBe('/energy/')
   })
 })

@@ -13,7 +13,7 @@ export function usePageSeo() {
     title: `404 — ${t('notFound.title')}`,
     description: t('notFound.text'),
     canonicalPath: '/404',
-    ogImagePath: `/og-${locale.value}.jpg`,
+    ogImagePath: '/og.jpg',
     ogImageAlt: t('notFound.title'),
     alternates: false,
     robots: 'noindex, follow',

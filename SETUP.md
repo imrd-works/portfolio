@@ -33,7 +33,7 @@ npm run prepare
 
 В корне лежит `.npmrc` с `legacy-peer-deps=true` из‑за `eslint-plugin-import` (peer только до ESLint 9, в проекте ESLint 10). Без этого `npm i` падает с ERESOLVE. Удалять не нужно.
 
-В `package.json` заданы **overrides** для `braces`, `micromatch`, `postcss` — чтобы закрыть уязвимости в транзитивных зависимостях (vite-plugin-svg-icons). После этого `npm audit` показывает 0 уязвимостей.
+В `package.json` заданы **overrides** для `braces`, `micromatch`, `postcss` — чтобы закрыть уязвимости в транзитивных зависимостях. После этого `npm audit` показывает 0 уязвимостей.
 
 ---
 
@@ -41,16 +41,20 @@ npm run prepare
 
 Скопируй `.env.example` в `.env`:
 
-| Переменная          | Описание                                  |
-| ------------------- | ----------------------------------------- |
-| `VITE_API_BASE_URL` | Базовый URL API (по умолчанию: `/api`)    |
-| `VITE_SITE_URL`     | URL сайта для sitemap/robots (production) |
+| Переменная                      | Описание                                                           |
+| ------------------------------- | ------------------------------------------------------------------ |
+| `VITE_SITE_URL`                 | Канонический origin: canonical, hreflang, OG, sitemap, robots      |
+| `VITE_CONTACT_API_URL`          | Адрес функции формы; без него форма работает в демо-режиме         |
+| `VITE_YANDEX_METRIKA_ID`        | Номер счётчика Метрики (грузится только после согласия посетителя) |
+| `VITE_GA_MEASUREMENT_ID`        | ID потока GA4 (`G-…`), тоже только после согласия                  |
+| `VITE_GOOGLE_SITE_VERIFICATION` | Токен Search Console (необязательно)                               |
+| `VITE_YANDEX_VERIFICATION`      | Токен Яндекс Вебмастера (необязательно)                            |
 
 ---
 
 ## Vite
 
-- **Алиасы:** `@/` → `src/`, `@/api`, `@/i18n`, `@/router`, `@/stores`, `@/composables`, `@/locales`, `@/shared/styles` → `src/assets/styles`
+- **Алиасы:** `@/` → `src/`, `@/i18n`, `@/router`, `@/composables`, `@/locales`, `@/shared/styles` → `src/assets/styles`
 - **SCSS:** `loadPaths` включает `./src` для разрешения `@use`
 - **Плагины:** vue, compression (gzip/brotli), sitemap, robots.txt
 
@@ -169,13 +173,15 @@ E2E-тесты (`npm run test:e2e`) не входят в pre-commit и быст�
 
 Что уже покрыто:
 
-| Область               | Что проверяется                                          |
-| --------------------- | -------------------------------------------------------- |
-| `shared/stores`       | состояние пользователя, login/logout                     |
-| `router/middleware`   | редиректы auth/guest/notFound                            |
-| `contacts` composable | submit формы, очистка полей, сохранение ввода при ошибке |
-| `shared/composables`  | debounce-поведение пользовательского ввода               |
-| `layouts`             | навигация гостевого layout и logout в auth layout        |
+| Область               | Что проверяется                                                   |
+| --------------------- | ----------------------------------------------------------------- |
+| `shared/lib/consent`  | согласие на аналитику: хранение полгода, отзыв, очистка cookie    |
+| `shared/composables`  | Метрика и GA4: ничего не грузится без согласия, отправка хитов    |
+| `shared/lib/graphics` | лёгкий режим: замеры кадров, предложение, выбор посетителя        |
+| `shared/ui`           | меню угла, кнопка наверх, курсор-кисть (DevTools, текстовые поля) |
+| `pages/home/api`      | отправка письма и различение ошибок (проверка, доставка, сеть)    |
+| `pages/*/views`       | 404, политика, плашка согласия                                    |
+| `app/config`, SEO     | локализованные пути, JSON-LD                                      |
 
 Команды:
 
@@ -186,58 +192,6 @@ npm run test:e2e
 ```
 
 Правило для будущих проектов: тестируй поведение, которое может сломать пользователя или бизнес-логику. Не нужно покрывать каждый статический блок разметки.
-
----
-
-## GSAP и анимации
-
-В проекте установлен `gsap` как runtime-зависимость. Это хороший выбор для сложных анимаций, где нужен точный контроль:
-
-- timelines и последовательности
-- SVG-анимации
-- scroll-driven эффекты
-- анимации появления/ухода сложных блоков
-- синхронизация нескольких элементов
-
-Для простых состояний оставляй CSS:
-
-- `:hover`
-- `:focus-visible`
-- короткий fade/opacity
-- transform на кнопках и карточках
-- простые `transition`
-
-Базовый пример:
-
-```ts
-import { gsap } from 'gsap'
-
-gsap.from(element, {
-  opacity: 0,
-  y: 16,
-  duration: 0.4,
-  ease: 'power2.out',
-})
-```
-
-В Vue-компонентах запускай GSAP после mount и чисти timeline при unmount:
-
-```ts
-import { onMounted, onUnmounted, useTemplateRef } from 'vue'
-import { gsap } from 'gsap'
-
-const root = useTemplateRef<HTMLElement>('root')
-let timeline: gsap.core.Timeline | null = null
-
-onMounted(() => {
-  timeline = gsap.timeline()
-  timeline.from(root.value, { opacity: 0, y: 16, duration: 0.4 })
-})
-
-onUnmounted(() => {
-  timeline?.kill()
-})
-```
 
 ---
 
@@ -289,79 +243,9 @@ git push -u origin feat/my-feature
 
 ---
 
-## Токен авторизации в интерцепторе
-
-В axios-адаптере при необходимости добавляй заголовок:
-
-```ts
-const token = useUserStore().token
-if (token) config.headers.Authorization = `Bearer ${token}`
-```
-
-(В текущем коде интерцептор запроса можно расширить в `src/app/api/adapters/axiosAdapter.ts`.)
-
----
-
-## Обработка 401
-
-В axiosAdapter при ответе 401 вызывается `useUserStore().logout()`.
-
----
-
 ## Sitemap
 
-В `vite.config.ts` — массив `dynamicRoutes`. Добавляй новые маршруты для генерации sitemap.
-
----
-
-## OpenAPI / Swagger → TypeScript-контракты
-
-Типы генерируются из спецификации OpenAPI 3 (Swagger) с помощью **openapi-typescript**. Результат: `src/app/api/contracts.d.ts`.
-
-**Генерация из локального файла (по умолчанию `openapi.json`):**
-
-```bash
-npm run generate:api
-```
-
-**Генерация по URL бэкенда:**
-
-```bash
-OPENAPI_SPEC_URL=https://api.example.com/openapi.json npm run generate:api
-```
-
-**Использование в коде:**
-
-```ts
-import type { paths, components } from '@/api/contracts'
-
-type User = components['schemas']['User']
-
-const { data } =
-  await api.get<paths['/user/{id}']['get']['responses'][200]['content']['application/json']>(
-    '/user/1'
-  )
-```
-
-Замени или дополни корневой `openapi.json` своей спецификацией; после изменений схемы запускай `npm run generate:api`.
-
----
-
-## SVG Sprite (иконки)
-
-Иконки кладутся в **`src/assets/icons/`** (один файл = одна иконка, имя файла без `.svg` = `name`). Плагин собирает их в спрайт, в приложении используется компонент **`<Icon>`**.
-
-**Использование:**
-
-```vue
-<Icon name="sample" />
-<Icon name="arrow" :size="32" />
-<Icon name="close" width="20" height="20" class="text-primary" />
-```
-
-**Размер:** через `size` (одинаковые width/height) или через `width` и `height`.
-
-**Цвет:** у компонента в CSS стоит `fill: currentColor`, цвет наследуется от родителя. Чтобы иконка меняла цвет от `color`, в SVG должны быть `fill="currentColor"` или `stroke="currentColor"` (не жёсткий `#000`). Рекомендуется класть в папку уже подготовленные SVG с currentColor.
+`sitemap.xml` и `robots.txt` генерирует `scripts/prerender.mjs` из массива `ROUTES` (там же пререндерятся страницы). Новая страница: маршрут в `src/pages/*/route.ts` + строка в `ROUTES`; `sitemap: false` — не включать в sitemap (например, noindex-страницы).
 
 ---
 
@@ -425,26 +309,13 @@ const { data } =
 
 ## Ленивая подгрузка тостов (vue-sonner)
 
-Библиотека тостов и компонент `<Toaster />` подгружаются только при первом вызове `useToast()` (например из интерцептора API). До этого в начальный бандл они не попадают. Реализация: `@/composables/useToast.ts` и `@/components/ToasterLazy.vue`.
+Библиотека тостов и компонент `<Toaster />` подгружаются только при первом вызове `useToast()` (например при ошибке отправки письма). До этого в начальный бандл они не попадают. Реализация: `@/composables/useToast.ts` и `@/components/ToasterLazy.vue`.
 
 ---
 
-## Ленивые локали i18n
+## Локали i18n
 
-Локаль `en` загружается при старте. Остальные языки — по требованию через `loadLocaleAsync(locale)` из `@/i18n`. Структура как у `en`: общий файл `shared/locales/{locale}.json` и в каждой странице `pages/{page}/locales/{locale}.json`. Добавляешь, например, `shared/locales/ru.json` и `pages/about/locales/ru.json` и т.д. Пример переключения:
-
-```ts
-import { i18n, loadLocaleAsync } from '@/i18n'
-
-async function setLocale(locale: string) {
-  await loadLocaleAsync(locale)
-  i18n.global.locale = locale
-}
-```
-
-Подробнее в `src/app/i18n/locales/README.md`.
-
----
+## Обе локали (`ru`, `en`) маленькие и грузятся сразу, поэтому переключение мгновенное и без мигания. Язык определяется URL (`/` и `/en/`) ещё до первого рендера. Общие строки — `src/shared/locales/{locale}.json`, строки страниц — `src/pages/{page}/locales/{locale}.json`; всё собирается в `src/app/i18n/index.ts`, где же применяется типограф (неразрывные пробелы после коротких слов).
 
 ## Анализ бандла
 

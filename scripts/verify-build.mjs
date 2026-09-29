@@ -15,13 +15,29 @@ const DOCUMENTS = [
     file: 'index.html',
     lang: 'ru',
     canonicalSuffix: '/',
-    mustContain: ['Рассомахин', 'Избранные работы', '@IIMRD'],
+    mustContain: ['Рассомахин', 'Избранные проекты', '@IIMRD'],
   },
   {
     file: 'en/index.html',
     lang: 'en',
     canonicalSuffix: '/en/',
     mustContain: ['Rassomakhin', 'Selected work', '@IIMRD'],
+  },
+  {
+    file: 'privacy/index.html',
+    lang: 'ru',
+    canonicalSuffix: '/privacy/',
+    person: false,
+    noindex: true,
+    mustContain: ['Политика конфиденциальности', 'Яндекс Метрика', 'imld.works@yandex.ru'],
+  },
+  {
+    file: 'en/privacy/index.html',
+    lang: 'en',
+    canonicalSuffix: '/en/privacy/',
+    person: false,
+    noindex: true,
+    mustContain: ['Privacy policy', 'Yandex Metrica', 'imld.works@yandex.ru'],
   },
 ]
 
@@ -64,7 +80,10 @@ for (const doc of DOCUMENTS) {
     /<meta property="og:image" content="https?:\/\//.test(html),
     `${where}: no absolute og:image`
   )
-  check(/"@type":"Person"/.test(html), `${where}: no Person JSON-LD`)
+  if (doc.person !== false) check(/"@type":"Person"/.test(html), `${where}: no Person JSON-LD`)
+  if (doc.noindex) {
+    check(/<meta name="robots" content="noindex/.test(html), `${where}: should be noindex`)
+  }
   check(/data-prerendered="[^"]+"/.test(html), `${where}: prerender stamp missing`)
   // Vue SSR output opens with a fragment marker. Anything before it inside the
   // container (a stray newline from formatting) breaks hydration, and the app
@@ -90,6 +109,7 @@ check(
   sitemap.includes('<loc>') && sitemap.includes('xhtml:link'),
   'dist/sitemap.xml: no urls or alternates'
 )
+check(!sitemap.includes('/privacy/'), 'dist/sitemap.xml: lists the noindex privacy page')
 check(
   !sitemap.includes('example.com'),
   'dist/sitemap.xml: VITE_SITE_URL was not set for this build'

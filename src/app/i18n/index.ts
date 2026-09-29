@@ -7,7 +7,10 @@ import homeEn from '@/pages/home/locales/en.json'
 import homeRu from '@/pages/home/locales/ru.json'
 import notFoundEn from '@/pages/not-found/locales/en.json'
 import notFoundRu from '@/pages/not-found/locales/ru.json'
+import privacyEn from '@/pages/privacy/locales/en.json'
+import privacyRu from '@/pages/privacy/locales/ru.json'
 import { DEFAULT_LOCALE, type AppLocale } from '@/app/config/site'
+import { typographMessages } from '@/shared/lib/typograph'
 
 type Messages = Record<string, unknown>
 
@@ -16,10 +19,17 @@ function mergeMessages(base: Messages, pages: Messages): Messages {
 }
 
 // Both locales are tiny and ship together so the RU/EN switch is instant with
-// no async loading or flash of fallback copy.
+// no async loading or flash of fallback copy. The line-break rules are applied
+// here, once, so every string follows them and the locale files stay plain.
 const messages = {
-  en: mergeMessages(en as Messages, { home: homeEn, notFound: notFoundEn }),
-  ru: mergeMessages(ru as Messages, { home: homeRu, notFound: notFoundRu }),
+  en: typographMessages(
+    mergeMessages(en as Messages, { home: homeEn, notFound: notFoundEn, privacy: privacyEn }),
+    'en'
+  ),
+  ru: typographMessages(
+    mergeMessages(ru as Messages, { home: homeRu, notFound: notFoundRu, privacy: privacyRu }),
+    'ru'
+  ),
 }
 
 // A factory, not a singleton: the prerender step builds one app per locale in

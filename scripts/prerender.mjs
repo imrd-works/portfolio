@@ -42,6 +42,9 @@ const siteUrl = (process.env.VITE_SITE_URL || env.VITE_SITE_URL || 'http://local
 const ROUTES = [
   { route: '/', out: 'index.html', canonical: '/', changefreq: 'monthly', priority: '1.0' },
   { route: '/en', out: 'en/index.html', canonical: '/en/', changefreq: 'monthly', priority: '0.9' },
+  // noindex, so not in the sitemap either
+  { route: '/privacy', out: 'privacy/index.html', canonical: '/privacy/', sitemap: false },
+  { route: '/en/privacy', out: 'en/privacy/index.html', canonical: '/en/privacy/', sitemap: false },
   { route: '/404', out: '404.html', canonical: null },
 ]
 
@@ -185,10 +188,12 @@ async function main() {
     await writeFile(target, html, 'utf8')
 
     const kb = (Buffer.byteLength(html) / 1024).toFixed(1)
-    console.log(`prerender: ${route.padEnd(6)} -> dist/${out} (${kb} kB)`)
+    console.log(`prerender: ${route.padEnd(11)} -> dist/${out} (${kb} kB)`)
   }
 
-  const sitemapEntries = ROUTES.filter(({ canonical }) => canonical).map((entry) => ({
+  const sitemapEntries = ROUTES.filter(
+    ({ canonical, sitemap }) => canonical && sitemap !== false
+  ).map((entry) => ({
     ...entry,
     hreflang: entry.canonical === '/' ? 'ru' : 'en',
     lastmod,

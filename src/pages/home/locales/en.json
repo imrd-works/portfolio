@@ -1,113 +1,176 @@
 {
   "meta": {
-    "title": "Daniel Rassomakhin — Vue / Nuxt Developer and Team Lead",
-    "description": "Senior frontend developer and team lead: Vue 3, Nuxt, TypeScript. Enterprise and public-sector systems, dashboards, digital signatures, products from scratch.",
+    "title": "Daniel Rassomakhin — Vue / Nuxt Developer, Fullstack, Team Lead",
+    "description": "Senior frontend developer with fullstack experience and team lead: Vue 3, Nuxt, TypeScript. Enterprise and public-sector systems, dashboards, digital signatures, products from scratch.",
     "personName": "Daniel Rassomakhin",
     "alternateName": "Даниил Рассомахин",
-    "jobTitle": "Senior Frontend Developer / Team Lead",
+    "jobTitle": "Senior Frontend Developer · Fullstack · Team Lead",
     "locality": "Novorossiysk",
     "region": "Krasnodar Krai",
-    "ogAlt": "Daniel Rassomakhin — Vue / Nuxt developer and team lead"
-  },
-  "nav": {
-    "about": "About",
-    "skills": "Skills",
-    "work": "Work",
-    "path": "Path",
-    "contact": "Contact",
-    "label": "Main navigation",
-    "switchTo": {
-      "ru": "Переключить на русский",
-      "en": "Switch to English"
-    }
-  },
-  "brand": {
-    "mark": "D",
-    "name": "Rassomakhin"
+    "ogAlt": "Daniel Rassomakhin — Vue / Nuxt developer, fullstack, team lead"
   },
   "hero": {
-    "status": "Open to opportunities · Vue / Nuxt · Team Lead",
     "firstName": "Daniel",
     "lastName": "Rassomakhin",
-    "lead": "Frontend developer with 5+ years of commercial experience. I architect complex Vue and Nuxt interfaces, lead teams and cover adjacent layers as a {accent} developer when needed.",
-    "cta": {
-      "telegram": "Message on Telegram",
-      "email": "Email",
-      "resume": "Résumé"
-    },
-    "scroll": "Scroll"
+    "role": "Senior Frontend Developer · Fullstack · Team Lead",
+    "seal": "DR",
+    "art": "Ink painting: a taiga valley in the mist"
   },
   "about": {
     "eyebrow": "About",
     "title": "I turn complex ideas into {accent}",
     "titleAccent": "living interfaces",
-    "p1": "For more than 5 years, I have designed and launched enterprise and public-sector platforms from scratch where mistakes are expensive: digital signatures, role-based access, multi-step forms, heavy interactive dashboards and SVG data visualization.",
-    "p2": "I take products from the idea stage to production: I build DDD and FSD architectures that can grow without turning into legacy within a year. As a Team Lead, I am responsible not only for my own code, but also for timelines, reviews and onboarding.",
-    "p3": "I configure Docker and CI/CD, work confidently with backend teams and take on fullstack tasks when that speeds up the result without diluting focus.",
+    "p1": "For more than 5 years I have been designing and launching high-load corporate and government platforms where a mistake is costly: electronic signatures, role-based access, multi-step forms, heavy dashboards and data visualisation. I also build online stores and landing pages, where load speed, motion and SEO decide the outcome. I take a product from the idea to production — with an architecture (DDD, FSD) that holds up as it grows — and as a Team Lead I answer not only for my own code but for deadlines, reviews and the team.",
+    "p2": "I am as much at home on a blank page as in someone else's code: I have launched products from scratch — from the architecture to the release — and as an outstaffed developer joined other teams, old codebases and systems boxed in on every side. Whatever the conditions, I found a way: not a single contract ended early, I saw every project through to the end and left with the client's thanks.",
+    "p3": "I started before AI assistants existed and learned to design clean, fast and reliable solutions with my own hands. Today AI is part of every stage of my work, and I move many times faster. But it does not think for me — it helps: the architecture, the quality of the code and every decision stay under my control. AI brings the speed; the quality is on me.",
     "stats": {
       "systems": "systems in production",
       "launches": "products from scratch",
       "lead": "years as team lead"
     },
-    "badge": "Novorossiysk · hybrid / remote",
+    "badge": "Worldwide · hybrid / remote",
     "photo": "Daniel Rassomakhin"
   },
   "skills": {
     "eyebrow": "Skills",
-    "title": "A stack for complex interfaces and product systems",
-    "coreTitle": "Core",
-    "frontendTitle": "Frontend",
-    "dataTitle": "Data, APIs and visualization",
-    "platformTitle": "Fullstack, DX and DevOps",
-    "toolsTitle": "Architecture, quality and tools",
+    "title": "Where I am strong",
     "core": {
-      "vue": "5 years in production — six enterprise systems and landing pages",
-      "typescript": "4 years in strict mode: contract types generated from OpenAPI",
-      "dataviz": "Highcharts and ECharts, interactive SVG schematics, heavy tables and forms",
-      "architecture": "3+ years leading teams: decomposition, code review, release cycle",
-      "react": "Next.js in production: a financial landing with animation and a headless CMS"
+      "vue": "My main stack since 2021: from a fast SSR site to an enterprise system of dozens of modules. I know not just the API but where the framework saves months and where it starts to get in the way.",
+      "typescript": "Strict types from the API to the button: they are generated from OpenAPI, so a broken contract is caught at build time, not by a user.",
+      "dataviz": "Dashboards, charts and large tables that do not lag; multi-step forms where not a single field gets lost.",
+      "architecture": "I lay down an architecture that grows without a rewrite from scratch, and I lead the team: breaking work down, reviews, releases on schedule.",
+      "react": "My second stack, also in production: fast landing pages with motion, SEO and a headless CMS."
+    },
+    "searchLabel": "Search the stack",
+    "searchHint": "GraphQL, for example",
+    "found": "Found: {n}",
+    "tabs": {
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "devops": "DevOps",
+      "fullstack": "Fullstack"
+    },
+    "searchAll": "The search looks across all directions",
+    "legend": {
+      "strong": "Filled: my core stack, what I work with all the time",
+      "used": "Outlined: used in projects when needed"
+    },
+    "clear": "Clear",
+    "rows": {
+      "frameworks": "Frameworks",
+      "state": "State and data",
+      "forms": "Forms and editors",
+      "markup": "Markup, styles and UI",
+      "charts": "Charts",
+      "motion": "Motion and sliders",
+      "analytics": "Analytics",
+      "languages": "Languages and frameworks",
+      "databases": "Databases",
+      "cms": "CMS and platforms",
+      "delivery": "Delivery and deploy",
+      "hosting": "Hosting and network",
+      "storage": "Storage",
+      "api": "APIs and integrations",
+      "build": "Build and containers",
+      "architecture": "Architecture and refactoring",
+      "quality": "Code quality",
+      "services": "Services",
+      "tools": "Tools",
+      "perf": "Performance and SEO",
+      "teamwork": "Planning and tracking",
+      "server": "Nuxt and Next server side"
+    },
+    "coreName": {
+      "vue": "Vue / Nuxt",
+      "typescript": "TypeScript",
+      "dataviz": "Complex interfaces and data",
+      "architecture": "Architecture and team",
+      "react": "React / Next.js"
     }
   },
   "work": {
     "eyebrow": "Selected work",
     "title": "Things I've built",
-    "open": "Open project",
-    "nda": "Commercial project · details limited by NDA",
+    "lead": "The projects are under NDA, so instead of screenshots there are paintings, each a nod to its product. Everything behind them is my real work. Click a sheet to learn more about the project.",
+    "filters": {
+      "all": "All",
+      "system": "Systems",
+      "site": "Websites"
+    },
+    "filterLabel": "Filter projects",
+    "kinds": {
+      "system": "System",
+      "site": "Website"
+    },
+    "toolGroups": {
+      "data": "Data, state, forms",
+      "ui": "UI and components",
+      "visual": "Visualisation and motion",
+      "styles": "Styles",
+      "design": "Design",
+      "signature": "Signature",
+      "api": "API",
+      "backend": "Backend",
+      "architecture": "Architecture",
+      "content": "Content",
+      "build": "Build and tests",
+      "quality": "Code quality",
+      "seo": "SEO and analytics",
+      "delivery": "Infrastructure",
+      "repo": "Repository"
+    },
+    "tabs": {
+      "about": "About",
+      "tools": "Tools",
+      "role": "My role"
+    },
+    "tabsLabel": "Project details",
+    "soon": "painting in progress",
+    "close": "Step out of the painting",
+    "prev": "Previous",
+    "next": "Next",
     "items": {
-      "sigma": {
+      "corporate": {
+        "title": "Corporate website",
+        "about": "A bilingual corporate website on Nuxt 3 with static generation, the content in Sanity. Two production servers, six environments.\n\nThe site had grown over several years, different developers had worked on it at different times, and each stage brought its own solutions. When the project came to me, the task was to bring it all to one standard: a shared build and delivery, consistent styles and animation, and fast loading on any device.\n\nOn the project I was responsible for all of it — the frontend, the backend and DevOps.",
+        "role": "Fullstack / DevOps Developer",
+        "did": "Rewrote the build and delivery: any environment could then be updated at any time from any branch with a button in GitHub Actions\nAdded checks before delivery: only code that had been built and checked reached the server; set up one build for all six environments, each with its own settings\nSet up both production servers: Brotli, immutable caching, stale-while-revalidate; set up robots.txt and the sitemap\nReconnected and set up Google Analytics and Yandex Metrica\nBrought in Vitest and set up automated testing: unit tests, plus visual and animation checks on Playwright\nStrengthened the security of the site and its form: CSP, HSTS, server-side validation, rate limiting, a honeypot, reCAPTCHA v3; found and fixed a fault in sending requests\nMade loading about five times faster: upgraded Nuxt from 3.11 to 3.21, added lazy hydration of sections, cut down modulepreloads (JS before first interaction from 220 to 170 KB, preload requests from 29 to 14), served Sanity images through srcset, optimised the video\nRewrote the background in WebGL so it would run on any device\nRaised Lighthouse to 100 for accessibility, best practices and SEO, and performance to 96 on desktop and 85 on mobile — the limit with this much animation and such a background\nPut the animations in step: sections and elements came in one after another, the same in every browser\nMoved the styles and responsive layout onto design tokens: consistent colours and spacing, a stable layout at any screen width\nSynced the Sanity datasets across environments: the staging stands got the same content as production"
+      },
+      "energy": {
         "title": "Energy Trading Marketplace",
-        "desc": "An electricity trading marketplace with procurement lots, commercial bids, CryptoPro digital signatures, a market-depth chart and detailed data tables.",
-        "placeholder": "Vue 3 · Digital signature · ECharts",
-        "imageAlt": "Altai Energy Retail marketplace interface"
+        "about": "A trading marketplace for a regional energy market: local companies buy electricity on it, and generating companies sell it. Procurement lots, commercial bids, auctions and deals, contract registries and reports.\n\nKey business processes are signed with CryptoPro digital signatures, and prices and volumes are shown in complex tables, a market-depth chart and ECharts visualisations.\n\nThe project grew out of an old version with heavy tech debt and a Bitrix backend with limited capabilities, and the MVP had to ship in a month and a half, which fell on the New Year holidays.",
+        "role": "Frontend Developer / Team Lead",
+        "did": "Came in to own a few modules and ended up leading the whole frontend. The project came from an old version with heavy tech debt, and I reworked its architecture, components and the way it talks to the API\nMoved the team to FSD and set a standard for every module: skeletons and clear loading states, a composable of its own for each request\nRewrote the API layer from scratch: interceptors, access middleware, error handling. The old wrapper returned every error with a 200; now the statuses tell the truth\nGot the backend to describe its API in Swagger. TypeScript types are generated from OpenAPI on every backend change, and mismatches are caught at build time, not on calls\nBrought in Vue Query with caching and deduplication. Every return to a lot page used to fetch all its data again; now it is fetched once, a return opens the page instantly, and the first load takes under a second\nBuilt the lots module from scratch: creating, publishing, editing, withdrawing and signing lots with CryptoPro (together with the backend). Related modules update in real time\nSet up document sync between supplier and buyer: about six states per document, and both sides see every change at once\nBuilt multidimensional tables comparing suppliers over long periods: dozens of columns and thousands of rows, loaded lazily, to find the best price fast\nAs team lead: code reviews that walk through the decisions, mentoring, versioned builds so QA could see exactly what had changed\nThe MVP shipped on time, though the deadline was cut from 3 months to 1.5 and fell on the New Year holidays. The system runs steadily, and new modules come in without breaking the old ones"
       },
       "education": {
         "title": "Education Platform",
-        "desc": "An education platform built from scratch: test authoring and delivery, analytics, WYSIWYG editing, events, chat, purchases and role-based access.",
-        "placeholder": "Nuxt · DDD · Highcharts",
-        "imageAlt": "Academy education platform interface"
+        "about": "A platform for learning and testing knowledge: staff training, interim exams, courses for students. An online school offers it by subscription, under its own brand and on its own platform.\n\nCourses and lessons, a multi-step test builder, a WYSIWYG content editor with maths formulas, events, a calendar with reminders, certificates, chat, course access and five roles with their own rights: student, teacher, curator, administrator and organisation.\n\nThe project grew in stages: first an MVP, then new modules as the client brought new tasks. The client supplied its own backend, which at first could not be changed, so much of the logic had to live in the frontend. All of it — the Nuxt frontend, the Node.js backend, PostgreSQL, Redis and MinIO file storage — runs in Docker.",
+        "role": "Frontend Developer / Team Lead",
+        "did": "Started the project from scratch with a colleague on the DDD architecture he chose. When it only made the product harder to grow, moved it to FSD and migrated from Nuxt 3 to Nuxt 4: features are isolated by layer and do not touch each other, builds and page loads got faster, types stricter\nIn time the development passed to me entirely: from then on I led and grew the project alone\nBuilt a multi-step test builder: single- and multiple-choice questions and open answers. Every step is saved on the backend, and authoring picks up where it left off\nBuilt a role model of five roles — student, teacher, curator, administrator, organisation — with a hierarchy: senior roles set the rights of the ones under them\nBuilt course access and rights management: payment happens on the client's side, and an administrator opens courses to students through an interface we built\nBuilt a WYSIWYG content editor for courses and lessons on TipTap: formatting, links, fonts and maths formulas in KaTeX\nWrote a complex calendar modelled on Google Calendar: reminders for a course's students with a date, a time, a number of repeats and schedules by day, week and year\nBuilt personal dashboards for every role and an achievements module where teachers award certificates to students\nWorked with the client's limited backend: moved its logic into the frontend, carried the changes through every module when it was reworked, and closed tasks on its side myself — Node.js and Ts.ED, TypeORM and PostgreSQL\nWhere new features had no mockups, designed the interface myself in the client's style\nCovered the key flows with tests: unit tests in Vitest and end-to-end tests in Playwright\nAs team lead: breaking work down, code review, helping the team through the hard parts\nThe platform is live and in use: organisations and students work in it by subscription"
       },
-      "bitcoin": {
-        "title": "Bitcoin Financial Services Landing",
-        "desc": "A landing page for an institutional Bitcoin service with advanced animation, managed content, SEO, analytics and an automated delivery workflow.",
-        "placeholder": "Next.js · Sanity · GSAP",
-        "imageAlt": "Bitcoin financial services landing page interface"
+      "finance": {
+        "title": "Website for a Bitcoin Financial Company",
+        "about": "The website of an institutional financial company in the bitcoin space: investment strategies, collateralised lending and onchain products for funds, companies and miners.\n\nAbout fifteen sections and a resources hub — news, insights, events, reports — with tag filters. The client runs all the content in Sanity. Animation in GSAP and Lottie, analytics through Google Tag Manager, GA4, Microsoft Clarity and HubSpot.\n\nBuilt by a team of two fullstack developers, a frontend developer and a QA engineer.",
+        "role": "Fullstack Developer",
+        "did": "Built all of the site's animation in GSAP: smooth reveals, line-by-line text, cascades, waves, parallax\nBuilt a shared Motion component: every animation is set up in one file, so its behaviour changes to the client's wishes without touching the components themselves\nChained the sections' entrances: each page's animations are described in one place, and each one starts halfway through the one before, though the components know nothing of each other\nFixed the client's Lottie animations: the motion designer's files had errors, and we matched the timing of their replays ourselves\nIn the UI kit, owned breadcrumbs, accordions, sliders, placeholders, inputs, pagination, a custom scroll and the animation component\nWe split modules by likeness: when one of mine came back on other pages, I owned it everywhere, variants included\nBuilt Sanity right into the Next.js project: the site and the content studio start with one command\nBuilt a Telegram bot for the team: notices of pull requests, deploy statuses and errors\nMade the technical decisions on equal terms with the other fullstack developer, and we reviewed each other's code"
       },
-      "moex": {
+      "monitoring": {
         "title": "Financial Monitoring Portal",
-        "desc": "A financial monitoring portal for a public-sector client featuring interactive SVG diagrams, KPI monitoring, large data tables, reports and GraphQL integrations.",
-        "placeholder": "Vue 3 · GraphQL · SVG",
-        "imageAlt": "Financial monitoring portal interface"
+        "about": "A budget monitoring portal for a government client: it gathers data from hundreds of organisations across a large region — their budgets and what the money is spent on.\n\nInteractive charts show the trends over chosen periods. A click on any bar drills down into detailed charts, all the way to money flows and single organisations. The rest is large tables for monitoring cash flows.\n\nThe portal runs in a closed network and is built to the Russian requirements for government systems: security and accessibility. The backend was rigid and let almost nothing change, so the work went on within very narrow limits. The team was five: three frontend developers, a layout developer and a backend developer.",
+        "role": "Frontend Developer / Team Lead",
+        "did": "Led a frontend team of four, a layout developer I trained among them: gave out the tasks by each one's strengths, reviewed the code and signed off the work\nTook the hardest part myself — dynamic charts written from scratch in plain SVG, with no library\nMade the charts responsive and interactive: a click on a bar opens the detailed level, all the way to money flows and single organisations\nBuilt comparisons of the trends across periods\nBuilt authorisation for several role models, each with its own level of access to the data, and data export\nWorked within an inflexible backend: whatever the API did not give, I solved on the frontend\nGave the junior developers the tables and page layouts and helped them through their tasks\nBrought the portal up to the government client's requirements: a closed network, security and accessibility to the Russian requirements for government systems\nIntegrated the data through GraphQL"
       },
-      "irlix": {
+      "documents": {
         "title": "Document Management System",
-        "desc": "An internal public-transport system: a file manager with automated document upload, a hierarchical catalogue and analytical dashboards.",
-        "placeholder": "Vue 3 · Pinia · Highcharts"
+        "about": "A closed internal document management system of a large transport company. It runs in a closed network: only authorised staff with special access can get in, and the whole administrative and management staff works in it.\n\nIt holds documents of every format: orders, regulations, reports, technical documentation, contracts. They live in a dynamic tree and are handled through a file explorer right in the browser, as familiar as Windows Explorer: drag and drop, moving through folders, moving files and whole sections. There is a shared exchange where colleagues' files are seen, and a personal space for everyone.\n\nAnalytics dashboards in Highcharts show the number of documents, active staff, deadlines and overdue items, certificates. The team was ten: four frontend developers, two backend developers, two QA engineers and two analysts. I joined it when it was falling behind, to speed up the new modules.",
+        "role": "Frontend Developer",
+        "did": "Joined the team when it was falling behind and took on new modules\nBuilt a file explorer in the browser that behaves like Windows Explorer: drag and drop, moving through folders, cutting and moving files and whole folders\nBuilt a dynamic document tree: it shows your own files and other users' files, like a shared exchange, and a personal explorer apart from it\nBuilt an analytics dashboard with dynamic charts in Highcharts\nAt the team's request, helped close its tasks faster: fixed the landing page, rewrote the footer and the sidebar from scratch, strictly to the mockup, pixel perfect: the footer is responsive on every screen, the sidebar works steadily on every device\nHanded over all my modules and brought my work on the project to a successful close"
       },
-      "baccasoft": {
+      "processes": {
         "title": "Business Process Management System",
-        "desc": "An enterprise system for the mining and metals sector covering business processes, complex forms, filtering, chat and legacy product development.",
-        "placeholder": "Vue 2.7 · Pinia · REST",
-        "imageAlt": "Business process management system interface"
+        "about": "A corporate business process management system for the mining and metals sector: business processes, complex forms, filtering and chat.\n\nMost of the code came from early versions: vanilla JavaScript in ES5 and classes, modules with logic nested up to nine levels deep, where everything was passed down through props. The system reacted badly to any change, the tech debt kept piling up, and new features had to ship at the same time.\n\nThe project was moved to a modern approach and TypeScript step by step, module by module. The team was three: a senior developer, me as a middle developer, and a junior developer.",
+        "role": "Frontend Developer",
+        "did": "Came to help the senior developer when he could no longer keep up: worked through the tech debt and built new modules side by side\nMoved the legacy from ES5 to ES6 and rewrote old components from the Options API to the Composition API and TypeScript — the names, the logic and the structure, from the first line; new modules I wrote with the Composition API and TypeScript from the start\nUntangled modules with logic nested up to nine levels deep, where data went down through props alone, and moved them to provide/inject and stores\nFixed broken modules and wrote new ones in a system that reacted badly to any change\nTogether with the senior developer, caught up with the deadlines and rewrote a huge layer of legacy code"
       }
     }
   },
@@ -116,99 +179,115 @@
     "title": "Timeline",
     "items": {
       "current": {
-        "period": "June 2026 — present",
-        "role": "Frontend / Fullstack Developer",
-        "desc": "I run the company's product projects as a fullstack developer: a Nuxt 3 SSG site on a headless CMS and a storefront on Nuxt 2 with a Symfony backend. Cut load time and closed CLS, hardened the forms, static delivery and deploys across several environments. Inside the team I own the technical decisions and the release cycle."
-      },
-      "fullstack": {
-        "period": "March — June 2026",
-        "role": "Fullstack Developer / Team Lead",
-        "desc": "Within a development team, owned the complete delivery cycle for an institutional Bitcoin landing page: from the interactive Next.js and GSAP frontend to Sanity CMS, SEO, analytics, Docker and CI/CD. Coordinated technical decisions and the product outcome as a whole."
+        "period": "March 2026 — present",
+        "role": "Fullstack / DevOps Developer",
+        "desc": "Closed the loop: I take a product from the idea to production — the frontend, the backend and a CMS, Docker, CI/CD and deployments. In the team I answer for the technical decisions and the release cycle, from the first line of code to a running service."
       },
       "energyLead": {
         "period": "December 2025 — February 2026",
-        "role": "Frontend Developer / Team Lead",
-        "desc": "Owned the architecture of core workflows for an energy trading marketplace, including CryptoPro signatures, complex data tables and ECharts visualizations. Maintained team delivery quality through code review, mentoring and release oversight."
+        "role": "Senior Frontend Developer / Team Lead",
+        "desc": "I led two teams at once: launching a new platform while still developing the earlier one. I answered for the architecture of the key processes, the deadlines and the quality of releases, and through code review and mentoring kept one level of code across both teams."
       },
       "educationLead": {
-        "period": "June — November 2024, March 2025 — February 2026",
-        "role": "Frontend Developer / Team Lead",
-        "desc": "Built an education platform from the ground up with DDD architecture, testing, analytics, content editing, purchases and role-based access. Led decomposition, code review and mentoring so the team could make durable technical decisions."
+        "period": "June — November 2024, March — November 2025",
+        "role": "Senior Frontend Developer / Team Lead",
+        "desc": "Now I answered not for modules but for a whole product: I started it from scratch, later moved its architecture to FSD, and laid down the rules the team writes code by. I broke the work down, ran code review and did the mentoring of junior developers — that is how the shared standards formed that projects stand on for years."
       },
       "complexSystems": {
         "period": "February 2022 — February 2023",
-        "role": "Frontend Developer",
-        "desc": "As part of a development team, independently owned modules across a financial monitoring portal, a public transport document system and an industrial business-process platform. Aligned solutions with other developers and delivered SVG visualizations, GraphQL, dashboards and complex forms."
+        "role": "Middle Frontend Developer",
+        "desc": "From doing tasks to owning modules: I carried them whole, from the brief to the release, and agreed the decisions with the team and the backend. I often worked as an outstaffed developer — joining other teams, finding my way through heavy legacy and systems like 1C-Bitrix, where part of the server logic had to live on the frontend. I learned to find a way within any limits. On one project, still a middle developer, I led a frontend team of four."
       },
       "commercialStart": {
         "period": "March 2021 — January 2022",
-        "role": "Frontend Developer",
-        "desc": "Started in a team building commercial interfaces for corporate platforms, e-commerce and advertising services. Worked with other developers to turn designs into responsive products, integrate REST APIs and evolve Vue code while taking ownership of increasingly independent areas."
-      }
-    }
-  },
-  "services": {
-    "eyebrow": "Services",
-    "title": "How I help",
-    "items": {
-      "vue": {
-        "title": "Vue / Nuxt development",
-        "desc": "Vue 3, Nuxt 3/4, TypeScript, Pinia and Vue Query: architecture, performance and long-term product development."
+        "role": "Junior Frontend Developer",
+        "desc": "A first job at an IT company and a new stack: I learned Vue from scratch and still write in it. I took on projects of every kind, including on technologies I had never touched — PHP and Yii2, WordPress, Shopify. I learned from the experienced developers in the team: their reviews quickly turned tasks done by the book into tasks done on my own."
       },
-      "systems": {
-        "title": "Complex business systems",
-        "desc": "Dashboards, SVG and charts, large data tables, multi-step forms, roles, REST / GraphQL and digital signatures."
-      },
-      "landing": {
-        "title": "Landing pages, animation & SEO",
-        "desc": "Landing pages that convert: smooth animation (GSAP, Lottie), fast load times and SEO built in. Manage content yourself via headless CMS, with deployment automated."
-      },
-      "product": {
-        "title": "Product launch from scratch",
-        "desc": "I turn an idea into a working product — from analysis to release. I lay down scalable architecture (DDD / FSD) that holds up as you grow."
-      },
-      "integrations": {
-        "title": "Integrations: API, realtime, e-signature",
-        "desc": "I connect your frontend to any backend: REST, GraphQL, type-safe codegen from OpenAPI, real-time chat and legally binding e-signatures (CryptoPro)."
-      },
-      "leadership": {
-        "title": "Team Lead & processes",
-        "desc": "Decomposition, planning, code review, mentoring, release workflows, Docker and CI/CD."
+      "startups": {
+        "period": "before 2021",
+        "role": "Frontend developer in startups",
+        "desc": "First steps — at home and in small rented offices, in little teams of enthusiasts with startups of their own. I learned frontend on real tasks: markup, JavaScript, my first projects in React. And I learned the main thing: a product is made by a team, not by one developer."
       }
     }
   },
   "contact": {
-    "title": "Let's build{br}something {accent}",
-    "titleAccent": "remarkable",
-    "lead": "Open to frontend and team lead roles, project work and complex product challenges. Telegram and email are the easiest ways to reach me.",
+    "eyebrow": "Contact",
+    "title": "Write me a letter",
+    "letter": "Hello, Daniil. My name is {name}, you can reach me at {contact}. I need help with:",
+    "seal": "DR",
+    "sealHint": "Press the seal to send",
+    "lead": "Open to any role, project work and complex product challenges. I answer within a day or two; the quickest way is Telegram or the letter on this page.",
     "links": {
       "telegram": "Telegram",
       "email": "Email",
-      "phone": "Phone"
+      "github": "GitHub",
+      "resume": "CV",
+      "resumeNote": "view PDF"
     },
     "form": {
       "name": "Your name",
-      "contact": "Email or Telegram",
-      "about": "About the project",
-      "submit": "Send request →",
+      "contact": "Where to reply",
+      "about": "About the task",
+      "phName": "name",
+      "phContact": "email or telegram",
+      "phAbout": "a few lines about the project",
       "sending": "Sending…",
-      "errorName": "Name — at least 3 characters, letters only",
+      "errorName": "Name — at least 2 characters, letters only",
       "errorContact": "Enter a valid email or Telegram — e.g. {email} or {handle}",
       "errorContactOwn": "Those are my contacts — please leave your own",
       "errorAbout": "Describe your task",
-      "sendError": "Couldn't send your request. Please try again."
+      "errorLong": "Too long: up to 3500 characters",
+      "send": {
+        "invalid": "The letter did not pass the check: look over the name, contact and text, and send it again.",
+        "delivery": "The letter did not get through. Please write to me on Telegram {handle} or at {email}.",
+        "network": "No connection to the server. Check your internet and try again."
+      },
+      "stackLabel": "Stack",
+      "stackAdd": "+ pick the stack",
+      "stackMore": "+ more",
+      "stackDone": "done",
+      "stackSearch": "find a technology",
+      "stackSearchLabel": "Search the technologies",
+      "stackEmpty": "Not on the shelf — mention it below",
+      "stackRemove": "Remove {name}",
+      "stackSent": "Stack",
+      "stackPicker": "Technologies for the letter",
+      "consent": "I agree to the processing of my name, contact and message so that Daniel can reply. Details are in the {policy}.",
+      "consentLink": "privacy policy",
+      "errorAgree": "Tick the consent to data processing — the letter cannot be sent without it"
     },
     "success": {
-      "title": "Request sent",
-      "text": "Thank you! I'll get back to you within a day — usually via Telegram.",
-      "again": "Send another request"
+      "text": "The letter is sealed · I'll answer within a day or two. If no reply comes, message me directly on Telegram — that way we won't miss each other.",
+      "again": "Write another one"
     }
   },
   "footer": {
     "name": "Daniel Rassomakhin",
+    "privacy": "Privacy policy",
     "note": "© 2026 · Crafted with attention to detail"
   },
   "a11y": {
     "skip": "Skip to content"
+  },
+  "graphics": {
+    "label": "Light mode",
+    "offer": "The animations on this page are stuttering. Switch to the light mode? It will run smoother: the graphics get simpler, and the mist and the river's current stop.",
+    "accept": "Switch",
+    "decline": "Keep as is",
+    "clarity": {
+      "label": "Clarity",
+      "offer": "The animations on this page are stuttering. Lower the paintings' clarity to ×1? Every animation stays, the paintings get a little softer. You can change it in the settings, in the corner.",
+      "accept": "Lower it"
+    }
+  },
+  "nav": {
+    "label": "Page sections",
+    "path": "Path",
+    "work": "Work",
+    "about": "About",
+    "skills": "Skills",
+    "contact": "Write a letter",
+    "menu": "Menu",
+    "close": "Close"
   }
 }

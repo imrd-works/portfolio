@@ -1,27 +1,28 @@
 {
-  "common": {
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "loading": "Loading..."
+  "language": {
+    "name": "English"
   },
-  "errors": {
-    "network": "Request error",
-    "unauthorized": "Authorization required"
+  "settings": {
+    "label": "Settings",
+    "light": "Light mode",
+    "lightHint": "Simpler graphics: no mist, no river current, no swinging paintings. For weak devices and saving battery.",
+    "clarity": "Clarity",
+    "clarityValue": {
+      "1": "1",
+      "1_5": "1.5",
+      "2": "2"
+    },
+    "clarityHint": "Lower is smoother on high-density screens: every animation stays, the paintings are a little softer.",
+    "clarityLight": "The light mode draws the paintings at ×1."
   },
-  "nav": {
-    "home": "Home",
-    "about": "About",
-    "contacts": "Contacts",
-    "faq": "FAQ",
-    "privacy": "Privacy",
-    "terms": "Terms",
-    "dashboard": "Dashboard"
+  "consent": {
+    "label": "Cookies and analytics",
+    "text": "Mind if I see what's interesting here? Yandex Metrica and Google Analytics count visits and record sessions, so they load only with your consent. Changed your mind? The cookie icon in the corner.",
+    "accept": "Sure",
+    "decline": "No thanks",
+    "analytics": "Analytics",
+    "analyticsHint": "Visits, clicks and session replays. Turning it off deletes the cookies and reloads the page.",
+    "more": "Details"
   },
-  "layout": {
-    "footer": "Vue Starter",
-    "login": "Log in",
-    "logout": "Log out"
-  }
+  "toTop": "Back to top"
 }

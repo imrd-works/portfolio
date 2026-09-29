@@ -1,10 +1,16 @@
-import { nextTick } from 'vue'
 import { createHead } from '@unhead/vue/client'
 import { createPortfolioApp } from '@/app/create'
-import { completeInitialRender, markPrerenderedHydration } from '@/shared/lib/hydration'
-import 'virtual:svg-icons-register'
 
 const root = document.querySelector<HTMLElement>('#app')
+
+// A load (or a reload) always opens the story at the hero. An address can
+// still carry a section's anchor from an older visit; it is dropped before the
+// router reads the address, so the page neither jumps there now nor next time.
+// Overlay routes kept in the hash (#/work/…) are left alone.
+if (/^#[\w-]+$/.test(location.hash)) {
+  history.replaceState(history.state, '', location.pathname + location.search)
+  window.scrollTo(0, 0)
+}
 
 /** `/en` and `/en/` are the same document; compare them in one form. */
 function normalize(path: string): string {
@@ -23,8 +29,6 @@ const prerenderedPath = root?.dataset.prerendered
 const canHydrate =
   Boolean(prerenderedPath) && normalize(prerenderedPath!) === normalize(window.location.pathname)
 
-if (canHydrate) markPrerenderedHydration()
-
 const { app, router } = createPortfolioApp({
   hydrate: canHydrate,
   head: createHead(),
@@ -32,5 +36,4 @@ const { app, router } = createPortfolioApp({
 
 router.isReady().then(() => {
   app.mount('#app')
-  void nextTick(completeInitialRender)
 })

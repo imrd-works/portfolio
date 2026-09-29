@@ -1,9 +1,10 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import { contactChannels } from '../model/portfolio'
-import { sendContactRequest } from '../api'
+import { CONTACT_LIMITS, ContactError, sendContactRequest } from '../api'
+import { useToast } from '@/composables/useToast'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 // Telegram username: 5–32 chars, starts with a letter, letters/digits/underscore.
@@ -40,7 +41,8 @@ const schema = yup.object({
     .string()
     .trim()
     .required('home.contact.form.errorName')
-    .min(3, 'home.contact.form.errorName')
+    .min(2, 'home.contact.form.errorName')
+    .max(CONTACT_LIMITS.name, 'home.contact.form.errorName')
     .matches(NAME_RE, {
       message: 'home.contact.form.errorName',
       excludeEmptyString: true,
@@ -49,9 +51,21 @@ const schema = yup.object({
     .string()
     .trim()
     .required('home.contact.form.errorContact')
+    .max(CONTACT_LIMITS.contact, 'home.contact.form.errorContact')
     .test('email-or-telegram', 'home.contact.form.errorContact', isEmailOrTelegram)
     .test('not-own-contact', 'home.contact.form.errorContactOwn', (value) => !isOwnContact(value)),
-  message: yup.string().trim().required('home.contact.form.errorAbout'),
+  // what it is to be built with: tags picked off the technology shelf
+  stack: yup.array().of(yup.string().required()).default([]),
+  // a picked tag says enough on its own; without one, a few words are needed
+  message: yup
+    .string()
+    .trim()
+    .max(CONTACT_LIMITS.message, 'home.contact.form.errorLong')
+    .when('stack', ([stack], text) =>
+      stack?.length ? text : text.required('home.contact.form.errorAbout')
+    ),
+  // consent to the processing of what is sent, given apart from anything else
+  agree: yup.boolean().oneOf([true], 'home.contact.form.errorAgree').default(false),
 })
 
 export function useContactForm() {
@@ -59,23 +73,65 @@ export function useContactForm() {
   const sent = ref(false)
   const { defineField, errors, handleSubmit, isSubmitting, resetForm } = useForm({
     validationSchema: schema,
-    initialValues: { name: '', contact: '', message: '' },
+    initialValues: {
+      name: '',
+      contact: '',
+      message: '',
+      stack: [] as string[],
+      agree: false,
+    },
   })
 
   const [name, nameAttrs] = defineField('name')
   const [contact, contactAttrs] = defineField('contact')
   const [message, messageAttrs] = defineField('message')
+  const [stack] = defineField('stack')
+  /** The honeypot's value: empty, unless a bot filled in every field it found. */
+  const company = ref('')
+  const [agree] = defineField('agree')
+
+  /** Everything the letter needs is there: the seal can be pressed. */
+  const ready = computed(() =>
+    schema.isValidSync({
+      name: name.value,
+      contact: contact.value,
+      message: message.value,
+      stack: stack.value,
+      agree: agree.value,
+    })
+  )
+
+  /** Pick a technology off the shelf, or put it back. */
+  function toggleStack(chip: string) {
+    const now = stack.value ?? []
+    stack.value = now.includes(chip) ? now.filter((c) => c !== chip) : [...now, chip]
+  }
 
   const submit = handleSubmit(async (values) => {
-    await sendContactRequest(
-      {
+    // the stack goes first, as one line, so the request says at a glance what it is
+    const picked = values.stack ?? []
+    const lines = [
+      picked.length ? `${t('home.contact.form.stackSent')}: ${picked.join(', ')}` : '',
+      (values.message ?? '').trim(),
+    ]
+    try {
+      await sendContactRequest({
         name: values.name.trim(),
         contact: values.contact.trim(),
-        message: values.message.trim(),
-      },
-      t('home.contact.form.sendError')
-    )
-    sent.value = true
+        message: lines.filter(Boolean).join('\n\n'),
+        company: company.value,
+      })
+      sent.value = true
+    } catch (error) {
+      // the letter stays as it was, and the visitor is told what to do about it
+      const kind = error instanceof ContactError ? error.kind : 'network'
+      useToast().error(
+        t(`home.contact.form.send.${kind}`, {
+          email: contactChannels.email,
+          handle: contactChannels.telegramHandle,
+        })
+      )
+    }
   })
 
   function reset() {
@@ -90,6 +146,11 @@ export function useContactForm() {
     contactAttrs,
     message,
     messageAttrs,
+    stack,
+    toggleStack,
+    agree,
+    company,
+    ready,
     errors,
     loading: isSubmitting,
     sent,

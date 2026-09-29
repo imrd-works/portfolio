@@ -7,7 +7,7 @@ import {
   type AppLocale,
 } from '@/app/config/site'
 import { contactChannels, sameAs } from '@/shared/config/contacts'
-import { projects } from '../model/portfolio'
+import { allToolsOf, projects } from '../model/portfolio'
 
 export interface PersonSchemaInput {
   locale: AppLocale
@@ -100,7 +100,7 @@ export function buildPortfolioSchema(input: PersonSchemaInput): Record<string, u
         isPartOf: { '@id': websiteId },
         about: { '@id': personId },
         mainEntity: { '@id': personId },
-        primaryImageOfPage: absoluteUrl(`/og-${input.locale}.jpg`),
+        primaryImageOfPage: absoluteUrl('/og.jpg'),
       },
       {
         '@type': 'ItemList',
@@ -116,7 +116,7 @@ export function buildPortfolioSchema(input: PersonSchemaInput): Record<string, u
             name: work.name,
             description: work.description,
             creator: { '@id': personId },
-            keywords: projects[index]?.tags.join(', '),
+            keywords: (projects[index] ? allToolsOf(projects[index]) : []).join(', '),
             inLanguage: OG_LOCALE[input.locale].replace('_', '-'),
           },
         })),

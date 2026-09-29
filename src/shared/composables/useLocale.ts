@@ -1,39 +1,28 @@
 import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { DEFAULT_LOCALE, localeFromPath, localeUrlPath, type AppLocale } from '@/app/config/site'
+import { useRoute } from 'vue-router'
+import { localeFromPath, localizedPath, type AppLocale } from '@/app/config/site'
 
 export type { AppLocale }
 
 /**
  * The URL is the single source of truth for language: `/` is Russian, `/en/`
- * is English. Switching languages is a navigation, not hidden client state —
- * so each version is linkable, shareable, crawlable and cacheable, and a
- * shared link opens in the language it was shared in.
+ * is English. Each version is linkable, shareable, crawlable and cacheable,
+ * and a shared link opens in the language it was shared in. Switching is a
+ * navigation between the two.
  */
 export function useLocale() {
   const route = useRoute()
-  const router = useRouter()
 
   const locale = computed<AppLocale>(() => localeFromPath(route.path))
   const other = computed<AppLocale>(() => (locale.value === 'ru' ? 'en' : 'ru'))
 
   /**
-   * Same page, other language — the current section anchor is preserved.
-   * Uses the canonical form (`/en/`, with the trailing slash) so the address
-   * bar matches `rel=canonical` and what static hosting actually serves.
+   * The same page in `target`, in its canonical form (`/en/`, with the slash, as
+   * `rel=canonical` and static hosting have it), the open painting kept.
    */
   function pathFor(target: AppLocale): string {
-    return `${localeUrlPath(target)}${route.hash}`
+    return `${localizedPath(route.path, target)}${route.hash}`
   }
 
-  function setLocale(target: AppLocale): void {
-    if (target === locale.value) return
-    void router.push(pathFor(target))
-  }
-
-  function toggle(): void {
-    setLocale(other.value)
-  }
-
-  return { locale, other, defaultLocale: DEFAULT_LOCALE, pathFor, setLocale, toggle }
+  return { locale, other, pathFor }
 }

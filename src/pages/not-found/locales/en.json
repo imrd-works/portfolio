@@ -1,5 +1,6 @@
 {
   "title": "Page not found",
-  "text": "The requested page does not exist",
-  "btnHome": "Go home"
+  "heading": "The tracks end here",
+  "text": "There is no such page: maybe the address has a typo, or the page has moved.",
+  "btnHome": "Follow the tracks back"
 }

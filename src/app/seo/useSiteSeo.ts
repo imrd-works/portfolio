@@ -24,8 +24,11 @@ export interface SiteSeoInput {
   ogImagePath: string
   ogImageAlt: string
   ogType?: 'website' | 'profile'
-  /** `false` on pages that exist in a single language (404). */
-  alternates?: boolean
+  /**
+   * The page in each language, for hreflang: `true` for the home pages, a path
+   * per locale for another page, `false` on pages in a single language (404).
+   */
+  alternates?: boolean | Record<AppLocale, string>
   robots?: string
   /** schema.org graph, serialised into a single ld+json block. */
   jsonLd?: Record<string, unknown> | null
@@ -58,17 +61,19 @@ export function useSiteSeo(input: MaybeRefOrGetter<SiteSeoInput>) {
   useHead(() => {
     const current = seo.value
 
+    const pathIn = (locale: AppLocale) =>
+      typeof current.alternates === 'object' ? current.alternates[locale] : localeUrlPath(locale)
     const alternateLinks = current.alternates
       ? [
           ...SUPPORTED_LOCALES.map((locale) => ({
             rel: 'alternate' as const,
             hreflang: locale,
-            href: absoluteUrl(localeUrlPath(locale)),
+            href: absoluteUrl(pathIn(locale)),
           })),
           {
             rel: 'alternate' as const,
             hreflang: 'x-default',
-            href: absoluteUrl(localeUrlPath(DEFAULT_LOCALE)),
+            href: absoluteUrl(pathIn(DEFAULT_LOCALE)),
           },
         ]
       : []

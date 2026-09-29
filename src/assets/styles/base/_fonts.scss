@@ -66,3 +66,41 @@ $cyrillic: U+0301, U+0400-045f, U+0490-0491, U+04b0-04b1, U+2116;
   font-display: swap;
   unicode-range: $cyrillic;
 }
+
+// Hero scroll (ink on paper): Unbounded for the name, JetBrains Mono for the
+// captions. Both variable, same subsets as above.
+@font-face {
+  font-family: Unbounded;
+  font-style: normal;
+  font-weight: 200 900;
+  src: url('/fonts/unbounded-latin.woff2') format('woff2-variations');
+  font-display: swap;
+  unicode-range: $latin;
+}
+
+@font-face {
+  font-family: Unbounded;
+  font-style: normal;
+  font-weight: 200 900;
+  src: url('/fonts/unbounded-cyrillic.woff2') format('woff2-variations');
+  font-display: swap;
+  unicode-range: $cyrillic;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 100 800;
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2-variations');
+  font-display: swap;
+  unicode-range: $latin;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 100 800;
+  src: url('/fonts/jetbrains-mono-cyrillic.woff2') format('woff2-variations');
+  font-display: swap;
+  unicode-range: $cyrillic;
+}
