@@ -6,7 +6,13 @@
 // Ported from hero.frag.glsl: the reveal, the ripple, the blot with its wet
 // halo and the sun, without the splash jets and the fog. Unlike the hero's
 // sun, the seal lies on top of the ink, not under it.
+// highp where the GPU has it; weaker phone GPUs only do mediump in fragment shaders, and a
+// shader asking for highp there does not build at all
+#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
+#else
+precision mediump float;
+#endif
 
 uniform sampler2D uTex; // the envelope: ink in the alpha channel
 uniform vec2 uRes; // canvas size, device px

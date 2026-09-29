@@ -2,7 +2,13 @@
 // jets, flying drops, drips, water dust and wet halo, lifted verbatim from the
 // splash block there (two marked changes). Drawn into a square around a click; units are the hero
 // painting's height, so the blot comes out the same size as on the scroll.
+// highp where the GPU has it; weaker phone GPUs only do mediump in fragment shaders, and a
+// shader asking for highp there does not build at all
+#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
+#else
+precision mediump float;
+#endif
 varying vec2 vUv;
 uniform float uScale;   // side of the square, in painting heights
 uniform float uBlotR, uT, uSeed, uR0, uFade;

@@ -5,7 +5,7 @@
  * Then the evening (lib/evening.ts): a scroll at the top sends the sun down
  * into a slit cut with the brush and brings the moon up out of another, before
  * the page moves on.
- * Without WebGL2 the flat CSS scroll unrolls with the plain image on it.
+ * Without WebGL2 the plain sheet unrolls edge to edge with the image on it, and a disc for the sun.
  *
  * Ported from `hero-prototype.html` with the logic unchanged. The only
  * structural difference: CSS custom properties are written to the section
@@ -48,7 +48,7 @@ export interface SceneHooks {
   show(caption: Caption): void
   /** Hides every caption again (the scene reset). */
   hideCaptions(): void
-  /** WebGL2 is out: drop the canvas, unroll the flat scroll with the plain image. */
+  /** WebGL2 is out: drop the canvas, unroll the plain sheet with the image and the sun. */
   useImageFallback(): void
   /** Fallback image fade (only used without WebGL). */
   showArt(on: boolean): void
@@ -70,7 +70,7 @@ const REVEAL_DELAY = INK.revealDelayMs / 1000
 const easeSpread = (t: number) => 1 - Math.pow(1 - t, 1.55)
 
 export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
-  const { root, stage, paper, sheet, canvas, art, drop: dropEl, sunDrop: sunEl } = els
+  const { root, stage, sheet, canvas, art, drop: dropEl, sunDrop: sunEl } = els
   const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const { blotRadius: R0, sunRadius: SUN_R, wet: WET, progressStart: P0, progressEnd: P_END } = INK
 
@@ -159,14 +159,10 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
   const setVar = (name: string, value: string) => root.style.setProperty(name, value)
 
   function layout() {
-    // in 3D the sheet covers the stage; the flat scroll keeps margins, the rod and the roller
-    const m = fallback ? parseFloat(getComputedStyle(paper).left) || 0 : 0
-    const top = fallback
-      ? parseFloat(getComputedStyle(root).getPropertyValue('--hero-top')) || 26
-      : 0
+    // the sheet covers the stage, in 3D and on the flat sheet alike
     const stageH = stage.clientHeight
-    const sheetW = stage.clientWidth - m * 2
-    sheetH = fallback ? stageH - top - 34 : stageH // room for the roller at the bottom
+    const sheetW = stage.clientWidth
+    sheetH = stageH
     setVar('--hero-sheet-h', sheetH + 'px')
 
     // the painting: "cover" anchored to the bottom on wide screens. On tall
@@ -214,6 +210,10 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     const sy = Math.max(0.15, (-topPx + SUN_R * h * 1.6 + 18) / h)
     state.sun = [sx, 1 - sy]
     sunTarget = [left + sx * w, topPx + sy * h]
+    // the flat sheet's sun, a disc of cinnabar where the shader's would be
+    setVar('--hero-sun-x', sunTarget[0].toFixed(1) + 'px')
+    setVar('--hero-sun-y', sunTarget[1].toFixed(1) + 'px')
+    setVar('--hero-sun-r', (SUN_R * h * 0.8).toFixed(1) + 'px')
     paths(vx0, vx1)
     draw()
     applyUnroll()
@@ -611,8 +611,6 @@ export function mountInkScene(els: SceneElements, hooks: SceneHooks): InkScene {
     } else {
       down = u * sheetH
       setVar('--hero-h', down.toFixed(1) + 'px')
-      setVar('--hero-roll', down.toFixed(1) + 'px') // the roller surface travels 1:1 with the paper
-      setVar('--hero-d', (58 - 24 * u).toFixed(1) + 'px') // the roller gets thinner
     }
     // the drop falls as soon as the spot it lands on is down
     if ((down >= dropTarget[1] + 60 || u >= 0.985) && phase === 'idle') play()

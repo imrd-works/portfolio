@@ -1,6 +1,12 @@
 // A project's painting appearing on wet paper, the way the hero blooms: the ink
 // arrives soft and spread, a pale edge runs ahead, then it dries into the drawing.
+// highp where the GPU has it; weaker phone GPUs only do mediump in fragment shaders, and a
+// shader asking for highp there does not build at all
+#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
+#else
+precision mediump float;
+#endif
 uniform sampler2D uTex;
 uniform vec2 uRes, uScale, uOff, uFrom;   // canvas (device px); cover crop; where the ink starts (0..1, y up)
 uniform float uP, uAspect;

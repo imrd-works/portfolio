@@ -33,6 +33,8 @@ const TILTS = [-1.6, 1.2, -0.8, 1.8, -1.3, 0.9]
 
 const filter = ref<Filter>('all')
 const live = ref(false)
+// no WebGL: an open project shows its painting as a plain picture, in the same frame
+const flat = ref(false)
 const opened = reactive<Record<string, boolean>>({})
 const current = ref<Project | null>(null)
 const activeId = ref<string | null>(null)
@@ -351,6 +353,7 @@ onMounted(async () => {
   } catch (err) {
     console.error(err)
   }
+  flat.value = !painting
   rippleImage.value?.setAttribute('href', lib.rippleMap())
   rippler = { image: rippleImage.value!, move: rippleMove.value!, blur: rippleBlur.value! }
 
@@ -600,6 +603,14 @@ onBeforeUnmount(() => {
         class="work__scene"
         aria-hidden="true"
       ></canvas>
+      <img
+        v-if="flat && current?.art"
+        class="work__scene work__scene--flat"
+        :class="{ 'work__scene--shown': state.ready }"
+        :src="current.art"
+        alt=""
+        aria-hidden="true"
+      />
       <div
         ref="scroller"
         class="work__scroller"
@@ -1127,6 +1138,21 @@ onBeforeUnmount(() => {
       #000 calc(100% - 140px),
       transparent
     );
+  }
+
+  // the painting as a plain picture (no WebGL), framed as the shader frames it: cover,
+  // a little above the centre, its white paper melting into the page's
+  &__scene--flat {
+    max-width: none;
+    object-fit: cover;
+    object-position: 50% 45%;
+    mix-blend-mode: multiply;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+
+  &__scene--shown {
+    opacity: 1;
   }
 
   &__scroller {
