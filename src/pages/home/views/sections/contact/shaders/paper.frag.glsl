@@ -3,7 +3,13 @@
 // the paper has aged — a coarse web and a finer one inside it, thinning and
 // breaking along their length. The web is laid out from a new seed on every
 // visit, so no two letters are written on quite the same sheet.
+// highp where the GPU has it; weaker phone GPUs only do mediump in fragment shaders, and a
+// shader asking for highp there does not build at all
+#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
+#else
+precision mediump float;
+#endif
 
 uniform vec2 uRes; // canvas size, device px
 uniform float uDpr;

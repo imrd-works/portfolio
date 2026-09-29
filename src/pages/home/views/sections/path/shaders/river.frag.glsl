@@ -5,7 +5,13 @@
 // a few long black and white brush strokes ride downstream along the river,
 // the way water is drawn in hand-drawn animation; the painting never moves.
 // Banks of mist lie over the river and slowly thicken and thin in place.
+// highp where the GPU has it; weaker phone GPUs only do mediump in fragment shaders, and a
+// shader asking for highp there does not build at all
+#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
+#else
+precision mediump float;
+#endif
 uniform sampler2D uInk;    // ink density, mipmapped: 0 paper, 1 black
 uniform sampler2D uFlow;   // when the flow reaches this pixel, 0..1
 uniform sampler2D uWater;  // along the river (two phases of u mod 1024 px), across it (-1..1), water mask

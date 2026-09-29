@@ -2,7 +2,13 @@
 // arrives soft and spread where the paper is wet, a pale diluted edge runs
 // ahead of it, then the paper dries and the spread pulls into the drawing.
 // The picture is ink on transparency: its alpha is the ink.
+// highp where the GPU has it; weaker phone GPUs only do mediump in fragment shaders, and a
+// shader asking for highp there does not build at all
+#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
+#else
+precision mediump float;
+#endif
 
 uniform sampler2D uTex;
 uniform vec2 uRes; // canvas size, device px

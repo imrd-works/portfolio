@@ -1,7 +1,13 @@
 // Wet-in-wet: clean paper spreads over the page from a point, like water
 // soaking into rice paper — tongues along the fibres, a darker tide line at
 // its edge and a pale diluted fringe running ahead of it.
+// highp where the GPU has it; weaker phone GPUs only do mediump in fragment shaders, and a
+// shader asking for highp there does not build at all
+#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
+#else
+precision mediump float;
+#endif
 uniform vec2 uRes, uC;     // canvas size (device px); the centre (css px, y down)
 uniform float uR, uDpr;    // radius (css px), device pixel ratio
 uniform vec3 uPaper;
