@@ -1419,10 +1419,37 @@ onBeforeUnmount(() => {
     }
 
     &__body {
+      isolation: isolate;
       justify-content: flex-start;
       max-width: none;
       padding: calc(52vh - 30px) var(--work-inset) 60px;
       margin-left: 0;
+
+      // the text scrolls up over the painting, which stays put: it comes on a sheet of the
+      // page's paper, soft at its top edge, laid once the painting has bloomed
+      &::before {
+        position: absolute;
+        inset: calc(52vh - 110px) 0 0;
+        z-index: -1;
+        content: '';
+        background: linear-gradient(to bottom, transparent, var(--work-paper) 80px);
+        opacity: 0;
+        transition: opacity 0.6s ease;
+      }
+    }
+
+    &__inside--ready &__body::before {
+      opacity: 1;
+    }
+  }
+
+  // Safari on iPhones and iPads draws SVG filters on moving things with stray colour at
+  // their edges: there the seals and stamps keep a clean edge (the ripple: transitions.ts)
+  @supports (-webkit-touch-callout: none) {
+    &__stamp::before,
+    &__nail,
+    &__close {
+      filter: none;
     }
   }
 

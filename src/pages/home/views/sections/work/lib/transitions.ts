@@ -52,6 +52,12 @@ export function rippleMap(): string {
 }
 
 /**
+ * Safari on iPhones and iPads pulls stray colour in at the edges of a displacement filter
+ * (pink smears round the picture), so there the picture only blurs and fades as it would.
+ */
+const PLAIN = typeof CSS !== 'undefined' && CSS.supports('-webkit-touch-callout', 'none')
+
+/**
  * Ripples `el` from (x, y) in its own px; `settle` plays it backwards and
  * leaves the element clean. Only one picture ripples at a time (one filter).
  */
@@ -63,7 +69,7 @@ export function ripple(
   { ms = 800, settle = false } = {}
 ): Promise<void> {
   const r = el.getBoundingClientRect()
-  el.style.filter = 'url(#work-ripple)'
+  if (!PLAIN) el.style.filter = 'url(#work-ripple)'
   const reach = Math.hypot(Math.max(x, r.width - x), Math.max(y, r.height - y)) * 1.3
   const t0 = performance.now()
   return new Promise((done) => {
@@ -77,6 +83,7 @@ export function ripple(
       f.image.setAttribute('height', String(2 * R))
       f.move.setAttribute('scale', String(70 * Math.sin(Math.min(1, k * 1.4) * Math.PI * 0.5)))
       f.blur.setAttribute('stdDeviation', String(6 * k * k))
+      if (PLAIN) el.style.filter = `blur(${(6 * k * k).toFixed(2)}px)`
       el.style.opacity = String(1 - 0.55 * k * k)
       if (t < 1) requestAnimationFrame(step)
       else {
