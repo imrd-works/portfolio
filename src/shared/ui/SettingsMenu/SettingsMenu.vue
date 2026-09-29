@@ -24,7 +24,7 @@ defineOptions({ name: 'UiSettingsMenu' })
  */
 const { t } = useI18n()
 const light = ref(false)
-const clarity = ref<Clarity>(2)
+const clarity = ref<Clarity>(1.5)
 // only the clarities this screen can tell apart; on a 1x screen, none to choose
 const clarities = ref<{ value: Clarity; label: string }[]>([])
 let off = () => {}

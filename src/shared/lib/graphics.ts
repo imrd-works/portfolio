@@ -39,10 +39,12 @@ const STORE_KEY = 'graphics:choice'
  * How sharp the paintings are drawn, the visitor's own setting: the pixel ratio
  * the scenes draw at, at most. On a dense (Retina) screen the scenes cost four
  * times the pixels at 2x; 1x keeps every animation and draws them softer.
- * Nothing lowers it but the visitor: 2x until they choose.
+ * 1.5x until the visitor chooses: hardly softer than 2x on a phone, and nearly
+ * half the pixels.
  */
 export type Clarity = 1 | 1.5 | 2
 export const CLARITIES: readonly Clarity[] = [1, 1.5, 2]
+const DEFAULT_CLARITY: Clarity = 1.5
 const CLARITY_KEY = 'graphics:clarity'
 
 function hasStored(key: string): boolean {
@@ -56,9 +58,9 @@ function hasStored(key: string): boolean {
 function readClarity(): Clarity {
   try {
     const v = Number(localStorage.getItem(CLARITY_KEY))
-    return (CLARITIES as readonly number[]).includes(v) ? (v as Clarity) : 2
+    return (CLARITIES as readonly number[]).includes(v) ? (v as Clarity) : DEFAULT_CLARITY
   } catch {
-    return 2
+    return DEFAULT_CLARITY
   }
 }
 
@@ -74,7 +76,7 @@ function readChoice(): GraphicsLevel | null {
 /** What the visitor chose, if they have: then they are never asked again. */
 let choice: GraphicsLevel | null = typeof window === 'undefined' ? null : readChoice()
 let level: GraphicsLevel = choice ?? 'high'
-let clarity: Clarity = typeof window === 'undefined' ? 2 : readClarity()
+let clarity: Clarity = typeof window === 'undefined' ? DEFAULT_CLARITY : readClarity()
 /** The visitor has set the clarity (then the offer goes straight to the light mode). */
 let clarityChosen = typeof window !== 'undefined' && hasStored(CLARITY_KEY)
 /**
