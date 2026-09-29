@@ -373,7 +373,7 @@ export const projects: Project[] = [
   {
     id: 'education',
     kind: 'system',
-    years: '2024–2026',
+    years: '2024–2025',
     art: '/work/education.webp',
     tools: {
       main: ['Nuxt 3 / 4', 'Vue 3', 'TypeScript'],
