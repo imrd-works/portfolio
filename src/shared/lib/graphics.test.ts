@@ -90,7 +90,7 @@ describe('the probe', () => {
 describe('the choice', () => {
   it('applies the light mode at once and keeps it', async () => {
     const { g, changed } = await page(33, 3)
-    expect(g.drawingRatio()).toBe(2)
+    expect(g.drawingRatio()).toBe(1.5)
     g.chooseGraphics('low')
     expect(g.graphics.low).toBe(true)
     expect(changed).toHaveBeenCalledWith('low')
@@ -127,7 +127,7 @@ describe('the offer on a dense screen', () => {
     run()
     expect(offered).toHaveBeenLastCalledWith('clarity')
     expect(g.graphics.offered).toBe('clarity')
-    expect(g.drawingRatio()).toBe(2) // nothing changed by itself
+    expect(g.drawingRatio()).toBe(1.5) // nothing changed by itself
   })
 
   it('offers the light mode next, if the page still stutters at 1x', async () => {
@@ -152,7 +152,7 @@ describe('the offer on a dense screen', () => {
     g.declineOffer()
     expect(g.graphics.offered).toBeNull()
     expect(localStorage.getItem('graphics:choice')).toBe('high')
-    expect(localStorage.getItem('graphics:clarity')).toBe('2')
+    expect(localStorage.getItem('graphics:clarity')).toBe('1.5')
     offered.mockClear()
     g.probeGraphics()
     run()
@@ -181,21 +181,25 @@ describe('clarity', () => {
   }
   afterEach(() => vi.unstubAllGlobals())
 
-  it('draws at the screen ratio, capped at 2, until the visitor chooses', async () => {
-    expect((await screen(2)).drawingRatio()).toBe(2)
-    expect((await screen(3)).drawingRatio()).toBe(2)
+  it('draws at 1.5x at most, until the visitor chooses', async () => {
+    expect((await screen(2)).drawingRatio()).toBe(1.5)
+    expect((await screen(3)).drawingRatio()).toBe(1.5)
     expect((await screen(1)).drawingRatio()).toBe(1)
+  })
+
+  it('keeps 2x for a visitor who chose it', async () => {
+    expect((await screen(2, { 'graphics:clarity': '2' })).drawingRatio()).toBe(2)
   })
 
   it('draws at the clarity chosen, keeps it, and lays the scenes out again', async () => {
     const g = await screen(2)
     const heard = vi.fn()
     g.onGraphicsChange(heard)
-    g.chooseClarity(1.5)
-    expect(g.drawingRatio()).toBe(1.5)
+    g.chooseClarity(1)
+    expect(g.drawingRatio()).toBe(1)
     expect(heard).toHaveBeenCalledOnce()
-    expect(localStorage.getItem('graphics:clarity')).toBe('1.5')
-    expect((await screen(2, { 'graphics:clarity': '1.5' })).drawingRatio()).toBe(1.5)
+    expect(localStorage.getItem('graphics:clarity')).toBe('1')
+    expect((await screen(2, { 'graphics:clarity': '1' })).drawingRatio()).toBe(1)
   })
 
   it('offers only the clarities the screen can show', async () => {
@@ -210,6 +214,6 @@ describe('clarity', () => {
   })
 
   it('ignores a clarity it does not know', async () => {
-    expect((await screen(2, { 'graphics:clarity': '4' })).graphics.clarity).toBe(2)
+    expect((await screen(2, { 'graphics:clarity': '4' })).graphics.clarity).toBe(1.5)
   })
 })

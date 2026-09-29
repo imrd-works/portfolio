@@ -14,6 +14,7 @@
     "fonts:sync": "node scripts/sync-fonts.mjs",
     "og:generate": "node scripts/generate-og.mjs",
     "cv:generate": "node scripts/generate-cv.mjs",
+    "paper:bake": "node scripts/bake-paper.mjs",
     "build:checked": "npm run verify && npm run build",
     "test": "vitest",
     "test:run": "vitest run --passWithNoTests",
