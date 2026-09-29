@@ -45,6 +45,8 @@ useInkBloom(tools, { from: { x: 0.48, y: 0.5 }, ms: 5200 })
 // Client-only: the prerendered HTML is the letter on css paper. The old
 // cracked sheet and the print arrive once the page is live.
 const live = ref(false)
+// no WebGL for the cracked sheet: the same sheet, baked into a picture (npm run paper:bake)
+const baked = ref(false)
 // the envelope is drawn by drops of ink and cinnabar; until it can be, the
 // flat painting and the flat mark stand in
 const envLive = ref(false)
@@ -124,9 +126,9 @@ onMounted(async () => {
   try {
     paper = mountPaper(section.value!, gl.value!)
   } catch {
-    // no cracked sheet: the section keeps the yellowed css paper
     live.value = false
   }
+  baked.value = !paper
 
   // the envelope is fetched now, so it is there the moment the seal is pressed
   for (const src of ENVELOPE) new Image().src = src
@@ -189,7 +191,7 @@ onBeforeUnmount(() => {
     id="contact"
     ref="section"
     class="contact"
-    :class="{ 'contact--live': live }"
+    :class="{ 'contact--live': live, 'contact--baked': baked }"
     data-ink-surface="paper"
   >
     <svg
@@ -602,6 +604,31 @@ onBeforeUnmount(() => {
   /* without the cracked sheet it is still the old, yellowed page */
   background-image: linear-gradient(var(--contact-paper), var(--contact-aged) 220px);
   -webkit-font-smoothing: antialiased;
+
+  /* no WebGL: the cracked sheet baked into a picture, pinned to the top as the canvas is,
+     one per width band so the cracks keep their size */
+  &--baked {
+    background-image:
+      url('/contact/paper-1440.webp'),
+      linear-gradient(var(--contact-paper), var(--contact-aged) 220px);
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size:
+      100% auto,
+      auto;
+
+    @media (width < 1100px) {
+      background-image:
+        url('/contact/paper-800.webp'),
+        linear-gradient(var(--contact-paper), var(--contact-aged) 220px);
+    }
+
+    @media (width < 600px) {
+      background-image:
+        url('/contact/paper-430.webp'),
+        linear-gradient(var(--contact-paper), var(--contact-aged) 220px);
+    }
+  }
 
   &__defs {
     position: absolute;
