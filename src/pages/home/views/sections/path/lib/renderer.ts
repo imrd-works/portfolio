@@ -132,3 +132,58 @@ export function createRiverRenderer(canvas: HTMLCanvasElement): RiverRenderer | 
     },
   }
 }
+
+/**
+ * The river without WebGL: the same painting in the same place, drawn with a plain 2D canvas,
+ * already dry (no ink running down it, no current). The rest of the scene (the steps, the
+ * wolverine's trail, the seal) does not know the difference. Null if even 2D is out.
+ */
+export function createFlatRiverRenderer(canvas: HTMLCanvasElement): RiverRenderer | null {
+  const g = canvas.getContext('2d')
+  if (!g) return null
+  let painting: HTMLCanvasElement | null = null
+  let dpr = 1
+
+  return {
+    loadTextures(ink) {
+      // The ink map is a density (red: 0 paper, 1 black): laid once as ink of the shader's
+      // colours on transparency, pale blue-grey where it thins, near black where it is dense.
+      const c = document.createElement('canvas')
+      const scale = Math.min(1, 1024 / ink.naturalWidth)
+      c.width = Math.round(ink.naturalWidth * scale)
+      c.height = Math.round(ink.naturalHeight * scale)
+      const cg = c.getContext('2d', { willReadFrequently: true })!
+      cg.drawImage(ink, 0, 0, c.width, c.height)
+      const im = cg.getImageData(0, 0, c.width, c.height)
+      const d = im.data
+      for (let i = 0; i < d.length; i += 4) {
+        const conc = Math.min(1, Math.max(0, (d[i] / 255 - 0.03) / 0.97))
+        const k = Math.pow(conc, 0.7)
+        d[i] = (0.21 + (0.035 - 0.21) * k) * 255
+        d[i + 1] = (0.26 + (0.04 - 0.26) * k) * 255
+        d[i + 2] = (0.35 + (0.05 - 0.35) * k) * 255
+        d[i + 3] = conc * 255
+      }
+      cg.putImageData(im, 0, 0)
+      painting = c
+    },
+
+    resize(width, height, ratio) {
+      dpr = ratio
+      canvas.width = Math.round(width * dpr)
+      canvas.height = Math.round(height * dpr)
+    },
+
+    draw(f) {
+      g.setTransform(1, 0, 0, 1, 0, 0)
+      g.clearRect(0, 0, canvas.width, canvas.height)
+      if (!painting) return
+      g.setTransform(dpr, 0, 0, dpr, 0, 0)
+      g.drawImage(painting, f.rect.left, f.rect.top, f.rect.width, f.rect.height)
+    },
+
+    dispose() {
+      painting = null
+    },
+  }
+}

@@ -15,7 +15,7 @@
  * Ported from the scroll3d prototype (river.html).
  */
 import { RIVER_COURSE, RIVER_FLOW, RIVER_IMAGE, RIVER_SEAL, RIVER_STEPS } from '../config'
-import { createRiverRenderer, type RiverRenderer } from './renderer'
+import { createFlatRiverRenderer, createRiverRenderer, type RiverRenderer } from './renderer'
 import { CINNABAR, makePaw, type PawSprite } from '@/shared/lib/ink/paw'
 import { drawingRatio, graphics, onGraphicsChange, probeGraphics } from '@/shared/lib/graphics'
 
@@ -85,10 +85,20 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
   const N = RIVER_STEPS.length
 
   let renderer: RiverRenderer | null = null
+  let flat = false
   try {
     renderer = createRiverRenderer(els.gl)
   } catch (e) {
+    // WebGL is there but the shader does not build on this device: a fresh canvas for 2D
     console.error(e)
+    const fresh = els.gl.cloneNode() as HTMLCanvasElement
+    els.gl.replaceWith(fresh)
+    els.gl = fresh
+  }
+  if (!renderer) {
+    // no WebGL: the same river, laid out the same, drawn as a still picture
+    renderer = createFlatRiverRenderer(els.gl)
+    flat = !!renderer
   }
   if (!renderer) {
     hooks.live(false)
@@ -530,7 +540,7 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
     (es) => {
       visible = es[0].isIntersecting
       // the river runs every frame while it is in view: see how the device keeps up
-      if (visible && ready && !REDUCED) probeGraphics()
+      if (visible && ready && !REDUCED && !flat) probeGraphics()
       schedule()
     },
     { rootMargin: '20% 0px' }
@@ -564,7 +574,7 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       ready = true
       hooks.live(true)
       layout()
-      if (visible && !REDUCED) probeGraphics()
+      if (visible && !REDUCED && !flat) probeGraphics()
       // the prints are placed by the descriptions' height, which the web fonts change
       document.fonts?.ready.then(() => !destroyed && layout())
     })
