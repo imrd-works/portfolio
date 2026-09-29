@@ -21,8 +21,15 @@ const { t } = useI18n()
 const kind = ref<GraphicsOffer | null>(null)
 let off = () => {}
 
-// the copy for what is offered: home.graphics.* for the light mode, .clarity.* for the clarity
-const copy = computed(() => (kind.value === 'clarity' ? 'home.graphics.clarity' : 'home.graphics'))
+// the copy for what is offered: home.graphics.* for the light mode, .clarity.* for the
+// clarity, .weak.* for both at once on a device weak by its hints
+const copy = computed(() =>
+  kind.value === 'clarity'
+    ? 'home.graphics.clarity'
+    : kind.value === 'weak'
+      ? 'home.graphics.weak'
+      : 'home.graphics'
+)
 
 onMounted(() => {
   kind.value = graphics.offered
@@ -32,7 +39,12 @@ onBeforeUnmount(() => off())
 
 function accept() {
   if (kind.value === 'clarity') chooseClarity(1)
-  else chooseGraphics('low')
+  else {
+    // the weak device's offer lowers the clarity too, so it stays soft if the light
+    // mode is turned off again
+    if (kind.value === 'weak') chooseClarity(1)
+    chooseGraphics('low')
+  }
   kind.value = null
 }
 

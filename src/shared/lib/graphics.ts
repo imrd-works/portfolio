@@ -84,7 +84,7 @@ let clarityChosen = typeof window !== 'undefined' && hasStored(CLARITY_KEY)
  * clarity on a dense screen (every animation kept), and the light mode if that
  * was not enough. `null` while nothing is offered.
  */
-export type GraphicsOffer = 'clarity' | 'light'
+export type GraphicsOffer = 'clarity' | 'light' | 'weak'
 let offered: GraphicsOffer | null = null
 let probes = 0
 let probing = false
@@ -92,7 +92,39 @@ let slowInARow = 0
 const listeners = new Set<Listener>()
 const offerListeners = new Set<(kind: GraphicsOffer) => void>()
 
-/** The browser's own hints that the device is weak or the visitor saves data. */
+/**
+ * GPUs known to struggle with the scenes: the older Mali, Adreno and PowerVR of budget
+ * phones, and drawing without a GPU at all (a software renderer).
+ */
+const WEAK_GPU =
+  /Mali-(?:[34]\d\d|T[678]\d\d|G(?:31|51|52|57))\b|Adreno \(TM\) (?:[34]\d\d|50\d|51\d)\b|PowerVR (?:SGX|Rogue GE)|SwiftShader|llvmpipe|Software|Microsoft Basic Render/i
+
+/** Whether the GPU the browser names is one of the weak ones. */
+export function weakGpu(name: string): boolean {
+  return WEAK_GPU.test(name)
+}
+
+/** The GPU as the browser names it, and its largest texture ('' and 0 without WebGL). */
+function gpu(): { name: string; maxTexture: number } {
+  if (typeof WebGLRenderingContext === 'undefined') return { name: '', maxTexture: 0 }
+  try {
+    const gl = document.createElement('canvas').getContext('webgl')
+    if (!gl) return { name: '', maxTexture: 0 }
+    const info = gl.getExtension('WEBGL_debug_renderer_info')
+    const name = String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER) ?? '')
+    const maxTexture = Number(gl.getParameter(gl.MAX_TEXTURE_SIZE)) || 0
+    gl.getExtension('WEBGL_lose_context')?.loseContext()
+    return { name, maxTexture }
+  } catch {
+    return { name: '', maxTexture: 0 }
+  }
+}
+
+/**
+ * The hints that the device is weak, before a single frame is measured: the visitor saves
+ * data, little memory, few cores, a weak GPU or one that cannot hold the paintings'
+ * textures.
+ */
 function hintsWeak(): boolean {
   if (typeof navigator === 'undefined') return false
   const nav = navigator as Navigator & {
@@ -100,8 +132,13 @@ function hintsWeak(): boolean {
     connection?: { saveData?: boolean }
   }
   if (nav.connection?.saveData) return true
-  if (nav.deviceMemory !== undefined && nav.deviceMemory <= 2) return true
-  return nav.hardwareConcurrency !== undefined && nav.hardwareConcurrency <= 2
+  const memory = nav.deviceMemory
+  const cores = nav.hardwareConcurrency
+  if (memory !== undefined && memory <= 2) return true
+  if (cores !== undefined && cores <= 2) return true
+  if (memory !== undefined && memory <= 3 && cores !== undefined && cores <= 4) return true
+  const g = gpu()
+  return weakGpu(g.name) || (g.maxTexture > 0 && g.maxTexture < 4096)
 }
 
 export const graphics = {
@@ -197,11 +234,16 @@ export function chooseGraphics(next: GraphicsLevel): void {
   setLevel(next)
 }
 
-function offer() {
+function offer(hinted = false) {
   if (choice || offered) return
-  // on a dense screen the clarity comes first: smoother, and nothing stops moving
-  const kind: GraphicsOffer =
-    !clarityChosen && clarity > 1 && screenRatio() > 1 ? 'clarity' : 'light'
+  // a device weak by its hints: the light mode and the lower clarity at once, asked
+  // straight away; one that stutters: on a dense screen the clarity comes first
+  // (smoother, and nothing stops moving), then the light mode
+  const kind: GraphicsOffer = hinted
+    ? 'weak'
+    : !clarityChosen && clarity > 1 && screenRatio() > 1
+      ? 'clarity'
+      : 'light'
   offered = kind
   if (import.meta.env.DEV) console.info(`[graphics] offering the ${kind}`)
   offerListeners.forEach((fn) => fn(kind))
@@ -234,7 +276,7 @@ export function medianFrame(times: number[]): number {
 export function probeGraphics(): void {
   if (typeof window === 'undefined' || choice || offered || probing) return
   if (hintsWeak()) {
-    window.setTimeout(offer, PROBE_DELAY_MS)
+    window.setTimeout(() => offer(true), PROBE_DELAY_MS)
     return
   }
   if (probes >= MAX_PROBES) return

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { SLOW_FRAME_MS, medianFrame } from './graphics'
+import { SLOW_FRAME_MS, medianFrame, weakGpu } from './graphics'
 
 describe('medianFrame', () => {
   it('takes the median of the frames', () => {
@@ -215,5 +215,48 @@ describe('clarity', () => {
 
   it('ignores a clarity it does not know', async () => {
     expect((await screen(2, { 'graphics:clarity': '4' })).graphics.clarity).toBe(1.5)
+  })
+})
+
+describe('a device weak by its hints', () => {
+  it('knows the weak GPUs of budget phones, and drawing without one', () => {
+    expect(weakGpu('Mali-400 MP')).toBe(true)
+    expect(weakGpu('Mali-T720')).toBe(true)
+    expect(weakGpu('Mali-G52 MC2')).toBe(true)
+    expect(weakGpu('Adreno (TM) 306')).toBe(true)
+    expect(weakGpu('Adreno (TM) 506')).toBe(true)
+    expect(weakGpu('PowerVR Rogue GE8320')).toBe(true)
+    expect(
+      weakGpu('ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero)), SwiftShader driver)')
+    ).toBe(true)
+  })
+
+  it('leaves the strong ones alone', () => {
+    expect(weakGpu('Adreno (TM) 740')).toBe(false)
+    expect(weakGpu('Adreno (TM) 618')).toBe(false)
+    expect(weakGpu('Mali-G78 MP14')).toBe(false)
+    expect(weakGpu('Mali-G710 MC10')).toBe(false)
+    expect(weakGpu('Apple GPU')).toBe(false)
+    expect(weakGpu('ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)')).toBe(
+      false
+    )
+  })
+
+  it('asks at once for the light mode and the lower clarity together', async () => {
+    vi.stubGlobal('navigator', { ...navigator, deviceMemory: 2, hardwareConcurrency: 8 })
+    const { g, offered, run } = await page(16, 2)
+    g.probeGraphics()
+    run()
+    expect(offered).toHaveBeenCalledWith('weak')
+    expect(g.graphics.low).toBe(false) // only asked
+  })
+
+  it('does not ask a device with enough of everything, until it stutters', async () => {
+    vi.stubGlobal('navigator', { ...navigator, deviceMemory: 8, hardwareConcurrency: 8 })
+    const { g, offered, run } = await page(16, 2)
+    g.probeGraphics()
+    run()
+    run()
+    expect(offered).not.toHaveBeenCalled()
   })
 })
