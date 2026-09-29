@@ -539,7 +539,14 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
   const onScroll = () => schedule()
   document.addEventListener('visibilitychange', onScroll)
   window.addEventListener('scroll', onScroll, { passive: true })
-  window.addEventListener('resize', layout)
+  // Laid out again when the width changes, or the height by more than a phone's browser bar:
+  // the bar comes and goes as the page is scrolled, and the section's height (on phones a
+  // multiple of the screen's) would jolt everything below it every time
+  const onResize = () => {
+    if (root.clientWidth === W && Math.abs(window.innerHeight - VH) < 160) return
+    layout()
+  }
+  window.addEventListener('resize', onResize)
   // a weak device: laid out again at 1x (the current stops on the next frame)
   const offGraphics = onGraphicsChange(() => {
     if (ready) layout()
@@ -574,7 +581,7 @@ export function mountRiver(els: RiverElements, hooks: RiverHooks): RiverScene {
       io.disconnect()
       document.removeEventListener('visibilitychange', onScroll)
       window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', layout)
+      window.removeEventListener('resize', onResize)
       offGraphics()
       root.style.height = ''
       view.style.height = ''
