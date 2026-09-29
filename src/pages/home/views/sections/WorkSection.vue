@@ -37,7 +37,7 @@ const opened = reactive<Record<string, boolean>>({})
 const current = ref<Project | null>(null)
 const activeId = ref<string | null>(null)
 const tab = ref<Tab>('about')
-const state = reactive({ on: false, ready: false, covering: false, bleeding: false, noFade: false })
+const state = reactive({ on: false, ready: false, covering: false, bleeding: false })
 
 const lines = (key: string) => t(key).split('\n').filter(Boolean)
 // by id: `current` holds Vue's reactive proxy of the project, never the object in the list
@@ -184,7 +184,7 @@ async function enter(p: Project, e?: MouseEvent, { push = true, instant = false 
   const fast = instant || REDUCED || !bleed
   state.on = true
   state.ready = false
-  if (!fast) Object.assign(state, { bleeding: true, covering: true, noFade: true })
+  if (!fast) Object.assign(state, { bleeding: true, covering: true })
   await nextTick()
   if (scroller.value) scroller.value.scrollTop = 0
   painting?.fit()
@@ -205,11 +205,10 @@ async function enter(p: Project, e?: MouseEvent, { push = true, instant = false 
         2200 * 0.7 + 30
       )
     )
-    state.noFade = false // the soft edge is there before the first ink
     drawPainting(p, false, [x, y])
     await wait(900)
   } else {
-    Object.assign(state, { bleeding: false, covering: false, noFade: false })
+    Object.assign(state, { bleeding: false, covering: false })
     drawPainting(p, true)
   }
   state.ready = true
@@ -243,7 +242,7 @@ async function leave({ pop = false } = {}) {
       lastAt && lastAt[0] >= ir.left && lastAt[0] <= ir.right
         ? lastAt
         : [ir.left + ir.width / 2, ir.top + ir.height / 2]
-    Object.assign(state, { bleeding: true, covering: true, noFade: true })
+    Object.assign(state, { bleeding: true, covering: true })
     const settle = lib.ripple(rippler, img, x - ir.left, y - ir.top, { ms: 1300, settle: true })
     await bleed.run(x, y, 1, 0, 1250)
     await wash
@@ -253,7 +252,7 @@ async function leave({ pop = false } = {}) {
     img.style.filter = ''
     img.style.opacity = ''
   }
-  Object.assign(state, { on: false, bleeding: false, covering: false, noFade: false })
+  Object.assign(state, { on: false, bleeding: false, covering: false })
   painting?.set(-0.1)
   lockPage(false)
   current.value = null
@@ -585,7 +584,6 @@ onBeforeUnmount(() => {
         'work__inside--ready': state.ready,
         'work__inside--covering': state.covering,
         'work__inside--bleeding': state.bleeding,
-        'work__inside--no-fade': state.noFade,
       }"
       role="dialog"
       aria-modal="true"
@@ -602,7 +600,6 @@ onBeforeUnmount(() => {
         class="work__scene"
         aria-hidden="true"
       ></canvas>
-      <div class="work__fade"></div>
       <div
         ref="scroller"
         class="work__scroller"
@@ -1121,23 +1118,15 @@ onBeforeUnmount(() => {
     left: var(--work-inset);
     width: var(--work-scene);
     height: 100%;
-    /* its paper meets the page's paper without a seam on the column side */
-    mask-image: linear-gradient(to right, transparent, #000 140px);
-  }
-
-  &__fade {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: calc(var(--work-inset) + var(--work-scene) - 140px);
-    width: 142px;
-    pointer-events: none;
-    background: linear-gradient(to right, rgb(236 232 225 / 0%), var(--work-paper));
-    transition: opacity 0.5s ease;
-  }
-
-  &__inside--no-fade &__fade {
-    opacity: 0;
+    /* the ink thins out towards both sides, so no painting shows its edge, not
+       even while it washes off: a drawing that runs up to its edge fades as well */
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 140px,
+      #000 calc(100% - 140px),
+      transparent
+    );
   }
 
   &__scroller {
@@ -1426,16 +1415,7 @@ onBeforeUnmount(() => {
       left: 0;
       width: 100%;
       height: 52vh;
-      mask-image: none;
-    }
-
-    &__fade {
-      top: calc(52vh - 160px);
-      bottom: auto;
-      left: 0;
-      width: 100%;
-      height: 162px;
-      background: linear-gradient(to bottom, rgb(236 232 225 / 0%), var(--work-paper));
+      mask-image: linear-gradient(to bottom, #000 calc(100% - 160px), transparent);
     }
 
     &__body {
