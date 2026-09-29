@@ -87,6 +87,21 @@ const wait = (ms: number) => new Promise<void>((r) => timers.push(window.setTime
 const sheetOf = (id: string) => sheetEls.value?.find((el) => el.dataset.id === id) ?? null
 const pictureOf = (id: string) => sheetOf(id)?.querySelector<HTMLElement>('.work__art') ?? null
 
+/**
+ * The picture on the wall stays rippled away while its project is open, and closing plays
+ * the ripple back on the one open then. Switching hands that look on to the next picture
+ * (the wall is under the painting meanwhile), so the one it was opened from comes back clear.
+ */
+function handRipple(from: string, to: string) {
+  const a = pictureOf(from)
+  const b = pictureOf(to)
+  if (!a || !b || a === b) return
+  b.style.filter = a.style.filter
+  b.style.opacity = a.style.opacity
+  a.style.filter = ''
+  a.style.opacity = ''
+}
+
 function lockPage(on: boolean) {
   const root = document.documentElement
   // the scrollbar's width becomes padding, so the page does not jump when it
@@ -255,6 +270,14 @@ async function leave({ pop = false } = {}) {
     img.style.opacity = ''
   }
   Object.assign(state, { on: false, bleeding: false, covering: false })
+  // nothing on the wall is left rippled, whichever way the visitor went round
+  for (const el of sheetEls.value ?? []) {
+    const pic = el.querySelector<HTMLElement>('.work__art')
+    if (pic) {
+      pic.style.filter = ''
+      pic.style.opacity = ''
+    }
+  }
   painting?.set(-0.1)
   lockPage(false)
   current.value = null
@@ -277,6 +300,7 @@ async function switchTo(p: Project) {
     const next: Project = aim.value
     state.ready = false
     await Promise.all([painting?.to(-0.1, 600), wait(REDUCED ? 0 : 350)])
+    if (current.value) handRipple(current.value.id, next.id)
     current.value = next
     tab.value = 'about'
     history.replaceState({ work: next.id }, '', `#/work/${next.id}`)
