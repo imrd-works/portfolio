@@ -278,6 +278,11 @@
       "label": "Clarity",
       "offer": "The animations on this page are stuttering. Lower the paintings' clarity to ×1? Every animation stays, the paintings get a little softer. You can change it in the settings, in the corner.",
       "accept": "Lower it"
+    },
+    "weak": {
+      "label": "Light mode",
+      "offer": "This device looks like it may struggle, and the animations could stutter. Switch to the light mode and lower the paintings' clarity? The graphics get simpler and the paintings a little softer, but everything runs smoothly. You can change it in the settings, in the corner.",
+      "accept": "Switch"
     }
   },
   "nav": {
