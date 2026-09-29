@@ -114,6 +114,52 @@ vec3 riverAt(vec2 q){
   return r;
 }
 
+// how far a body goes along its arc between t0 and t1 (q units, as the eye sees it)
+float arcLen(vec2 a, vec2 c, vec2 b, float t0, float t1){
+  vec2 k = vec2(uAspect, 1.), p = arc(a, c, b, t0) * k;
+  float L = 0.;
+  for (int i = 1; i <= 8; i++) {
+    vec2 n = arc(a, c, b, mix(t0, t1, float(i) / 8.)) * k;
+    L += length(n - p);
+    p = n;
+  }
+  return L;
+}
+// The image of a body on the water, `L` up the river from its mouth (q units, along its
+// bends), leaning a little to the side the body stands on but never off the water. The image
+// goes up or down the river exactly as far as the body goes along its arc, so the two keep
+// the same pace: noon's sun and the risen moon lie at the mouth.
+vec2 imageOf(vec2 body, float L){
+  vec2 k = vec2(uAspect, 1.);
+  vec2 at = uRiver[0];
+  float hw = uHw[0], acc = 0., found = 0.;
+  for (int i = 7; i >= 0; i--) {
+    vec2 a = uRiver[i + 1], b = uRiver[i];   // mouth -> source
+    float seg = length((b - a) * k);
+    if (found < .5 && acc + seg >= L) {
+      float t = clamp((L - acc) / seg, 0., 1.);
+      at = mix(a, b, t);
+      hw = mix(uHw[i + 1], uHw[i], t);
+      found = 1.;
+    }
+    acc += seg;
+  }
+  float x = at.x + clamp(body.x - at.x, -hw * .35, hw * .35);
+  return vec2(x * uAspect, at.y);
+}
+
+// A disc seen in the water: a little flattened, swayed side to side by the current (more in
+// fine bands, the way moving water breaks it) and crossed by thin lines of ripple riding down
+float reflDisc(vec2 q, vec2 c, float r, float seed){
+  vec2 d = q - c;
+  d.x += (vnoise(vec2(d.y / r * 3.5 + seed, uTime * .45)) - .5) * r * .45
+       + sin(d.y / r * 11. + uTime * 1.3 + seed) * r * .08;
+  d.y /= .8;
+  float disc = 1. - smoothstep(r * .72, r * 1.05, length(d));
+  float lines = smoothstep(.25, .6, vnoise(vec2(q.x * 10. + seed, q.y * 170. + uTime * .7)));
+  return disc * mix(1., lines, .55);
+}
+
 void main(){
   vec2 vUv = vStage * uPScale + uPOffset;   // the painting's uv (outside 0..1: bare sheet)
   float inside = step(0., vUv.x) * step(vUv.x, 1.) * step(0., vUv.y) * step(vUv.y, 1.);
@@ -284,9 +330,9 @@ void main(){
   vec3 base = mix(paper, sunCol, sa);
 
   // ---------- the river: long brush strokes riding downstream, as in the Path ----------
-  // grey strokes of water; under the sun they catch its light and turn cinnabar, by night the
-  // moon's and turn white. Only where the painting has dried.
-  float strokeInk = 0., moonGlint = 0., riverNight = 0.;
+  // grey strokes of water; under the sun they pale into its light (its path lies over them),
+  // by night they catch the moon's and turn white. Only where the painting has dried.
+  float strokeInk = 0., moonGlint = 0., riverNight = 0., sunRefl = 0., moonRefl = 0., moonShade = 0.;
   if (vUv.x > .44 && vUv.x < .7 && vUv.y > .09 && vUv.y < .37) {
     vec3 rv = riverAt(q);
     float u = rv.x, v = rv.y;
@@ -313,14 +359,27 @@ void main(){
         float bristle = smoothstep(.15, .7, vnoise(vec2(k * .012, fract(lv) * 16. + lane * 7.)));
         float st = stroke * mix(1., bristle, .3 + .7 * smoothstep(.3, 1., t)) * wat;
         float lit = exp(-pow((q.x - sc.x) / (uSunR * 2.2), 2.)) * (1. - smoothstep(.0, .7, hidden)) * step(0., uSunT);
-        base *= mix(vec3(1.), mix(sunCol, vec3(.95, .62, .55), .3) / .95, st * lit * .7);
         vec2 mNow = arc(uMoon0, uMoonC, uMoon1, uM * uM * (3. - 2. * uM));
         float mlit = smoothstep(.15, .6, uM) * (.45 + .55 * exp(-pow((q.x - mNow.x * uAspect) / .35, 2.)));
         moonGlint = st * mlit;
         strokeInk = st * (1. - lit) * (1. - mlit) * .18;
       }
+      // the sun and the moon in the water: as the sun goes down its image comes up the river
+      // towards the hills, along its bends; as the moon rises, its image comes down
+      vec2 sR = imageOf(sunUv, arcLen(uSun, uSunC, uSet, 0., e));
+      sunRefl = wat * reflDisc(q, sR, uSunR, 1.7)
+              * sunVis * smoothstep(0., .08, uSunT) * (1. - smoothstep(.9, 1., uS));
+      float me = uM * uM * (3. - 2. * uM);
+      vec2 mSky = arc(uMoon0, uMoonC, uMoon1, me);
+      // it shows as much as the disc has come out of its slit, as the sun's does
+      float mUp = step(0., uM - 1e-4) * clamp((mSky.y + uMoonR - uMBand) / (2. * uMoonR), 0., 1.);
+      vec2 mR = imageOf(mSky, arcLen(uMoon0, uMoonC, uMoon1, me, 1.));
+      moonRefl = wat * reflDisc(q, mR, uMoonR, 4.3) * mUp;
+      // the water round it a shade darker, so it shows (as round the moon in the sky)
+      moonShade = wat * exp(-pow(length((q - mR) * vec2(1., 1.25)) / (uMoonR * 2.2), 2.)) * mUp;
     }
   }
+  base *= mix(vec3(1.), mix(sunCol, vec3(.95, .62, .55), .35) / .9, sunRefl * .42);   // paler than the sun: a wash, not a coat
   a = a + strokeInk * (1. - a);   // the river's grey strokes are ink too
   conc = max(conc, strokeInk);
   col = mix(vec3(.21, .26, .35), vec3(.035, .04, .05), pow(conc, .7)) * (1. - .12 * nightIn);
@@ -340,6 +399,8 @@ void main(){
   outc *= mix(vec3(1.), vec3(.87, .88, .93), nightIn * smoothstep(.0, .4, vStage.y));
   outc *= 1. - riverNight * nightIn * .08;
   outc = mix(outc, vec3(.985, .985, .98), moonGlint * .95);
+  outc *= 1. - moonShade * .13;
+  outc = mix(outc, vec3(.985, .985, .98), moonRefl * .9);
 
   // ---------- the moon: out of its slit, once the sun is gone ----------
   // Painted the way the ink masters paint it: the moon itself is bare paper, and the sky round
