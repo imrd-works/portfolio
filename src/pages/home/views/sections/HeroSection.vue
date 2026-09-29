@@ -221,9 +221,11 @@ onBeforeUnmount(() => {
 
   position: relative;
   z-index: 2;
-  // one screen: the scroll unrolls by itself on load (hero/lib/scene.ts)
+  // one screen: the scroll unrolls by itself on load (hero/lib/scene.ts). The screen's
+  // height is taken once (App.vue), not the dynamic one: a phone's browser bar coming and
+  // going would change it on every turn of the scroll and jolt the whole page below
   height: 100vh;
-  height: 100dvh;
+  height: var(--app-height, 100svh);
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   // The site body sets its own line-height; the prototype's geometry is built on `normal`.
   line-height: normal;
@@ -239,7 +241,7 @@ onBeforeUnmount(() => {
     position: sticky;
     top: 0;
     height: 100vh;
-    height: 100dvh;
+    height: var(--app-height, 100svh);
     overflow: hidden;
   }
 
