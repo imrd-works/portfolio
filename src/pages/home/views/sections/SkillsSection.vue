@@ -132,8 +132,18 @@ onBeforeUnmount(() => observer?.disconnect())
     </svg>
 
     <div class="skills__inner">
-      <p class="skills__eyebrow">{{ t('home.skills.eyebrow') }}</p>
-      <h2 class="skills__title">{{ t('home.skills.title') }}</h2>
+      <p
+        v-ink-in
+        class="skills__eyebrow"
+      >
+        {{ t('home.skills.eyebrow') }}
+      </p>
+      <h2
+        v-ink-in="1"
+        class="skills__title"
+      >
+        {{ t('home.skills.title') }}
+      </h2>
 
       <!-- the five strengths: for each a drop of ink lands and spreads into a
            blot, then the words bloom out of the wet paper beside it -->
@@ -158,7 +168,10 @@ onBeforeUnmount(() => observer?.disconnect())
       </ul>
 
       <div class="skills__shelf">
-        <div class="skills__bar">
+        <div
+          v-ink-in
+          class="skills__bar"
+        >
           <div
             class="skills__tabs"
             role="tablist"
@@ -198,6 +211,7 @@ onBeforeUnmount(() => observer?.disconnect())
         <!-- what the ink says: filled, every project; outlined, used in projects -->
         <p
           v-if="!searching"
+          v-ink-in="1"
           class="skills__legend"
         >
           <span class="skills__legend-item">
