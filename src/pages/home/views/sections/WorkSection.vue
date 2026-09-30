@@ -75,6 +75,36 @@ let swing: Swing | null = null
 let offGraphics = () => {}
 let REDUCED = false
 let busy = false
+/**
+ * The page under an open painting stays where the reader left it. A phone's browser may move
+ * it while it is locked, and the step back that closes the painting may scroll it (the
+ * router's scroll, the browser's own restoring): while a painting is open any such move is
+ * undone at once, and on closing the page is lined up by the sheet it was opened from, which
+ * holds even if the sections above it changed height meanwhile.
+ */
+const kept = { y: 0, id: '', top: 0 }
+function keepPage(id: string) {
+  kept.y = window.scrollY
+  kept.id = id
+  kept.top = sheetOf(id)?.getBoundingClientRect().top ?? 0
+  window.addEventListener('scroll', holdPage, { passive: true })
+}
+function holdPage() {
+  if (Math.abs(window.scrollY - kept.y) > 1) window.scrollTo({ top: kept.y, behavior: 'instant' })
+}
+/** Back to where it was: the sheet at the same place on the screen. */
+function restorePage() {
+  const sheet = kept.id ? sheetOf(kept.id) : null
+  const drift = sheet?.offsetParent ? sheet.getBoundingClientRect().top - kept.top : 0
+  const y = Math.abs(drift) > 4 ? window.scrollY + drift : kept.y
+  if (Math.abs(window.scrollY - y) > 1) window.scrollTo({ top: y, behavior: 'instant' })
+  kept.y = window.scrollY
+}
+function releasePage() {
+  window.removeEventListener('scroll', holdPage)
+  restorePage()
+  kept.id = ''
+}
 /** Esc or the close button pressed mid-switch: the painting closes once it is done. */
 let leaveNext = false
 /** Bumped for every painting drawn: an image that loads late for one no longer shown is dropped. */
@@ -195,6 +225,7 @@ async function enter(p: Project, e?: MouseEvent, { push = true, instant = false 
   const opening = sheetOf(p.id)
   if (opening) swing?.still(opening)
   tab.value = 'about'
+  keepPage(p.id)
   if (push) history.pushState({ work: p.id }, '', `#/work/${p.id}`)
   pushed = push
   lockPage(true)
@@ -251,6 +282,8 @@ async function leave({ pop = false } = {}) {
     if (pushed) history.back()
     else history.replaceState(null, '', location.pathname + location.search)
   }
+  // the wall shows through as the water draws back: it is in its place before it does
+  restorePage()
   if (!REDUCED && img && bleed && painting && rippler && lib && sheet?.offsetParent) {
     // all at once: the text blurs away, the ink washes off and the water draws back into the sheet
     const wash = painting.to(-0.1, 800)
@@ -280,6 +313,7 @@ async function leave({ pop = false } = {}) {
   }
   painting?.set(-0.1)
   lockPage(false)
+  releasePage()
   current.value = null
   activeId.value = null
   swing?.wake() // back askew on its pin, unless pointed at
@@ -428,6 +462,7 @@ onBeforeUnmount(() => {
   timers.forEach(clearTimeout)
   window.removeEventListener('keydown', onKey)
   window.removeEventListener('popstate', onPop)
+  window.removeEventListener('scroll', holdPage)
   window.removeEventListener('resize', onResize)
   if (current.value) lockPage(false)
 })
@@ -509,15 +544,27 @@ onBeforeUnmount(() => {
     <div class="work__inner">
       <!-- the river's seal centres itself between its last step and this line -->
       <p
+        v-ink-in
         class="work__eyebrow"
         data-river-next
       >
         {{ t('home.work.eyebrow') }}
       </p>
-      <h2 class="work__title">{{ t('home.work.title') }}</h2>
-      <p class="work__lead">{{ t('home.work.lead') }}</p>
+      <h2
+        v-ink-in="1"
+        class="work__title"
+      >
+        {{ t('home.work.title') }}
+      </h2>
+      <p
+        v-ink-in="2"
+        class="work__lead"
+      >
+        {{ t('home.work.lead') }}
+      </p>
 
       <div
+        v-ink-in="3"
         class="work__filters"
         role="group"
         :aria-label="t('home.work.filterLabel')"
@@ -593,11 +640,18 @@ onBeforeUnmount(() => {
               ></span>
             </span>
           </span>
-          <span class="work__label">
+          <span
+            v-ink-in
+            class="work__label"
+          >
             <span class="work__year">{{ p.years }}</span>
             <span class="work__name">{{ t(`home.work.items.${p.id}.title`) }}</span>
           </span>
-          <span class="work__kind">{{ t(`home.work.kinds.${p.kind}`) }}</span>
+          <span
+            v-ink-in="1"
+            class="work__kind"
+            >{{ t(`home.work.kinds.${p.kind}`) }}</span
+          >
         </button>
       </div>
     </div>
