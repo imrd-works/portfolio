@@ -6,6 +6,7 @@ import { createAppRouter } from '@/router'
 import { createAppI18n, setI18nLocale } from '@/i18n'
 import { DEFAULT_LOCALE, localeFromPath, type AppLocale } from '@/app/config/site'
 import '@/assets/styles/main.scss'
+import { vInkIn } from '@/shared/directives/inkIn'
 
 export interface CreateAppOptions {
   /** Render on the server (memory history, no DOM). */
@@ -41,6 +42,7 @@ export function createPortfolioApp({ ssr = false, hydrate = false, head }: Creat
   app.use(router)
   app.use(i18n)
   app.use(head)
+  app.directive('ink-in', vInkIn)
 
   return { app, router } satisfies PortfolioApp
 }

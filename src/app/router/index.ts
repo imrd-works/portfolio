@@ -20,6 +20,10 @@ export function createAppRouter(ssr = false): Router {
       if (from === START_LOCATION) return { top: 0 }
       // An anchor, not one of the overlay routes the page keeps in the hash.
       if (/^#[\w-]+$/.test(to.hash)) return { el: to.hash, behavior: 'smooth' }
+      // The same page again: an overlay the page keeps in the hash (#/work/…, pushed past the
+      // router) was closed with a step back. The reader stays where they were, not sent to
+      // the top or to a place remembered from some earlier visit of this entry.
+      if (to.path === from.path) return false
       // the router remembers the scroll only for going back and forward
       if (savedPosition) return savedPosition
       // Switching RU <-> EN is the same page in another language: stay put. The two

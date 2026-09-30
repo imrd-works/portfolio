@@ -101,7 +101,10 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <header class="exp__head">
+        <header
+          v-ink-in
+          class="exp__head"
+        >
           <div class="exp__eyebrow">{{ t('home.experience.eyebrow') }}</div>
           <h2 class="exp__title">{{ t('home.experience.title') }}</h2>
         </header>

@@ -230,12 +230,23 @@ onBeforeUnmount(() => {
     ></canvas>
 
     <div class="contact__inner">
-      <p class="contact__eyebrow">{{ t('home.contact.eyebrow') }}</p>
-      <h2 class="contact__title">{{ t('home.contact.title') }}</h2>
+      <p
+        v-ink-in
+        class="contact__eyebrow"
+      >
+        {{ t('home.contact.eyebrow') }}
+      </p>
+      <h2
+        v-ink-in="1"
+        class="contact__title"
+      >
+        {{ t('home.contact.title') }}
+      </h2>
 
       <div class="contact__spread">
         <form
           v-if="!sent"
+          v-ink-in="2"
           class="contact__letter"
           novalidate
           @submit.prevent="submit"
@@ -526,7 +537,10 @@ onBeforeUnmount(() => {
           </button>
         </div>
 
-        <aside class="contact__address">
+        <aside
+          v-ink-in="3"
+          class="contact__address"
+        >
           <p
             v-for="row in address"
             :key="row.id"
@@ -563,7 +577,10 @@ onBeforeUnmount(() => {
         loading="lazy"
       />
 
-      <footer class="contact__sign">
+      <footer
+        v-ink-in
+        class="contact__sign"
+      >
         <span>{{ t('home.footer.name') }}</span>
         <RouterLink
           class="contact__sign-link"

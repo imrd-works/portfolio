@@ -111,3 +111,18 @@
     transform: none;
   }
 }
+
+// `v-ink-in` (shared/directives/inkIn.ts): a block comes up through the paper the first
+// time the reader gets to it. Not reached yet, it is blurred and not there; then it comes
+// through, after its own delay when several come one after another.
+[data-ink-in] {
+  transition:
+    opacity 1s ease var(--ink-in-delay, 0ms),
+    filter 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) var(--ink-in-delay, 0ms);
+}
+
+[data-ink-in='wait'] {
+  filter: blur(10px);
+  opacity: 0;
+  transition: none;
+}
