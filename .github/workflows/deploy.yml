@@ -151,11 +151,9 @@ jobs:
           mv -Tf -- "$next" "$root/current"
 
           if ! curl --fail --silent --show-error --location --max-time 15 --noproxy '*' \
-              --resolve rassomakhin.com:80:127.0.0.1 \
-              --resolve rassomakhin.com:443:127.0.0.1 \
-              --resolve www.rassomakhin.com:80:127.0.0.1 \
-              --resolve www.rassomakhin.com:443:127.0.0.1 \
-              http://rassomakhin.com/ \
+              --resolve vds.rassomakhin.com:80:127.0.0.1 \
+              --resolve vds.rassomakhin.com:443:127.0.0.1 \
+              http://vds.rassomakhin.com/ \
               | cmp -s - "$release/index.html"; then
             if [[ -n "$previous" ]]; then
               ln -s -- "$previous" "$next"
