@@ -1,13 +1,22 @@
-name: Deploy frontend to Object Storage
+name: Deploy frontend to Yandex and FirstVDS
 
 on:
   push:
     branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portfolio-production-deploy
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     if: github.repository == 'imrd-works/portfolio-prod'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -15,21 +24,43 @@ jobs:
           node-version: 22
           cache: npm
 
-      # `npm run build` = client bundle -> SSR bundle -> prerender every route
-      # to static HTML -> verify the output actually contains the page.
-      # VITE_SITE_URL must be set here: canonical URLs, hreflang, Open Graph,
-      # JSON-LD, robots.txt and sitemap.xml are all absolute.
-      - name: Install & build
+      - name: Install and build
         env:
           VITE_CONTACT_API_URL: ${{ secrets.VITE_CONTACT_API_URL }}
-          VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
+          VITE_SITE_URL: ${{ secrets.VITE_SITE_URL || 'https://rassomakhin.com' }}
           VITE_GOOGLE_SITE_VERIFICATION: ${{ secrets.VITE_GOOGLE_SITE_VERIFICATION }}
           VITE_YANDEX_VERIFICATION: ${{ secrets.VITE_YANDEX_VERIFICATION }}
           VITE_YANDEX_METRIKA_ID: ${{ secrets.VITE_YANDEX_METRIKA_ID }}
           VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID }}
         run: |
+          set -euo pipefail
           npm ci
           npm run build
+          test -s dist/index.html
+          test -s dist/en/index.html
+          test -s dist/404.html
+
+      - name: Save production build
+        uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-dist
+          path: dist/
+          if-no-files-found: error
+          include-hidden-files: true
+          overwrite: true
+          retention-days: 7
+
+  deploy-yandex:
+    name: Publish to Yandex Object Storage
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download production build
+        uses: actions/download-artifact@v4
+        with:
+          name: portfolio-dist
+          path: dist
 
       - name: Sync to bucket
         uses: jakejarvis/s3-sync-action@v0.5.1
@@ -42,3 +73,103 @@ jobs:
           AWS_S3_ENDPOINT: https://storage.yandexcloud.net
           AWS_REGION: ru-central1
           SOURCE_DIR: dist
+
+  deploy-vds:
+    name: Publish to FirstVDS
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VDS_HOST: '185.63.191.175'
+      VDS_USER: portfolio-deploy
+      VDS_PORT: '22'
+      DEPLOY_ROOT: /var/www/rassomakhin.com
+      RELEASE_ID: ${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Download production build
+        uses: actions/download-artifact@v4
+        with:
+          name: portfolio-dist
+          path: dist
+
+      - name: Configure SSH
+        env:
+          VDS_SSH_KEY: ${{ secrets.VDS_SSH_KEY }}
+          VDS_KNOWN_HOSTS: ${{ secrets.VDS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          : "${VDS_SSH_KEY:?Add VDS_SSH_KEY to portfolio-prod Actions secrets}"
+          : "${VDS_KNOWN_HOSTS:?Add VDS_KNOWN_HOSTS to portfolio-prod Actions secrets}"
+          install -d -m 700 "$RUNNER_TEMP/portfolio-ssh"
+          printf '%s\n' "$VDS_SSH_KEY" > "$RUNNER_TEMP/portfolio-ssh/id_ed25519"
+          printf '%s\n' "$VDS_KNOWN_HOSTS" > "$RUNNER_TEMP/portfolio-ssh/known_hosts"
+          chmod 600 "$RUNNER_TEMP/portfolio-ssh/id_ed25519" "$RUNNER_TEMP/portfolio-ssh/known_hosts"
+          ssh-keygen -y -f "$RUNNER_TEMP/portfolio-ssh/id_ed25519" > /dev/null
+          ssh-keygen -F "$VDS_HOST" -f "$RUNNER_TEMP/portfolio-ssh/known_hosts" > /dev/null
+
+      - name: Upload and activate release
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v rsync > /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y rsync
+          fi
+
+          ssh_options=(
+            -i "$RUNNER_TEMP/portfolio-ssh/id_ed25519"
+            -p "$VDS_PORT"
+            -o BatchMode=yes
+            -o IdentitiesOnly=yes
+            -o StrictHostKeyChecking=yes
+            -o "UserKnownHostsFile=$RUNNER_TEMP/portfolio-ssh/known_hosts"
+            -o ConnectTimeout=10
+            -o ServerAliveInterval=15
+            -o ServerAliveCountMax=3
+          )
+          target="$VDS_USER@$VDS_HOST"
+          release="$DEPLOY_ROOT/releases/$RELEASE_ID"
+
+          ssh "${ssh_options[@]}" "$target" "mkdir -p -- '$release'"
+          printf -v rsync_ssh '%q ' ssh "${ssh_options[@]}"
+          rsync -rtz --chmod=D755,F644 --rsh="$rsync_ssh" -- dist/ "$target:$release/"
+
+          ssh "${ssh_options[@]}" "$target" bash -s -- "$DEPLOY_ROOT" "$RELEASE_ID" <<'REMOTE'
+          set -euo pipefail
+          root="$1"
+          release="$root/releases/$2"
+          next="$root/.current-$2"
+          test -s "$release/index.html"
+          test -s "$release/en/index.html"
+          test -s "$release/404.html"
+          if [[ -e "$root/current" && ! -L "$root/current" ]]; then
+            printf '%s\n' 'current must be a symlink; run prepare-vds.sh first' >&2
+            exit 1
+          fi
+          previous="$(readlink -- "$root/current" || true)"
+          ln -s -- "$release" "$next"
+          mv -Tf -- "$next" "$root/current"
+
+          if ! curl --fail --silent --show-error --location --max-time 15 --noproxy '*' \
+              --resolve rassomakhin.com:80:127.0.0.1 \
+              --resolve rassomakhin.com:443:127.0.0.1 \
+              --resolve www.rassomakhin.com:80:127.0.0.1 \
+              --resolve www.rassomakhin.com:443:127.0.0.1 \
+              http://rassomakhin.com/ \
+              | cmp -s - "$release/index.html"; then
+            if [[ -n "$previous" ]]; then
+              ln -s -- "$previous" "$next"
+              mv -Tf -- "$next" "$root/current"
+            else
+              rm -- "$root/current"
+            fi
+            printf '%s\n' 'Nginx did not serve the uploaded index.html; restored the previous release' >&2
+            exit 1
+          fi
+          printf 'Activated release %s\n' "$2"
+          REMOTE
+
+      - name: Remove temporary SSH credentials
+        if: always()
+        run: |
+          rm -f -- "$RUNNER_TEMP/portfolio-ssh/id_ed25519" "$RUNNER_TEMP/portfolio-ssh/known_hosts"
